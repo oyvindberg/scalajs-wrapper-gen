@@ -16,10 +16,20 @@ object RunGenerate extends App{
     |
     |import japgolly.scalajs.react._
     |import scala.scalajs.js
+    |import scala.scalajs.js.`|`
   """.stripMargin
 
-  val outFiles = Component.components flatMap ParseComponents.apply
+  val outFiles = Component.components map ParseComponents.apply
   outFiles foreach {
-    case OutFile(file, content) => printToFile(new File(dest, file + ".scala"))(_.print(prelude + content))
+    case OutFile(file, content, secondaries) =>
+      printToFile(new File(dest, file + ".scala")){
+        w =>
+          w.println(prelude + content)
+          secondaries.foreach{
+            case SecondaryOutFile(_, c) =>
+              w.println("")
+              w.println(c)
+          }
+      }
   }
 }

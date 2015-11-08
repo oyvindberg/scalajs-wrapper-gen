@@ -83,24 +83,22 @@ object Component {
     val name = "MuiAvatar"
     val json = """[{"name":"Props","infoArray":[{"name":"icon","type":"element","header":"optional","desc":"This is the SvgIcon or FontIcon to be used inside the avatar."},{"name":"backgroundColor","type":"string","header":"default: grey400","desc":"The backgroundColor of the avatar. Does not apply to image avatars."},{"name":"color","type":"string","header":"default: white","desc":"The icon or letter color."},{"name":"size","type":"number","header":"default: 40","desc":"This is the size of the avatar in pixels"},{"name":"src","type":"string","header":"optional","desc":"If passed in, this component will render an img element. Otherwise, a div will be rendered."},{"name":"style","type":"object","header":"optional","desc":"Override the inline-styles of the root element."}]}]"""
   }
+
   trait MuiButtons extends Component {
+    override val shared = Some(ButtonSharedComponent)
     val json = """[{"name":"Flat Button","infoArray":[{"name":"containerElement","type":"oneOfType [string, element]","header":"default: button","desc":"This component will render a button element by default and an anchor element if linkButton is set to true. However, you can override this behavior by passing in a string or another react element into this prop. This is useful for generating link buttons with the react router link element."},{"name":"disabled","type":"bool","header":"optional","desc":"Disables the button if set to true."},{"name":"hoverColor","type":"string","header":"optional","desc":"Override the inline hover color of the button's root element."},{"name":"label or children","type":"string (label) or HTML/React elements (children)","header":"required","desc":"This is what will be displayed inside the button. If a label is specified, the text within the label prop will be displayed. Otherwise, the component will expect children which will then be displayed (in our example, we are nesting an <input type=\"file\" />and a span that acts as our label to be displayed.) This only applies to flat and raised buttons."},{"name":"labelStyle","type":"object","header":"optional","desc":"Override the inline-styles of the button's label element."},{"name":"labelPosition","type":"oneOf [\"before\", \"after\"]","header":"default: \"before\"","desc":"Place label before or after the passed children"},{"name":"linkButton","type":"bool","header":"default: false","desc":"If true, an anchor element will be generated instead of a button element."},{"name":"primary","type":"bool","header":"default: false","desc":"If true, the button will use the primary button colors."},{"name":"secondary","type":"bool","header":"default: false","desc":"If true, the button will use the secondary button colors."},{"name":"rippleColor","type":"string","header":"optional","desc":"Override the inline color of the button's ripple element."},{"name":"style","type":"object","header":"optional","desc":"Override the inline-styles of the button's root element."}]},{"name":"Raised Button","infoArray":[{"name":"containerElement","type":"oneOfType [string, element]","header":"default: button","desc":"This component will render a button element by default and an anchor element if linkButton is set to true. However, you can override this behavior by passing in a string or another react element into this prop. This is useful for generating link buttons with the react router link element."},{"name":"disabled","type":"bool","header":"optional","desc":"Disables the button if set to true."},{"name":"fullWidth","type":"bool","header":"optional","desc":"If true, will change the width of the button to span the full width of the parent."},{"name":"label or children","type":"string (label) or HTML/React elements (children)","header":"required","desc":"This is what will be displayed inside the button. If a label is specified, the text within the label prop will be displayed. Otherwise, the component will expect children which will then be displayed (in our example, we are nesting an <input type=\"file\" />and a span that acts as our label to be displayed.) This only applies to flat and raised buttons."},{"name":"labelPosition","type":"oneOf [\"before\", \"after\"]","header":"default: \"before\"","desc":"Place label before or after the passed children"},{"name":"labelStyle","type":"object","header":"optional","desc":"Override the inline-styles of the button's label element."},{"name":"linkButton","type":"bool","header":"default: false","desc":"If true, an anchor element will be generated instead of a button element."},{"name":"primary","type":"bool","header":"default: false","desc":"If true, the button will use the primary button colors."},{"name":"secondary","type":"bool","header":"default: false","desc":"If true, the button will use the secondary button colors."},{"name":"backgroundColor","type":"string","header":"optional","desc":"Override the background color. Always takes precedence unless the button is disabled."},{"name":"labelColor","type":"string","header":"optional","desc":"Override the label color. Always takes precedence unless the button is disabled."},{"name":"disabledBackgroundColor","type":"string","header":"optional","desc":"Override the background color if the button is disabled."},{"name":"disabledLabelColor","type":"string","header":"optional","desc":"Override the label color if the button is disabled."},{"name":"style","type":"object","header":"optional","desc":"Override the inline-styles of the button's root element."}]},{"name":"Floating Action Button","infoArray":[{"name":"backgroundColor","type":"string","header":"optional","desc":"This value will override the default background color for the button. However it will not override thedefault disabled background color. This has to be set separately using the disabledColor attribute."},{"name":"containerElement","type":"oneOfType [string, element]","header":"default: button","desc":"This component will render a button element by default and an anchor element if linkButton is set to true. However, you can override this behavior by passing in a string or another react element into this prop. This is useful for generating link buttons with the react router link element."},{"name":"disabled","type":"bool","header":"optional","desc":"Disables the button if set to true."},{"name":"disabledColor","type":"string","header":"optional","desc":"This value will override the default background color for the button when it is disabled."},{"name":"iconClassName","type":"string","header":"optional","desc":"The icon within the FloatingActionButton is a FontIcon component. This property is the classname of the icon to be displayed inside the button. An alternative to adding an iconClassName would be to manually insert a FontIcon component or custom SvgIcon component or as a child of FloatingActionButton."},{"name":"iconStyle","type":"object","header":"optional","desc":"This is the equivalent to iconClassName except that it is used for overriding the inline-styles of the FontIcon component."},{"name":"linkButton","type":"bool","header":"default: false","desc":"If true, an anchor element will be generated instead of a button element."},{"name":"mini","type":"bool","header":"default: false","desc":"If true, the button will be a small floating action button."},{"name":"secondary","type":"bool","header":"default: false","desc":"If true, the button will use the secondary button colors."},{"name":"style","type":"object","header":"optional","desc":"Override the inline-styles of the button's root element."}]}]"""
   }
-
   object MuiFlatButton extends MuiButtons {
     val name = "MuiFlatButton"
     override val overrideProps = Some("Flat Button")
-    override val shared = Some(ButtonSharedComponent)
   }
   object MuiRaisedButton extends MuiButtons {
     val name = "MuiRaisedButton"
     override val overrideProps = Some("Raised Button")
-    override val shared = Some(ButtonSharedComponent)
   }
   object MuiFloatingActionButton extends MuiButtons {
     val name = "MuiFloatingActionButton"
     override val overrideProps = Some("Floating Action Button")
-    override val shared = Some(ButtonSharedComponent)
   }
 
   object MuiDatePicker extends Component {
@@ -172,9 +170,16 @@ object Component {
     val json = """[{"name":"Props","infoArray":[{"name":"circle","type":"bool","header":"default: false","desc":"Set to true to generate a circlular paper container."},{"name":"rounded","type":"bool","header":"default: true","desc":"By default, the paper container will have a border radius. Set this to false to generate a container with sharp corners."},{"name":"style","type":"object","header":"optional","desc":"Override the inline-styles of Paper's root element."},{"name":"zDepth","type":"number (0-5)","header":"default: 1","desc":"This number represents the zDepth of the paper shadow."},{"name":"transitionEnabled","type":"bool","header":"default: true","desc":"Set to false to disable CSS transitions for the paper element."}]}]"""
   }
 
-  object MuiProgress extends Component {
-    val name = "MuiProgress"
+  trait MuiProgress extends Component {
     val json = """[{"name":"Props","infoArray":[{"name":"mode","type":"one of: determinate, indeterminate","header":"default: indeterminate","desc":"The mode of show your progress, indeterminate for when there is no value for progress. "},{"name":"value","type":"number","header":"default: 0","desc":"The value of progress, only works in determinate mode. "},{"name":"max","type":"number","header":"default: 100","desc":"The max value of progress, only works in determinate mode. "},{"name":"min","type":"number","header":"default: 0","desc":"The min value of progress, only works in determinate mode. "},{"name":"size","type":"number","header":"default: 1","desc":"The size of the progress."}]}]"""
+  }
+
+  object MuiLinearProgress extends MuiProgress {
+    val name = "MuiLinearProgress"
+  }
+
+  object MuiCircularProgress extends MuiProgress {
+    val name = "MuiCircularProgress"
   }
 
   object MuiRefreshIndicator extends Component {
@@ -333,7 +338,7 @@ object Component {
     MuiMenu,
     MuiMenuItem,
     MuiPaper,
-    MuiProgress,
+    MuiCircularProgress, MuiLinearProgress,
     MuiRaisedButton,
     MuiRefreshIndicator,
     MuiSlider,

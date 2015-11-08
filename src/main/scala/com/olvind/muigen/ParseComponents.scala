@@ -8,10 +8,11 @@ object StringUtils{
   def padTo(s: String)(n: Int) = s + (" " * (n - s.length))
 }
 
-case class OutFile(filename: String, content: String)
+case class OutFile(filename: String, content: String, secondaries: Seq[SecondaryOutFile])
+case class SecondaryOutFile(filename: String, content: String)
 
 object ParseComponents{
-  def apply(comp: Component): Seq[OutFile] = {
+  def apply(comp: Component): OutFile = {
 
     comp.json.decodeEither[List[JsonSection]] match {
       case \/-(sections) =>
@@ -22,8 +23,8 @@ object ParseComponents{
         val out                = OutComponentClass(comp.name)
         val methodClassOpt     = methodSectionOpt.map(_ => comp.name + "M").map(OutMethodClass)
 
-        out.addField(OptField("ref", OutParam.mapType(comp.name, "ref")("string"), None))
-        out.addField(OptField("key", OutParamClass(methodClassOpt.fold("String")(_.name + " => Unit")), None))
+        out.addField(OptField("key", OutParam.mapType(comp.name, "key")("string"), None))
+        out.addField(OptField("ref", OutParamClass(methodClassOpt.fold("String")(_.name + " => Unit")), None))
 
         propsSection.infoArray.sortBy(_.name).foreach{ f =>
           if (f.name == "label or children") out.addField(OptField("label", OutParamClass("String"), Some(f)))
@@ -43,12 +44,12 @@ object ParseComponents{
               methodOut.addField(ReqField(f.name, OutParamClass("Unit"), Some(f)))
             }
         }
-        outComponent(comp, out) ++ (methodClassOpt map outMethodClass)
+        outComponent(comp, out, methodClassOpt)
       case -\/(error) => throw new RuntimeException(error)
     }
   }
 
-  def outComponent(comp: Component, c: OutComponentClass): Seq[OutFile] = {
+  def outComponent(comp: Component, c: OutComponentClass, methodClassOpt: Option[OutMethodClass]): OutFile = {
     val fs = c.fieldStats
     val p1 = s"\ncase class ${comp.name}("
     val p2 = c.fields.map(_.toString(fs)).mkString("", ",\n", ")")
@@ -61,32 +62,42 @@ object ParseComponents{
       |  }
       |}
     """.stripMargin
-    val content = Seq(p1, p2, body).mkString("\n")
+    val bodyChildren =
+      s"""{
+         |
+         |  def apply(children: ReactNode*) = {
+         |    val props = JSMacro[${comp.name}](this)
+         |    val f = React.asInstanceOf[js.Dynamic].createFactory(Mui.${comp.name.replace("Mui", "")})
+         |    f(props, children.toJsArray).asInstanceOf[ReactComponentU_]
+         |  }
+         |}""".stripMargin
 
-    Seq(OutFile(comp.name, content)) ++ (c.enumClases map outEnumClass)
+    val content = Seq(p1, p2, if (comp.children) bodyChildren else body).mkString("\n")
+
+    OutFile(comp.name, content, (c.enumClases map outEnumClass) ++ (methodClassOpt map outMethodClass))
   }
 
-  def outEnumClass(c: OutEnumClass): OutFile = {
+  def outEnumClass(c: OutEnumClass): SecondaryOutFile = {
     val content =
     s"""
        |class ${c.name}(val value: String) extends AnyVal
        |object ${c.name}{
        |${c.members.map {
         m =>
-          val memberName = if (m.forall(_.isDigit)) "_" + m else m
+          val memberName = if (m.head.isDigit) "_" + m else m
           val memberName_ = memberName.toUpperCase.replace("-", "_")
           s"""\tval $memberName_ = new ${c.name}("$m")"""
         }.mkString("\n")}
        |}""".stripMargin
-    OutFile(c.name, content)
+    SecondaryOutFile(c.name, content)
   }
 
-  def outMethodClass(c: OutMethodClass): OutFile = {
+  def outMethodClass(c: OutMethodClass): SecondaryOutFile = {
     val content = s"""
        |@js.native
        |class ${c.name} extends js.Object{
        |${c.fields.map(m => s"${m.comment}\tdef ${m.name}(): Unit = js.native").mkString("\n\n")}
        |}""".stripMargin
-    OutFile(c.name, content)
+    SecondaryOutFile(c.name, content)
   }
 }
