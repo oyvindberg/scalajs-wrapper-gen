@@ -21,7 +21,7 @@ sealed trait OutField{
 final case class  ReqField(name: String, baseType: OutParam, jsonOpt: Option[JsonField]) extends OutField{
   override val typeName = baseType.typeName
   override def toString(fs: FieldStats): String =
-    s"$comment\t${padTo(name + ": ")(fs.maxFieldNameLen + 2)}${typeName}"
+    s"$comment\t${padTo(name + ": ")(fs.maxFieldNameLen + 2)}$typeName"
 }
 
 final case class  OptField(name: String, baseType: OutParam, jsonOpt: Option[JsonField]) extends OutField{
@@ -54,7 +54,8 @@ object OutParam {
   }
 
   def mapType(compName: String, fieldName: String)(t: String): OutParam = {
-    def is(s: String) = fieldName.toLowerCase contains s.toLowerCase
+    def is(s: String) =
+      fieldName.toLowerCase contains s.toLowerCase
     def split(drop: Int, s: String) =
       s.split("[\"\\(\\)\\[\\],\\W]").map(_.trim).filterNot(_.isEmpty).drop(drop)
 
@@ -80,8 +81,8 @@ object OutParam {
           else if (is("wheel")) "ReactWheelEvent"
           else if (is("drag"))  "ReactDragEvent"
           else                  "ReactEvent"
-
         OutParamClass(eventType)
+
       case "time"                                         => OutParamClass("js.Date")
       case "date" | "date object"                         => OutParamClass("js.Date")
       case "string"                                       => OutParamClass("String")
@@ -98,24 +99,24 @@ object OutParam {
       case enum if enum.startsWith("one of")              => OutParamEnum(compName, fieldName, split(2, enum))
       case "func" | "function"                            =>
         (compName, fieldName) match {
-          case ("MuiDatePicker", "DateTimeFormat")    => OutParamClass("js.Date => String")
-          case ("MuiDatePicker", "formatDate")        => OutParamClass("js.Date => String")
-          case ("MuiDatePicker", "shouldDisableDate") => OutParamClass("js.Date => Boolean")
-          case ("EnhancedSwitch", "onSwitch")         => OutParamClass("(ReactEvent, Boolean) => Callback")
-          case ("MuiTextField", "onEnterKeyDown")     => OutParamClass("ReactEventI => Callback")
+          case ("MuiDatePicker",  "DateTimeFormat")    => OutParamClass("js.Date => String")
+          case ("MuiDatePicker",  "formatDate")        => OutParamClass("js.Date => String")
+          case ("MuiDatePicker",  "shouldDisableDate") => OutParamClass("js.Date => Boolean")
+          case ("EnhancedSwitch", "onSwitch")          => OutParamClass("(ReactEvent, Boolean) => Callback")
+          case ("MuiTextField",   "onEnterKeyDown")    => OutParamClass("ReactEventI => Callback")
         }
-      case "buttonClicked" => OutParamClass("ReactEvent")
-      case "isKeyboardFocused" => OutParamClass("Boolean")
-      case "this" => OutParamClass("js.Any")
-      case "checked" => OutParamClass("Boolean")
-      case "selected" => OutParamClass("Boolean")
-      case "toggled" => OutParamClass("Boolean")
-      case "selectedRows" => OutParamClass("String | js.Array[Int]")
-      case "rowNumber" => OutParamClass("Int")
-      case "columnId" => OutParamClass("Int")
-      case "tab" => OutParamClass("js.Any")
-      case "ReactClass" => OutParamClass("js.Any")
-      case "e" => OutParamClass("ReactEvent")
+      case "buttonClicked"                                => OutParamClass("ReactEvent")
+      case "isKeyboardFocused"                            => OutParamClass("Boolean")
+      case "this"                                         => OutParamClass("js.Any")
+      case "checked"                                      => OutParamClass("Boolean")
+      case "selected"                                     => OutParamClass("Boolean")
+      case "toggled"                                      => OutParamClass("Boolean")
+      case "selectedRows"                                 => OutParamClass("String | js.Array[Int]")
+      case "rowNumber"                                    => OutParamClass("Int")
+      case "columnId"                                     => OutParamClass("Int")
+      case "tab"                                          => OutParamClass("js.Any")
+      case "ReactClass"                                   => OutParamClass("js.Any")
+      case "e"                                            => OutParamClass("ReactEvent")
     }
   }
 }
