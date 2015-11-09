@@ -19,14 +19,14 @@ object ParseComponents{
         val sMap: Map[String, JsonSection] = sections.map(s => s.name -> s).toMap
         val methodSectionOpt   = sMap.get(comp.overrideMethods getOrElse "Methods")
         val eventsSectionOpt   = sMap.get(comp.overrideEvents getOrElse "Events")
-        val propsSection       = sMap(comp.overrideProps getOrElse  "Props")
+        val propsFields       = comp.propsSections.map(sMap.apply).flatMap(_.infoArray)
         val out                = OutComponentClass(comp.name)
         val methodClassOpt     = methodSectionOpt.map(_ => comp.name + "M").map(OutMethodClass)
 
         out.addField(OptField("key", OutParam.mapType(comp.name, "key")("string"), None))
         out.addField(OptField("ref", OutParamClass(methodClassOpt.fold("String")(_.name + " => Unit")), None))
 
-        propsSection.infoArray.sortBy(_.name).foreach{ f =>
+        propsFields.sortBy(_.name).foreach{ f =>
           if (f.name == "label or children") out.addField(OptField("label", OutParamClass("String"), Some(f)))
           else if (f.isRequired) out.addField(ReqField(f.name, OutParam.mapType(comp.name, f.name)(f.`type` getOrElse f.header), Some(f)))
           else              out.addField(OptField(f.name, OutParam.mapType(comp.name, f.name)(f.`type` getOrElse f.header), Some(f)))
@@ -45,7 +45,7 @@ object ParseComponents{
             }
         }
         outComponent(comp, out, methodClassOpt)
-      case -\/(error) => throw new RuntimeException(error)
+      case -\/(error) => throw new RuntimeException(comp.toString + error)
     }
   }
 
@@ -72,7 +72,7 @@ object ParseComponents{
          |  }
          |}""".stripMargin
 
-    val content = Seq(p1, p2, if (comp.children) bodyChildren else body).mkString("\n")
+    val content = (Seq(p1, p2, if (comp.children) bodyChildren else body) ++ comp.postlude.toSeq).mkString("\n")
 
     OutFile(comp.name, content, (c.enumClases map outEnumClass) ++ (methodClassOpt map outMethodClass))
   }
