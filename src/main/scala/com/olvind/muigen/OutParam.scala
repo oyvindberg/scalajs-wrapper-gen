@@ -18,7 +18,8 @@ sealed trait OutField{
     }
   final def intro(fs: FieldStats) = {
     val fixedName = if (name == "type") "`type`" else name
-    s"$comment\t${padTo(fixedName + ": ")(fs.maxFieldNameLen + 2)}"
+    val deprecated = if (jsonOpt.toString.toLowerCase.contains("deprecated")) "\t@deprecated\n" else ""
+    s"$comment$deprecated\t${padTo(fixedName + ": ")(fs.maxFieldNameLen + 2)}"
   }
 }
 
@@ -64,6 +65,68 @@ object OutParam {
       s.split("[\"\\(\\)\\[\\],\\s]").map(_.trim).filterNot(_.isEmpty).drop(drop)
 
     (compName, fieldName, t) match {
+        /* Double => Int */
+      case (_,                     "autoHideDuration",     "number")              => OutParamClass("Int")
+      case (_,                     "cellHeight",           "number")              => OutParamClass("Int")
+      case (_,                     "cols",                 "number")              => OutParamClass("Int")
+      case (_,                     "columnNumber",         "number")              => OutParamClass("Int")
+      case (_,                     "columnId",             "number")              => OutParamClass("Int")
+      case (_,                     "initialSelectedIndex", "number")              => OutParamClass("Int")
+      case (_,                     "left",                 "number")              => OutParamClass("Int")
+      case (_,                     "maxHeight",            "number")              => OutParamClass("Int")
+      case (_,                     "nestedLevel",          "number")              => OutParamClass("Int")
+      case (_,                     "padding",              "number")              => OutParamClass("Int")
+      case (_,                     "rowNumber",            "number")              => OutParamClass("Int")
+      case (_,                     "rows",                 "number")              => OutParamClass("Int")
+      case (_,                     "rowsMax",              "number")              => OutParamClass("Int")
+      case (_,                     "selectedIndex",        "number")              => OutParamClass("Int")
+      case (_,                     "size",                 "number")              => OutParamClass("Int")
+      case (_,                     "top",                  "number")              => OutParamClass("Int")
+      case (_,                     "touchTapCloseDelay",   "number")              => OutParamClass("Int")
+      case (_,                     "zDepth",               _       )              => OutParamClass("MuiZDepth")
+
+      case (_, _, e) if e.toLowerCase.contains("index")          => OutParamClass("Int")
+//      case (_, _, e) if e.toLowerCase.contains("number")         => OutParamClass("Int")
+
+      case ("MuiDatePicker",       "DateTimeFormat",       "func")                => OutParamClass("js.Function")
+      case ("MuiDatePicker",       "formatDate",           "function")            => OutParamClass("js.Date => String")
+      case ("MuiDatePicker",       "shouldDisableDate",    "function")            => OutParamClass("js.Date => Boolean")
+      case ("MuiDatePicker",       "wordings",             "object")              => OutParamClass("Wordings")
+      case ("MuiDialog",           "actions",              "array")               => OutParamClass("js.Array[ReactElement]")
+      case ("MuiDialog",           "onRequestClose",       "buttonClicked")       => OutParamClass("ReactEvent")
+      case ("MuiDropDownMenu",     "menuItemStyle",        "array")               => OutParamClass("CssProperties")
+      case ("MuiDropDownMenu",     "menuItems",            "array")               => OutParamClass("js.Array[MuiDropDownMenuItem]")
+      case ("MuiDropDownMenu",     "onChange",             "menuItem")            => OutParamClass("js.Any") //todo MuiDropDownMenuItem
+      case ("MuiIconMenu",         "iconButtonElement",    "element: IconButton") => OutParamClass("ReactElement")
+      case ("MuiIconMenu",         "value",                "array")               => OutParamClass("js.Array[ReactElement]")
+      case ("MuiIconMenu",         "onItemTouchTap",       "item")                => OutParamClass("ReactElement")
+      case ("MuiIconMenu",         "onChange",             "item")                => OutParamClass("ReactElement")
+      case ("MuiIconMenu",         "onChange",             "value")               => OutParamClass("js.UndefOr[String]")
+      case ("MuiLeftNav",          "menuItems",            "array")               => OutParamClass("js.Array[MuiMenuItemJson]")
+      case ("MuiLeftNav",          "onChange",             "menuItem")            => OutParamClass("js.Any") //todo
+      case ("MuiListItem",         "nestedItems",          "Array of elements")   => OutParamClass("js.Array[ReactElement]")
+      case ("MuiListItem",         "onKeyboardFocus",      "isKeyboardFocused")   => OutParamClass("Boolean")
+      case ("MuiListItem",         "onNestedListToggle",   "this")                => OutParamClass("js.Any") //todo wtf
+//      case ("MuiMenu",             "menuItems",            "array")               => OutParamClass("js.Array[MuiMenuItemJson]")
+      case ("MuiMenu",             "value",                "array")               => OutParamClass("js.Array[String]")
+      case ("MuiMenu",             "onItemTouchTap",       "item")                => OutParamClass("ReactElement")
+      case ("MuiMenu",             "onChange",             "value")               => OutParamClass("String | js.Array[String]")
+      case ("MuiPopover",          _,                      "origin object")       => OutParamClass("Origin")
+      case ("MuiPopover",          "onRequestClose",       "func")                => OutParamClass("Origin")
+      case ("MuiRadioButtonGroup", "onChange",             "selected")            => OutParamClass("String")
+      case ("MuiSlider",           "onChange",             "value")               => OutParamClass("Double")
+      case ("MuiSelectField",      "selectFieldRoot",      "object")              => OutParamClass("CssProperties")
+      case ("MuiSelectField",      "onChange",             "name")                => OutParamClass("String")
+      case ("MuiSelectField",      "menuItems",            "array")               => OutParamClass("js.Array[MuiSelectItem]")
+      case ("MuiTable",            "onRowSelection",       "selectedRows")        => OutParamClass("String | js.Array[Int]")
+      case ("MuiTable",            _,                      "rowNumber")           => OutParamClass("Int")
+      case ("MuiTable",            _,                      "columnId")            => OutParamClass("Int")
+      case ("MuiTab",              "onActive",             "tab")                 => OutParamClass("ReactElement")
+      case ("MuiTabs",             "tabTemplate",          "ReactClass")          => OutParamClass("js.Any")
+      case ("MuiTabs",             "onChange",             "value")               => OutParamClass("String")
+      case ("MuiTabs",             "onChange",             "e")                   => OutParamClass("ReactEvent")
+      case ("MuiTabs",             "onChange",             "tab")                 => OutParamClass("ReactElement")
+      case ("MuiTextField",        "onEnterKeyDown",       "function")            => OutParamClass("js.Function")
       case (_, _, e) if e.contains("oneOfType")                  => OutParamClass((split(1, e) map mapType(compName, fieldName) map (_.typeName)).mkString(" | "))
       case (_, _, "string") if is("color")                       => OutParamClass("MuiColor")
 
@@ -76,9 +139,10 @@ object OutParam {
 
       case (_, _, "time")                                        => OutParamClass("js.Date")
       case (_, _, "date")                                        => OutParamClass("js.Date")
+      case (_, _, "instanceOf(Date)")                            => OutParamClass("js.Date")
       case (_, _, "string")                                      => OutParamClass("String")
       case (_, f, "object") if is("style")                       => OutParamClass("CssProperties")
-      case (_, _, "boolean")                                     => OutParamClass("Boolean")
+      case (_, _, "bool")                                        => OutParamClass("Boolean")
       case (_, _, "null")                                        => OutParamClass("js.UndefOr[Nothing]")
       case (_, _, "element")                                     => OutParamClass("ReactElement")
       case (_, _, "node")                                        => OutParamClass("ReactNode")
@@ -86,45 +150,10 @@ object OutParam {
       case (_, _, "integer")                                     => OutParamClass("Int")
       case (_, _, enum) if enum.startsWith("oneOf")              => OutParamEnum(compName, fieldName, split(1, enum))
       case (_, _, "checked")                                     => OutParamClass("Boolean")
-//      case (_, _, "selected")                                    => OutParamClass("Boolean")
+      //      case (_, _, "selected")                                    => OutParamClass("Boolean")
       case (_, _, "toggled")                                     => OutParamClass("Boolean")
       case (_, _, "string|ReactComponent")                       => OutParamClass("String | ReactElement")
-      case (_, _, e) if e.toLowerCase.contains("index")          => OutParamClass("Int")
-      case (_, _, e) if e.toLowerCase.contains("number")         => OutParamClass("Int")
 
-      case ("MuiDatePicker",       "DateTimeFormat",    "func")                => OutParamClass("js.Function")
-      case ("MuiDatePicker",       "formatDate",        "function")            => OutParamClass("js.Date => String")
-      case ("MuiDatePicker",       "shouldDisableDate", "function")            => OutParamClass("js.Date => Boolean")
-      case ("MuiDatePicker",       "wordings",          "object")              => OutParamClass("Wordings")
-      case ("MuiDialog",           "actions",           "array")               => OutParamClass("js.Array[ReactElement]")
-      case ("MuiDialog",           "onRequestClose",    "buttonClicked")       => OutParamClass("ReactEvent")
-      case ("MuiDropDownMenu",     "menuItemStyle",     "array")               => OutParamClass("CssProperties")
-      case ("MuiDropDownMenu",     "menuItems",         "array")               => OutParamClass("js.Array[MuiDropDownMenuItem]")
-      case ("MuiDropDownMenu",     "onChange",          "menuItem")            => OutParamClass("js.Any") //todo MuiDropDownMenuItem
-      case ("MuiIconMenu",         "iconButtonElement", "element: IconButton") => OutParamClass("ReactElement")
-      case ("MuiIconMenu",         "value",             "array")               => OutParamClass("js.Array[ReactElement]")
-      case ("MuiIconMenu",         "onItemTouchTap",    "item")                => OutParamClass("ReactElement")
-      case ("MuiIconMenu",         "onChange",          "item")                => OutParamClass("ReactElement")
-      case ("MuiIconMenu",         "onChange",          "value")               => OutParamClass("js.UndefOr[String]")
-      case ("MuiLeftNav",          "menuItems",         "array")               => OutParamClass("js.Array[MuiMenuItemJson]")
-      case ("MuiLeftNav",          "onChange",          "menuItem")            => OutParamClass("js.Any") //todo
-      case ("MuiListItem",         "nestedItems",       "Array of elements")   => OutParamClass("js.Array[ReactElement]")
-      case ("MuiListItem",         "onKeyboardFocus",   "isKeyboardFocused")   => OutParamClass("Boolean")
-      case ("MuiListItem",         "onNestedListToggle","this")                => OutParamClass("js.Any") //todo wtf
-      case ("MuiMenu",             "menuItems",         "array")               => OutParamClass("js.Array[MuiMenuItemJson]")
-      case ("MuiMenu",             "value",             "array")               => OutParamClass("js.Array[String]")
-      case ("MuiMenu",             "onItemTouchTap",    "item")                => OutParamClass("ReactElement")
-      case ("MuiMenu",             "onChange",          "value")               => OutParamClass("String")
-      case ("MuiRadioButtonGroup", "onChange",          "selected")            => OutParamClass("String")
-      case ("MuiSlider",           "onChange",          "value")               => OutParamClass("Double")
-      case ("MuiTable",            "onRowSelection",    "selectedRows")        => OutParamClass("String | js.Array[Int]")
-      case ("MuiTable",            _,                   "columnId")            => OutParamClass("String")
-      case ("MuiTab",              "onActive",          "tab")                 => OutParamClass("ReactElement")
-      case ("MuiTabs",             "tabTemplate",       "ReactClass")          => OutParamClass("js.Any")
-      case ("MuiTabs",             "onChange",          "value")               => OutParamClass("String")
-      case ("MuiTabs",             "onChange",          "e")                   => OutParamClass("ReactEvent")
-      case ("MuiTabs",             "onChange",          "tab")                 => OutParamClass("ReactElement")
-      case ("MuiTextField",        "onEnterKeyDown",    "function")            => OutParamClass("js.Function")
     }
   }
 }

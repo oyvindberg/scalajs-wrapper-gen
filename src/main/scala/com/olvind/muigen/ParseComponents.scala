@@ -96,7 +96,11 @@ object ParseComponents{
     val content = s"""
        |@js.native
        |class ${c.name} extends js.Object{
-       |${c.fields.map(m => s"${m.comment}\tdef ${m.name}(): Unit = js.native").mkString("\n\n")}
+       |${c.fields.map{m =>
+          val deprecated = if (m.asInstanceOf[Object].toString.toLowerCase.contains("deprecated")) "\t@deprecated\n" else ""
+          s"${m.comment}$deprecated\tdef ${m.name}(): Unit = js.native"
+          }.mkString("\n\n")
+         }
        |}""".stripMargin
     SecondaryOutFile(c.name, content)
   }
