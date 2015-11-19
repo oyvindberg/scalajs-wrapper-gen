@@ -19,7 +19,7 @@ object ParseComponents{
         val sMap: Map[String, JsonSection] = sections.map(s => s.name -> s).toMap
         val methodSectionOpt   = sMap.get(comp.overrideMethods getOrElse "Methods")
         val eventsSectionOpt   = sMap.get(comp.overrideEvents getOrElse "Events")
-        val propsFields       = comp.propsSections.map(sMap.apply).flatMap(_.infoArray)
+        val propsFields        = comp.propsSections.map(sMap.apply).flatMap(_.infoArray)
         val out                = OutComponentClass(comp.name)
         val methodClassOpt     = methodSectionOpt.map(_ => comp.name + "M").map(OutMethodClass)
 
@@ -37,6 +37,12 @@ object ParseComponents{
         }
         comp.shared.foreach(_.inheritProps.foreach(out.addField))
         comp.shared.foreach(_.inheritEvents.foreach(out.addField))
+
+        PropTypeLib.results.get(comp.name).foreach{
+          m => m.foreach{
+            case (n, f) => out.addField(f)
+          }
+        }
 
         methodSectionOpt zip methodClassOpt foreach {
           case (section: JsonSection, methodOut) =>

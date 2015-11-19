@@ -88,6 +88,7 @@ object OutParam {
       case (_, _, e) if e.toLowerCase.contains("index")          => OutParamClass("Int")
 //      case (_, _, e) if e.toLowerCase.contains("number")         => OutParamClass("Int")
 
+      case ("AppBar",              "onTitleTouchTap",      "func")                => OutParamClass("js.Function")
       case ("MuiDatePicker",       "DateTimeFormat",       "func")                => OutParamClass("js.Function")
       case ("MuiDatePicker",       "formatDate",           "function")            => OutParamClass("js.Date => String")
       case ("MuiDatePicker",       "shouldDisableDate",    "function")            => OutParamClass("js.Date => Boolean")
