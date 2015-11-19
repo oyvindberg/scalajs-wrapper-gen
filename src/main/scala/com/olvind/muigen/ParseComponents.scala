@@ -78,16 +78,19 @@ object ParseComponents{
   }
 
   def outEnumClass(c: OutEnumClass): SecondaryOutFile = {
+    val fixedNames: Seq[(String, String)] = c.members.map { m =>
+      val memberName = if (m.head.isDigit) "_" + m else m
+      (m, memberName.toUpperCase.replace("-", "_"))
+    }
     val content =
     s"""
        |class ${c.name}(val value: String) extends AnyVal
        |object ${c.name}{
-       |${c.members.map {
-        m =>
-          val memberName = if (m.head.isDigit) "_" + m else m
-          val memberName_ = memberName.toUpperCase.replace("-", "_")
-          s"""\tval $memberName_ = new ${c.name}("$m")"""
+       |${fixedNames.map {
+          case (original, fixed) =>
+            s"""\tval $fixed = new ${c.name}("$original")"""
         }.mkString("\n")}
+       |\tval values = ${fixedNames.map(_._2).toList}
        |}""".stripMargin
     SecondaryOutFile(c.name, content)
   }

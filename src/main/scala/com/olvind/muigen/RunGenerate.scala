@@ -2,7 +2,7 @@ package com.olvind.muigen
 
 import java.io.File
 
-object RunGenerate extends App{
+object RunGenerate extends App {
   val dest = new File(args.head)
   dest.mkdir()
 
