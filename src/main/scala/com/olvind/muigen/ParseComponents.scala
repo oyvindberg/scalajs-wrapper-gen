@@ -16,6 +16,10 @@ object ParseComponents{
 
     comp.json.decodeEither[List[JsonSection]] match {
       case \/-(sections) =>
+        val propTypes = PropTypeLib.results.getOrElse(comp.name,
+          throw new RuntimeException(s"No Proptypes found for ${comp.name}")
+        )
+
         val sMap: Map[String, JsonSection] = sections.map(s => s.name -> s).toMap
         val methodSectionOpt   = sMap.get(comp.overrideMethods getOrElse "Methods")
         val eventsSectionOpt   = sMap.get(comp.overrideEvents getOrElse "Events")
@@ -32,16 +36,14 @@ object ParseComponents{
           else              out.addField(OptField(f.name, OutParam.mapType(comp.name, f.name)(f.`type` getOrElse f.header), Some(f)))
         }
         eventsSectionOpt.toList.flatMap(_.infoArray).foreach { f =>
-          if (f.isRequired) out.addField(ReqField(f.name, OutParam.mapFunction(comp.name, f.name, f.`type` getOrElse f.header), Some(f)))
-          else              out.addField(OptField(f.name, OutParam.mapFunction(comp.name, f.name, f.`type` getOrElse f.header), Some(f)))
+          if (f.isRequired) out.addField(ReqField(f.name, OutParamClass(FunctionTypes(comp.name, f.name)), Some(f)))
+          else              out.addField(OptField(f.name, OutParamClass(FunctionTypes(comp.name, f.name)), Some(f)))
         }
         comp.shared.foreach(_.inheritProps.foreach(out.addField))
         comp.shared.foreach(_.inheritEvents.foreach(out.addField))
 
-        PropTypeLib.results.get(comp.name).foreach{
-          m => m.foreach{
-            case (n, f) => out.addField(f)
-          }
+        propTypes.foreach{
+          case (n, f) => out.addField(f)
         }
 
         methodSectionOpt zip methodClassOpt foreach {
