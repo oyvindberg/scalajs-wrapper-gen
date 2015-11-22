@@ -3,12 +3,15 @@ package com.olvind.muigen
 import java.io.File
 
 object RunGenerate extends App {
+  val WRITE = true
   val dest = new File(args.head)
   dest.mkdir()
 
   def printToFile(f: java.io.File)(op: java.io.PrintWriter => Unit) {
-    val p = new java.io.PrintWriter(f)
-    try { op(p) } finally { p.close() }
+    if (WRITE){
+      val p = new java.io.PrintWriter(f)
+      try { op(p) } finally { p.close() }
+    }
   }
   val prelude = """
     |package chandu0101.scalajs.react.components.materialui

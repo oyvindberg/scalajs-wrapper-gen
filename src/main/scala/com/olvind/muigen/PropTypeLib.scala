@@ -43,7 +43,7 @@ object PropTypeLib  {
         cs.foldLeft(Map.empty[String, Map[String, OutField]]){
           case (map, c) => map ++ massage(c)
         }
-      case Comp(name, props) =>
+      case Comp(name, hasChildren, props) =>
         val newProps = props map {
           case (pName, propType) =>
             mapType(name, pName, propType.replace("React.PropTypes.", "").replace("PropTypes.", "").replace("React.", ""))

@@ -49,13 +49,17 @@ object OutParam {
 
   val Params = "function\\(([^\\)]+)\\)".r
 
-  def mapFunction(compName: String, name: String, s: String) = s match {
-    case "function()"                         => OutParamClass("Callback")
-    case Params(params)                       =>
-      val mappedParams = params.split(",").map(_.trim).filterNot(_.isEmpty).map(OutParam.mapType(compName, name))
-      val paramPart = if (mappedParams.length == 1) mappedParams.head.typeName else mappedParams.map(_.typeName).mkString("(", ", ", ")")
-      OutParamClass(s"$paramPart => Callback")
-    case f if f.contains("(e)")               => OutParamClass(s"${OutParam.mapType(compName, name)("event").typeName} => Callback")
+  def mapFunction(compName: String, name: String, s: String) = {
+    val ret: OutParamClass = s match {
+      case "function()"                         => OutParamClass("Callback")
+      case Params(params)                       =>
+        val mappedParams = params.split(",").map(_.trim).filterNot(_.isEmpty).map(OutParam.mapType(compName, name))
+        val paramPart = if (mappedParams.length == 1) mappedParams.head.typeName else mappedParams.map(_.typeName).mkString("(", ", ", ")")
+        OutParamClass(s"$paramPart => Callback")
+      case f if f.contains("(e)")               => OutParamClass(s"${OutParam.mapType(compName, name)("event").typeName} => Callback")
+    }
+    println(s"""("$compName", "$name") => "${ret.typeName}"""")
+    ret
   }
 
   def mapType(compName: String, fieldName: String)(t: String): OutParam = {
@@ -94,7 +98,7 @@ object OutParam {
       case ("MuiDatePicker",       "shouldDisableDate",    "function")            => OutParamClass("js.Date => Boolean")
       case ("MuiDatePicker",       "wordings",             "object")              => OutParamClass("Wordings")
       case ("MuiDialog",           "actions",              "array")               => OutParamClass("js.Array[ReactElement]")
-      case ("MuiDialog",           "onRequestClose",       "buttonClicked")       => OutParamClass("ReactEvent")
+      case ("MuiDialog",           "onRequestClose",       "buttonClicked")       => OutParamClass("Boolean")
       case ("MuiDropDownMenu",     "menuItemStyle",        "array")               => OutParamClass("CssProperties")
       case ("MuiDropDownMenu",     "menuItems",            "array")               => OutParamClass("js.Array[MuiDropDownMenuItem]")
       case ("MuiDropDownMenu",     "onChange",             "menuItem")            => OutParamClass("js.Any") //todo MuiDropDownMenuItem
@@ -128,7 +132,7 @@ object OutParam {
       case ("MuiTabs",             "onChange",             "value")               => OutParamClass("String")
       case ("MuiTabs",             "onChange",             "e")                   => OutParamClass("ReactEvent")
       case ("MuiTabs",             "onChange",             "tab")                 => OutParamClass("ReactElement")
-      case ("MuiTextField",        "onEnterKeyDown",       "function")            => OutParamClass("js.Function")
+      case ("MuiTextField",        "onEnterKeyDown",       "func")                => OutParamClass("ReactEvent => Callback")
       case (_, _, e) if e.contains("oneOfType")                  => OutParamClass((split(1, e) map mapType(compName, fieldName) map (_.typeName)).mkString(" | "))
       case (_, _, "string") if is("color")                       => OutParamClass("MuiColor")
 
