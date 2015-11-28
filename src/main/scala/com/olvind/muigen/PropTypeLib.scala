@@ -7,8 +7,8 @@ object PropTypeLib  {
     def fis(s: String) = f.toLowerCase.contains(s.toLowerCase)
     def cis(s: String) = c.toLowerCase.contains(s.toLowerCase)
     def tis(s: String) = t.toLowerCase.contains(s.toLowerCase)
-
     val outType = (c, f, t.replaceAll(".isRequired", "")) match {
+      case (_, _, "func")                    => FunctionTypes(c, f)
       case (_, _, "string") if fis("color")  => "MuiColor"
       case (_, _, "string")                  => "String"
       case (_, _, "zDepth")                  => "MuiZDepth"
@@ -16,7 +16,6 @@ object PropTypeLib  {
       case (_, _, "node")                    => "ReactNode"
       case (_, _, "bool")                    => "Boolean"
       case (_, _, "number")                  => "Double"
-      case (_, _, "func")                    => "ReactEvent => Callback"
       case (_, _, "array")                   => "js.Array[js.Any]"
       case (_, _, "object") if fis("style")  => "CssProperties"
       case (_, _, "object") if fis("date")   => "js.Date"
@@ -46,7 +45,7 @@ object PropTypeLib  {
       case Comp(name, hasChildren, props) =>
         val newProps = props map {
           case (pName, propType) =>
-            mapType(name, pName, propType.replace("PropTypes.", "").replace("React.", ""))
+            mapType("Mui" + name, pName, propType.replace("PropTypes.", "").replace("React.", ""))
         }
         Map("Mui" + name -> newProps.toMap)
     }

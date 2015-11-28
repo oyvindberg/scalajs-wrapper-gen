@@ -108,7 +108,7 @@ object JsParser{
     }
     println(s"PropTypeParser: ${jsFile.last}: Found ${comps.toList.map(_.name)}")
     val ret = comps.toList map parsePropTypes(jsFile)
-//    println(.jsContent)
+    println(ret)
     ret
   }
 

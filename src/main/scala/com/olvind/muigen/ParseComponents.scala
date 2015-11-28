@@ -31,13 +31,14 @@ object ParseComponents{
         out.addField(OptField("ref", OutParamClass(methodClassOpt.fold("String")(_.name + " => Unit")), None))
 
         propsFields.sortBy(_.name).foreach{ f =>
-          if (f.name == "label or children") out.addField(OptField("label", OutParamClass("String"), Some(f)))
-          else if (f.isRequired) out.addField(ReqField(f.name, OutParam.mapType(comp.name, f.name)(f.`type` getOrElse f.header), Some(f)))
-          else              out.addField(OptField(f.name, OutParam.mapType(comp.name, f.name)(f.`type` getOrElse f.header), Some(f)))
+          val fieldName = f.name.replaceAll("Deprecated:", "").replaceAll("or children", "").trim
+          if (f.isRequired) out.addField(ReqField(fieldName, OutParam.mapType(comp.name, fieldName)(f.`type` getOrElse f.header), Some(f)))
+          else                   out.addField(OptField(fieldName, OutParam.mapType(comp.name, fieldName)(f.`type` getOrElse f.header), Some(f)))
         }
         eventsSectionOpt.toList.flatMap(_.infoArray).foreach { f =>
-          if (f.isRequired) out.addField(ReqField(f.name, OutParamClass(FunctionTypes(comp.name, f.name)), Some(f)))
-          else              out.addField(OptField(f.name, OutParamClass(FunctionTypes(comp.name, f.name)), Some(f)))
+          val fieldName = f.name.replaceAll("Deprecated: ", "")
+          if (f.isRequired) out.addField(ReqField(fieldName, OutParamClass(FunctionTypes(comp.name, fieldName)), Some(f)))
+          else              out.addField(OptField(fieldName, OutParamClass(FunctionTypes(comp.name, fieldName)), Some(f)))
         }
         comp.shared.foreach(_.inheritProps.foreach(out.addField))
         comp.shared.foreach(_.inheritEvents.foreach(out.addField))
@@ -53,7 +54,7 @@ object ParseComponents{
             }
         }
         outComponent(comp, out, methodClassOpt)
-      case -\/(error) => throw new RuntimeException(comp.toString + error)
+      case -\/(error) => throw new RuntimeException(comp.name + ": " + error)
     }
   }
 

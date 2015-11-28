@@ -78,15 +78,20 @@ object OutParam {
 
       case (_, _, e) if e.toLowerCase.contains("index")          => OutParamClass("Int")
 
+        /* todo: double defined */
       case ("MuiDatePicker",       "DateTimeFormat",       "func")                => OutParamClass("js.Function")
-      case ("MuiDatePicker",       "formatDate",           "function")            => OutParamClass("js.Date => String")
-      case ("MuiDatePicker",       "shouldDisableDate",    "function")            => OutParamClass("js.Date => Boolean")
+      case ("MuiDatePicker",       "formatDate",           "func")                => OutParamClass("js.Date => String")
+      case ("MuiDatePicker",       "shouldDisableDate",    "func")                => OutParamClass("js.Date => Boolean")
       case ("MuiDatePicker",       "wordings",             "object")              => OutParamClass("Wordings")
+      case ("MuiTabs",             "tabTemplate",          "ReactClass")          => OutParamClass("js.Any")
+
       case ("MuiDialog",           "actions",              "array")               => OutParamClass("js.Array[ReactElement]")
       case ("MuiDropDownMenu",     "menuItems",            "array")               => OutParamClass("js.Array[MuiDropDownMenuItem]")
       case ("MuiGridTile",         "rootClass",            "ReactComponent")      => OutParamClass("js.Any")
       case ("MuiIconMenu",         "iconButtonElement",    "element: IconButton") => OutParamClass("ReactElement")
       case ("MuiIconMenu",         "value",                "array")               => OutParamClass("js.Array[ReactElement]")
+      case ("MuiIconMenu",         "anchorOrigin",         "origin object")       => OutParamClass("Origin")
+      case ("MuiIconMenu",         "targetOrigin",         "origin object")       => OutParamClass("Origin")
       case ("MuiLeftNav",          "menuItems",            "array")               => OutParamClass("js.Array[MuiMenuItemJson]")
       case ("MuiListItem",         "nestedItems",          "Array of elements")   => OutParamClass("js.Array[ReactElement]")
       case ("MuiMenu",             "value",                "array")               => OutParamClass("js.Array[String]")
@@ -94,11 +99,11 @@ object OutParam {
       case ("MuiPopover",          "anchorEl",             "object")              => OutParamClass("js.Any")
       case ("MuiSelectField",      "selectFieldRoot",      "object")              => OutParamClass("CssProperties")
       case ("MuiSelectField",      "menuItems",            "array")               => OutParamClass("js.Array[MuiSelectItem]")
-      case ("MuiTabs",             "tabTemplate",          "ReactClass")          => OutParamClass("js.Any")
+      case (_, _, e) if e.contains("oneOfType")                                   => OutParamClass((split(1, e) map mapType(compName, fieldName) map (_.typeName)).mkString(" | "))
+      case (_, _, "string") if is("color")                                        => OutParamClass("MuiColor")
+      case (c, "label", _) if c.contains("Button")                  => OutParamClass("String")
 
-      case (_, _, e) if e.contains("oneOfType")                  => OutParamClass((split(1, e) map mapType(compName, fieldName) map (_.typeName)).mkString(" | "))
-      case (_, _, "string") if is("color")                       => OutParamClass("MuiColor")
-
+      case (_, _, "valueLink")                                   => OutParamClass("js.Any")
       case (_, _, "time")                                        => OutParamClass("js.Date")
       case (_, _, "date")                                        => OutParamClass("js.Date")
       case (_, _, "instanceOf(Date)")                            => OutParamClass("js.Date")
