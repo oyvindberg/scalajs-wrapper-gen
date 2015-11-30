@@ -50,7 +50,8 @@ object ParseComponents{
         methodSectionOpt zip methodClassOpt foreach {
           case (section: JsonSection, methodOut) =>
             section.infoArray.foreach { f =>
-              methodOut.addField(ReqField(f.name, OutParamClass("Unit"), Some(f)))
+              val fieldName = f.name.replaceAll("Deprecated:", "").replaceAll("or children", "").trim
+              methodOut.addField(ReqField(fieldName, OutParamClass("Unit"), Some(f)))
             }
         }
         outComponent(comp, out, methodClassOpt)

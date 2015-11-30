@@ -246,6 +246,13 @@ object Component {
     override val children = true
     val name = "MuiMenu"
     override val propsSections = Seq("Menu Props")
+    override val postlude = Some(
+      """
+        |@js.native
+        |trait MuiMenuItemProps extends js.Object {
+        |	def value: js.UndefOr[String] = js.native
+        |}
+      """.stripMargin)
   }
   object MuiMenuDivider extends MuiMenus {
     override val children = false
@@ -258,7 +265,7 @@ object Component {
     override val children = false
     val name = "MuiMenuItem"
     override val propsSections = Seq("MenuItem Props")
-    override val overrideEvents = nonexisting
+    override val overrideEvents = Some("Menu Item Events")
   }
 
   object MuiPaper extends Component {
