@@ -29,6 +29,8 @@ object PropTypeLib  {
       case (_, _, "minMaxPropType")          => "Double"
       case (_, _, "valueInRangePropType")    => "Double"
       case (_, _, "stringOrNumber")          => "String | Int"
+      case (_, _, "any")                     => "js.Any"
+
     }
     if (tis("isRequired"))
       f -> ReqField(f, OutParamClass(outType), None)
@@ -44,13 +46,17 @@ object PropTypeLib  {
         }
       case Comp(name, hasChildren, props) =>
         val newProps = props map {
-          case (pName, propType) =>
-            mapType("Mui" + name, pName, propType.replace("PropTypes.", "").replace("React.", ""))
+          case (pName, propType: Prop) =>
+            mapType(
+              "Mui" + name,
+              pName,
+              propType.mapType(_.replace("PropTypes.", "").replace("React.", "")).tpe
+            )
         }
         Map("Mui" + name -> newProps.toMap)
     }
   }
 
   val result  = PropTypeParser(home / "pr" / "material-ui" / "lib")
-  val results = massage(result)
+  val results: Map[String, Map[String, OutField]] = massage(result)
 }

@@ -12,30 +12,59 @@ case class OutFile(filename: String, content: String, secondaries: Seq[Secondary
 case class SecondaryOutFile(filename: String, content: String)
 
 object ParseComponents{
+  def diagnose(compName: String, propTypes: Map[String, OutField], propsFromDoc: Seq[JsonField], eventsFromDoc: List[JsonField]) = {
+    val fromDoc: Seq[JsonField] = propsFromDoc ++ eventsFromDoc
+    fromDoc.foreach{
+      case f =>
+        val fname = f.name.replaceAll("Deprecated:", "").replaceAll("or children", "")
+        if (!propTypes.contains(fname)){
+        println(s"$compName: ${fname} (${f.`type`})")
+      }
+    }
+//    propTypes foreach {
+//      case (key, field) =>
+//        if (!fromDoc.exists(_.name == key)){
+//          println(s"$compName: $key (${field.typeName})")
+//        }
+//    }
+  }
   def apply(comp: Component): OutFile = {
 
     comp.json.decodeEither[List[JsonSection]] match {
       case \/-(sections) =>
-        val propTypes = PropTypeLib.results.getOrElse(comp.name,
-          throw new RuntimeException(s"No Proptypes found for ${comp.name}")
-        )
+        PropTypeLib.results.toSeq.sortBy(_._1) foreach println
+        val propTypes: Map[String, OutField] =
+          PropTypeLib.results.getOrElse(comp.name,
+            throw new RuntimeException(s"No Proptypes found for ${comp.name}")
+          )
 
         val sMap: Map[String, JsonSection] = sections.map(s => s.name -> s).toMap
         val methodSectionOpt   = sMap.get(comp.overrideMethods getOrElse "Methods")
-        val eventsSectionOpt   = sMap.get(comp.overrideEvents getOrElse "Events")
-        val propsFields        = comp.propsSections.map(sMap.apply).flatMap(_.infoArray)
+        val eventsFromDoc      = sMap.get(comp.overrideEvents getOrElse "Events").toList.flatMap(_.infoArray)
+        val propsFromDoc       = comp.propsSections.map(sMap.apply).flatMap(_.infoArray)
+
         val out                = OutComponentClass(comp.name)
         val methodClassOpt     = methodSectionOpt.map(_ => comp.name + "M").map(OutMethodClass)
+
+        diagnose(comp.name, propTypes, propsFromDoc, eventsFromDoc)
 
         out.addField(OptField("key", OutParam.mapType(comp.name, "key")("string"), None))
         out.addField(OptField("ref", OutParamClass(methodClassOpt.fold("String")(_.name + " => Unit")), None))
 
-        propsFields.sortBy(_.name).foreach{ f =>
+        propTypes.toSeq.sortBy(_._1).foreach{ f =>
+//          println(f)
+//          val fieldName = f.name.replaceAll("Deprecated:", "").replaceAll("or children", "").trim
+//          if (f.isRequired) out.addField(ReqField(fieldName, OutParam.mapType(comp.name, fieldName)(f.`type` getOrElse f.header), Some(f)))
+//          else                   out.addField(OptField(fieldName, OutParam.mapType(comp.name, fieldName)(f.`type` getOrElse f.header), Some(f)))
+        }
+
+
+        propsFromDoc.sortBy(_.name).foreach{ f =>
           val fieldName = f.name.replaceAll("Deprecated:", "").replaceAll("or children", "").trim
           if (f.isRequired) out.addField(ReqField(fieldName, OutParam.mapType(comp.name, fieldName)(f.`type` getOrElse f.header), Some(f)))
           else                   out.addField(OptField(fieldName, OutParam.mapType(comp.name, fieldName)(f.`type` getOrElse f.header), Some(f)))
         }
-        eventsSectionOpt.toList.flatMap(_.infoArray).foreach { f =>
+        eventsFromDoc.foreach { f =>
           val fieldName = f.name.replaceAll("Deprecated: ", "")
           if (f.isRequired) out.addField(ReqField(fieldName, OutParamClass(FunctionTypes(comp.name, fieldName)), Some(f)))
           else              out.addField(OptField(fieldName, OutParamClass(FunctionTypes(comp.name, fieldName)), Some(f)))

@@ -6,9 +6,15 @@ import ammonite.ops._
 
 import scala.collection.mutable
 
+case class Prop(tpe: String,
+                deprecatedMsg: Option[String] = None,
+                required: Boolean = false){
+  def mapType(f: String => String) = copy(tpe = f(tpe))
+}
+
 sealed trait Ret
 case class Folder(name: String, cs: Seq[Ret]) extends Ret
-case class Comp(name: String, hasChildren: Boolean, props: Map[String, String]) extends Ret
+case class Comp(name: String, childrenOpt: Option[Prop], props: Map[String, Prop]) extends Ret
 
 object PropTypeRunner extends App {
   def indented(n: Int)(s: String) =
@@ -31,7 +37,7 @@ object PropTypeRunner extends App {
 }
 
 object PropTypeParser {
-  val Pattern = "\\s*([\\S]+):\\s+require\\('([^']+)'\\).*".r
+  val Pattern = "var\\s+(\\S+)\\s+=\\s*require\\('([^']+)'\\).*".r
 
   def add(p: Path, frag: String): Path =
     frag
@@ -52,6 +58,10 @@ object PropTypeParser {
           JsParser(jsFile)
         }
         else Seq(apply(add(p, file)))
+//      case other =>
+//        println(other)
+//        Seq.empty
+//
     }
     Folder(p.toString, comps.flatten)
   }
@@ -98,17 +108,17 @@ object JsParser{
                 Some(p.getKey) collect {
                   case i: IdentNode if i.getName == "propTypes" =>
                     p.getValue match {
-                      case o2: ObjectNode =>
-                        comps += CompFound(v.getName.getName, content.substring(v.getStart, v.getFinish), o2)
+                      case propTypes: ObjectNode =>
+                        comps += CompFound(v.getName.getName, content.substring(v.getStart, v.getFinish), propTypes)
                     }
                 }
             }
         }
       }
     }
-    println(s"PropTypeParser: ${jsFile.last}: Found ${comps.toList.map(_.name)}")
+//    println(s"PropTypeParser: ${jsFile.last}: Found ${comps.toList.map(_.name)}")
     val ret = comps.toList map parsePropTypes(jsFile)
-    println(ret)
+//    println(ret)
     ret
   }
 
@@ -123,24 +133,7 @@ object JsParser{
     case CompFound(name, jsContent, o) =>
       val props = o.getElements.asScala.map{
         case p: PropertyNode =>
-          def name(e: Expression): String = e match {
-            case a: AccessNode => name(a.getBase) + "." + a.getProperty
-            case i: IdentNode  => i.getName
-            case c: CallNode =>
-              val params = c.getArgs.asScala.map(e => name(e)).mkString(", ")
-              name(c.getFunction) + "(" + params + ")"
-            case l: LiteralNode.ArrayLiteralNode =>
-              (l.getValue map name).mkString(",")
-            case l: LiteralNode[_] =>
-              l.getValue match {
-                case s: String => s""""$s""""
-                case other => other.toString
-              }
-            case l: IndexNode  =>
-              println(s"$jsFile ignoring $l")
-              "React"
-          }
-          p.getKeyName -> name(p.getValue)
+          p.getKeyName -> parsePropType(jsFile)(p.getValue)
       }
       val allUmentioned = unmentionedProps(c.jsContent)
       val hasChildren = allUmentioned.contains("children")
@@ -151,8 +144,41 @@ object JsParser{
         .map(u => u -> "UNKNOWN")
 
       if (unmentioned.nonEmpty)
-        println(s"UMNETIONED for ${c.name}: $unmentioned")
+        throw new RuntimeException(s"UMENTIONED for ${c.name}: $unmentioned")
 
-      Comp(name, hasChildren, unmentioned.toMap ++ props.toMap)
+      Comp(name, props.collectFirst{case ("children", t) => t}, props.filterNot(p => unWanted.contains(p._1)).toMap)
+
+  }
+
+  def parsePropType(jsFile: Path)(e: Expression): Prop = e match {
+    case a: AccessNode =>
+      parsePropType(jsFile)(a.getBase).mapType(_ + "." + a.getProperty)
+    case i: IdentNode  =>
+      Prop(i.getName)
+
+    case c: CallNode =>
+      c.getFunction match {
+        case b: BinaryNode if b.toString().toLowerCase.contains("deprecated") =>
+          val ret = parsePropType(jsFile)(c.getArgs.get(0))
+          val re2 = ret.copy(deprecatedMsg = Some(c.getArgs.get(1).toString))
+          re2
+        case _ =>
+          val params = c.getArgs.asScala.map(e => parsePropType(jsFile)(e)).map(_.tpe).mkString(", ")
+          parsePropType(jsFile)(c.getFunction).mapType(_ + "(" + params + ")")
+      }
+
+    case l: LiteralNode.ArrayLiteralNode =>
+      Prop((l.getValue map parsePropType(jsFile) map (_.tpe)).mkString(","))
+
+    case l: LiteralNode[_] =>
+      val s = l.getValue match {
+        case s: String => s""""$s""""
+        case other => other.toString
+      }
+      Prop(s)
+
+    case l: IndexNode  =>
+      println(s"$jsFile ignoring $l")
+      Prop("React")
   }
 }
