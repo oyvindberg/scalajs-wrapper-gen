@@ -1,8 +1,9 @@
-package com.olvind.muigen
+package com.olvind
+package muigen
 
-object FunctionTypes {
-  def apply(compName: String, name: String): String =
-    (compName, name) match {
+object TypeMapperFunction {
+  def apply(compName: CompName, name: PropName): String =
+    (compName.value, name.value) match {
       case ("MuiAppBar", "onLeftIconButtonTouchTap") => "ReactTouchEventH => Callback"
       case ("MuiAppBar", "onRightIconButtonTouchTap") => "ReactTouchEventH => Callback"
       case ("MuiAppBar", "onTitleTouchTap") => "ReactTouchEventH => Callback"
@@ -50,12 +51,12 @@ object FunctionTypes {
       case ("MuiSnackbar", "onRequestClose") => "String => Callback"
       case ("MuiRadioButtonGroup", "onChange") => "(ReactEventI, String) => Callback"
       case ("MuiToggle", "onToggle") => "(ReactEventI, Boolean) => Callback"
-      case (_, "onRowSelection") if compName.startsWith("MuiTable") => "String | js.Array[Int] => Callback"
-      case (_, "onCellClick") if compName.startsWith("MuiTable") => "(Int, Int) => Callback"
-      case (_, "onRowHover") if compName.startsWith("MuiTable") => "Int => Callback"
-      case (_, "onRowHoverExit") if compName.startsWith("MuiTable") => "Int => Callback"
-      case (_, "onCellHover") if compName.startsWith("MuiTable") => "(Int, Int) => Callback"
-      case (_, "onCellHoverExit") if compName.startsWith("MuiTable") => "(Int, Int) => Callback"
+      case (_, "onRowSelection") if compName.value.startsWith("MuiTable") => "String | js.Array[Int] => Callback"
+      case (_, "onCellClick") if compName.value.startsWith("MuiTable") => "(Int, Int) => Callback"
+      case (_, "onRowHover") if compName.value.startsWith("MuiTable") => "Int => Callback"
+      case (_, "onRowHoverExit") if compName.value.startsWith("MuiTable") => "Int => Callback"
+      case (_, "onCellHover") if compName.value.startsWith("MuiTable") => "(Int, Int) => Callback"
+      case (_, "onCellHoverExit") if compName.value.startsWith("MuiTable") => "(Int, Int) => Callback"
       case ("MuiTableHeader", "onSelectAll") => "Boolean => Callback"
       case ("MuiTableHeaderColumn", "onClick") => "(ReactEventH, Int) => Callback"
       case ("MuiTableRow", "onRowClick") => "(ReactEventH, Int) => Callback"

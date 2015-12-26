@@ -1,94 +1,68 @@
-package com.olvind.muigen
+package com.olvind
+package muigen
 
-import argonaut.Argonaut._
+import scala.collection.mutable
 
-import scalaz.{-\/, \/-}
+sealed trait OutClass {
+  val fields: mutable.ArrayBuffer[OutField] =
+    mutable.ArrayBuffer.empty[OutField]
 
-object StringUtils{
-  def padTo(s: String)(n: Int) = s + (" " * (n - s.length))
+  def addField(f: OutField) =
+    if (fields.exists(_.name == f.name)) println(s"$this: Duplicate field! $f")
+    else fields += f
+
+  def fieldStats =
+    FieldStats(
+      maxFieldNameLen = fields.map(_.fieldNameLength).max,
+      maxTypeNameLen  = fields.map(_.typeNameLength).max
+    )
+
+  def enumClases: Seq[OutEnumClass] =
+    fields.map(_.baseType).collect{
+      case o: OutParamEnum => o.enumClass
+    }
 }
 
-case class OutFile(filename: String, content: String, secondaries: Seq[SecondaryOutFile])
+case class FieldStats(maxFieldNameLen: Int, maxTypeNameLen: Int)
+
+case class OutComponentClass(name: CompName) extends OutClass{
+  def childrenOpt = fields.find(_.name.value == "children")
+}
+case class OutMethodClass(name: String) extends OutClass
+case class OutEnumClass(name: String, members: Seq[String])
+
+case class OutFile(filename: CompName, content: String, secondaries: Seq[SecondaryOutFile])
 case class SecondaryOutFile(filename: String, content: String)
 
-object ParseComponents{
-  def diagnose(compName: String, propTypes: Map[String, OutField], propsFromDoc: Seq[JsonField], eventsFromDoc: List[JsonField]) = {
-    val fromDoc: Seq[JsonField] = propsFromDoc ++ eventsFromDoc
-    fromDoc.foreach{
-      case f =>
-        val fname = f.name.replaceAll("Deprecated:", "").replaceAll("or children", "")
-        if (!propTypes.contains(fname)){
-        println(s"$compName: ${fname} (${f.`type`})")
-      }
+object ParseComponents {
+  def apply(allComps: Map[CompName, gen.Component])
+           (muiComp:  MuiComponent): OutFile = {
+
+    val (commentMap, methodClassOpt) = MuiDocs(muiComp)
+
+    val propTypes: Map[PropName, (PropString, Option[PropComment])] =
+      allComps.get(muiComp.name.map(_.replaceAll("Mui", ""))).flatMap(_.propsOpt).getOrElse(
+        throw new RuntimeException(s"No Proptypes found for ${muiComp.name}")
+      )
+
+    val out = OutComponentClass(muiComp.name)
+
+    out.addField(OptField(PropName("key"), OutParamClass("String"), None, None))
+    out.addField(OptField(PropName("ref"), OutParamClass(methodClassOpt.fold("String")(_.name + " => Unit")), None, None))
+
+    propTypes.toSeq.sortBy(_._1.clean.value).foreach{
+      case (name, (tpe, commentOpt)) =>
+        val field = OutField(muiComp.name, name, tpe, commentOpt orElse (commentMap get name))
+        out.addField(field)
     }
-//    propTypes foreach {
-//      case (key, field) =>
-//        if (!fromDoc.exists(_.name == key)){
-//          println(s"$compName: $key (${field.typeName})")
-//        }
-//    }
-  }
-  def apply(comp: Component): OutFile = {
 
-    comp.json.decodeEither[List[JsonSection]] match {
-      case \/-(sections) =>
-        PropTypeLib.results.toSeq.sortBy(_._1) foreach println
-        val propTypes: Map[String, OutField] =
-          PropTypeLib.results.getOrElse(comp.name,
-            throw new RuntimeException(s"No Proptypes found for ${comp.name}")
-          )
+    muiComp.shared.foreach(_.inheritProps.foreach(out.addField))
+    muiComp.shared.foreach(_.inheritEvents.foreach(out.addField))
 
-        val sMap: Map[String, JsonSection] = sections.map(s => s.name -> s).toMap
-        val methodSectionOpt   = sMap.get(comp.overrideMethods getOrElse "Methods")
-        val eventsFromDoc      = sMap.get(comp.overrideEvents getOrElse "Events").toList.flatMap(_.infoArray)
-        val propsFromDoc       = comp.propsSections.map(sMap.apply).flatMap(_.infoArray)
-
-        val out                = OutComponentClass(comp.name)
-        val methodClassOpt     = methodSectionOpt.map(_ => comp.name + "M").map(OutMethodClass)
-
-        diagnose(comp.name, propTypes, propsFromDoc, eventsFromDoc)
-
-        out.addField(OptField("key", OutParam.mapType(comp.name, "key")("string"), None))
-        out.addField(OptField("ref", OutParamClass(methodClassOpt.fold("String")(_.name + " => Unit")), None))
-
-        propTypes.toSeq.sortBy(_._1).foreach{ f =>
-//          println(f)
-//          val fieldName = f.name.replaceAll("Deprecated:", "").replaceAll("or children", "").trim
-//          if (f.isRequired) out.addField(ReqField(fieldName, OutParam.mapType(comp.name, fieldName)(f.`type` getOrElse f.header), Some(f)))
-//          else                   out.addField(OptField(fieldName, OutParam.mapType(comp.name, fieldName)(f.`type` getOrElse f.header), Some(f)))
-        }
-
-
-        propsFromDoc.sortBy(_.name).foreach{ f =>
-          val fieldName = f.name.replaceAll("Deprecated:", "").replaceAll("or children", "").trim
-          if (f.isRequired) out.addField(ReqField(fieldName, OutParam.mapType(comp.name, fieldName)(f.`type` getOrElse f.header), Some(f)))
-          else                   out.addField(OptField(fieldName, OutParam.mapType(comp.name, fieldName)(f.`type` getOrElse f.header), Some(f)))
-        }
-        eventsFromDoc.foreach { f =>
-          val fieldName = f.name.replaceAll("Deprecated: ", "")
-          if (f.isRequired) out.addField(ReqField(fieldName, OutParamClass(FunctionTypes(comp.name, fieldName)), Some(f)))
-          else              out.addField(OptField(fieldName, OutParamClass(FunctionTypes(comp.name, fieldName)), Some(f)))
-        }
-        comp.shared.foreach(_.inheritProps.foreach(out.addField))
-        comp.shared.foreach(_.inheritEvents.foreach(out.addField))
-
-        propTypes.foreach{
-          case (n, f) => out.addField(f)
-        }
-
-        methodSectionOpt zip methodClassOpt foreach {
-          case (section: JsonSection, methodOut) =>
-            section.infoArray.foreach { f =>
-              val fieldName = f.name.replaceAll("Deprecated:", "").replaceAll("or children", "").trim
-              methodOut.addField(ReqField(fieldName, OutParamClass("Unit"), Some(f)))
-            }
-        }
-        outComponent(comp, out, methodClassOpt)
-      case -\/(error) => throw new RuntimeException(comp.name + ": " + error)
-    }
+    outComponent(muiComp, out, methodClassOpt)
   }
 
-  def outComponent(comp: Component, c: OutComponentClass, methodClassOpt: Option[OutMethodClass]): OutFile = {
+  def outComponent(comp: MuiComponent, c: OutComponentClass, methodClassOpt: Option[OutMethodClass]): OutFile = {
     val fs = c.fieldStats
     val p1 = s"\ncase class ${comp.name}("
     val p2 = c.fields.map(_.toString(fs)).mkString("", ",\n", ")")
@@ -96,22 +70,22 @@ object ParseComponents{
       |
       |  def apply() = {
       |    val props = JSMacro[${comp.name}](this)
-      |    val f = React.asInstanceOf[js.Dynamic].createFactory(Mui.${comp.name.replace("Mui", "")})
+      |    val f = React.asInstanceOf[js.Dynamic].createFactory(Mui.${comp.name.value.replace("Mui", "")})
       |    f(props).asInstanceOf[ReactComponentU_]
       |  }
       |}
     """.stripMargin
-    val bodyChildren =
+    def bodyChildren(c: OutField) =
       s"""{
          |
-         |  def apply(children: ReactNode*) = {
+         |  def apply(children: ${c.typeName}) = {
          |    val props = JSMacro[${comp.name}](this)
-         |    val f = React.asInstanceOf[js.Dynamic].createFactory(Mui.${comp.name.replace("Mui", "")})
-         |    f(props, children.toJsArray).asInstanceOf[ReactComponentU_]
+         |    val f = React.asInstanceOf[js.Dynamic].createFactory(Mui.${comp.name.value.replace("Mui", "")})
+         |    f(props, children).asInstanceOf[ReactComponentU_]
          |  }
          |}""".stripMargin
 
-    val content = (Seq(p1, p2, if (comp.children) bodyChildren else body) ++ comp.postlude.toSeq).mkString("\n")
+    val content = (Seq(p1, p2, c.childrenOpt.fold(body)((c: OutField) => bodyChildren(c))) ++ comp.postlude.toSeq).mkString("\n")
 
     OutFile(comp.name, content, (c.enumClases map outEnumClass) ++ (methodClassOpt map outMethodClass))
   }
@@ -127,9 +101,9 @@ object ParseComponents{
        |object ${c.name}{
        |${fixedNames.map {
           case (original, fixed) =>
-            s"""\tval $fixed = new ${c.name}("$original")"""
+            s"""  val $fixed = new ${c.name}("$original")"""
         }.mkString("\n")}
-       |\tval values = ${fixedNames.map(_._2).toList}
+       |  val values = ${fixedNames.map(_._2).toList}
        |}""".stripMargin
     SecondaryOutFile(c.name, content)
   }
@@ -139,8 +113,8 @@ object ParseComponents{
        |@js.native
        |class ${c.name} extends js.Object{
        |${c.fields.map{m =>
-          val deprecated = if (m.asInstanceOf[Object].toString.toLowerCase.contains("deprecated")) "\t@deprecated\n" else ""
-          s"${m.comment}$deprecated\tdef ${m.name}(): Unit = js.native"
+          val deprecated = if (m.asInstanceOf[Object].toString.toLowerCase.contains("deprecated")) "  @deprecated\n" else ""
+          s"${m.comment}$deprecated  def ${m.name.value}(): Unit = js.native"
           }.mkString("\n\n")
          }
        |}""".stripMargin
