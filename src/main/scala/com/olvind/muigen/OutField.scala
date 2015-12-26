@@ -70,9 +70,8 @@ object OutField {
         .replace("_utilsPropTypes2['default'].", "Mui.")
         .replace("(0, _utilsDeprecatedPropType2['default'])", "Deprecated")
         /* new style */
-        .replace("_react2.", "")
-        .replace("default.", "")
-        .replace("_propTypes2.", "Mui.")
+        .replace("_react2.default.", "")
+        .replace("_propTypes2.default.", "Mui.")
         .replace("(0, _deprecatedPropType2.default)", "Deprecated")
 
     val (typeStr: String, deprecatedOpt: Option[String]) = _clean match {
