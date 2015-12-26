@@ -40,24 +40,30 @@ object ParseComponents {
 
     val (commentMap, methodClassOpt) = MuiDocs(muiComp)
 
-    val propTypes: Map[PropName, (PropString, Option[PropComment])] =
+    val propTypes: Map[PropName, OriginalProp] =
       allComps.get(muiComp.name.map(_.replaceAll("Mui", ""))).flatMap(_.propsOpt).getOrElse(
         throw new RuntimeException(s"No Proptypes found for ${muiComp.name}")
       )
 
+    val inheritedProps: Map[PropName, OriginalProp] =
+      muiComp.shared match {
+        case None         => Map.empty
+        case Some(shared) =>
+          allComps.get(shared).flatMap(_.propsOpt).getOrElse(
+            throw new RuntimeException(s"No Proptypes found for $shared")
+          )
+      }
+
     val out = OutComponentClass(muiComp.name)
 
-    out.addField(OptField(PropName("key"), OutParamClass("String"), None, None))
-    out.addField(OptField(PropName("ref"), OutParamClass(methodClassOpt.fold("String")(_.name + " => Unit")), None, None))
+    out.addField(OptField(PropName("key"), OutParamClass("String"), None, None, None))
+    out.addField(OptField(PropName("ref"), OutParamClass(methodClassOpt.fold("String")(_.name + " => Unit")), None, None, None))
 
-    propTypes.toSeq.sortBy(_._1.clean.value).foreach{
-      case (name, (tpe, commentOpt)) =>
-        val field = OutField(muiComp.name, name, tpe, commentOpt orElse (commentMap get name))
+    (inheritedProps ++ propTypes).toSeq.sortBy(p => (p._2.origComp.map("Mui" + _) != muiComp.name, p._1.clean.value)).foreach{
+      case (name, OriginalProp(origComp, tpe, commentOpt)) =>
+        val field = OutField(muiComp.name, origComp, name, tpe, commentOpt orElse (commentMap get name))
         out.addField(field)
     }
-
-    muiComp.shared.foreach(_.inheritProps.foreach(out.addField))
-    muiComp.shared.foreach(_.inheritEvents.foreach(out.addField))
 
     outComponent(muiComp, out, methodClassOpt)
   }
@@ -65,7 +71,7 @@ object ParseComponents {
   def outComponent(comp: MuiComponent, c: OutComponentClass, methodClassOpt: Option[OutMethodClass]): OutFile = {
     val fs = c.fieldStats
     val p1 = s"\ncase class ${comp.name}("
-    val p2 = c.fields.map(_.toString(fs)).mkString("", ",\n", ")")
+    val p2 = c.fields.filterNot(_.name == PropName("children")).map(_.toString(fs)).mkString("", ",\n", ")")
     val body = s"""{
       |
       |  def apply() = {
@@ -78,7 +84,7 @@ object ParseComponents {
     def bodyChildren(c: OutField) =
       s"""{
          |
-         |  def apply(children: ${c.typeName}) = {
+         |  def apply(children: ${c.typeName}${if (c.typeName.startsWith("js.UndefOr")) " = js.undefined" else ""}) = {
          |    val props = JSMacro[${comp.name}](this)
          |    val f = React.asInstanceOf[js.Dynamic].createFactory(Mui.${comp.name.value.replace("Mui", "")})
          |    f(props, children).asInstanceOf[ReactComponentU_]

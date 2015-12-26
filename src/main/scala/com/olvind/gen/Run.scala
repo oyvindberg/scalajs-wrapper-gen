@@ -72,7 +72,7 @@ object PropTypeParser {
                       file      = filePath,
                       imports   = containedComponents.imports,
                       jsContent = parsedComp.content.substring(o.getStart, o.getFinish),
-                      propsOpt  = PropTypeVisitor(o, parsedComp.content, containedComponents.imports).propTypes
+                      propsOpt  = PropTypeVisitor(compName, o, parsedComp.content, containedComponents.imports).propTypes
                     )
                   )
               }

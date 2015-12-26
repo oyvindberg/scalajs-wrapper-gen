@@ -57,6 +57,7 @@ object MuiDocs {
                     f.name.clean,
                     OutParamClass("Unit"),
                     Some(PropComment.clean(f.desc)),
+                    None,
                     None
                   )
                 )

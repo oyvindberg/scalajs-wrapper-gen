@@ -32,6 +32,12 @@ object PropComment{
     )
 }
 
+case class OriginalProp(
+  origComp: CompName,
+  s: PropString,
+  oc: Option[PropComment]
+)
+
 case class PropString(value: String) extends Wrapper[String]
 
 case class VarName(value: String) extends Wrapper[String]

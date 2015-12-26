@@ -9,107 +9,44 @@ trait MuiComponent {
   val propsSections: Seq[String] = Seq("Props")
   val overrideMethods: Option[String] = None
   val overrideEvents: Option[String] = None
-  val shared: Option[SharedMuiComponent] = None
+  val shared: Option[CompName] = None
   val postlude: Option[String] = None
-}
-object I {
-  implicit def I1(s: String): CompName = CompName(s)
-  implicit def I2(s: String): PropName = PropName(s)
-  implicit def I3(s: String): PropString = PropString(s)
-}
-
-import I._
-
-trait SharedMuiComponent {
-  val name: CompName
-  val inheritProps: List[OutField]
-  val inheritEvents: List[OutField]
-}
-
-object ButtonSharedComponent extends SharedMuiComponent {
-  val name = CompName("EnhancedButton")
-  val inheritProps = List[OutField](
-    OptField("centerRipple",           TypeMapper(name, "centerRipple"        )("bool"                         ), None, None),
-    OptField("containerElement",       TypeMapper(name, "containerElement"    )("oneOfType([string, element])" ), None, None),
-    OptField("disabled",               TypeMapper(name, "disabled"            )("bool"                         ), None, None),
-    OptField("disableFocusRipple",     TypeMapper(name, "disableFocusRipple"  )("bool"                         ), None, None),
-    OptField("disableKeyboardFocus",   TypeMapper(name, "disableKeyboardFocus")("bool"                         ), None, None),
-    OptField("disableTouchRipple",     TypeMapper(name, "disableTouchRipple"  )("bool"                         ), None, None),
-    OptField("keyboardFocused",        TypeMapper(name, "keyboardFocused"     )("bool"                         ), None, None),
-    OptField("linkButton",             TypeMapper(name, "linkButton"          )("bool"                         ), None, None),
-    OptField("focusRippleColor",       TypeMapper(name, "focusRippleColor"    )("string"                       ), None, None),
-    OptField("touchRippleColor",       TypeMapper(name, "touchRippleColor"    )("string"                       ), None, None),
-    OptField("focusRippleOpacity",     TypeMapper(name, "focusRippleOpacity"  )("number"                       ), None, None),
-    OptField("touchRippleOpacity",     TypeMapper(name, "touchRippleOpacity"  )("number"                       ), None, None),
-    OptField("tabIndex",               TypeMapper(name, "tabIndex"            )("number"                       ), None, None)
-  )
-  val inheritEvents = List[OutField](
-    OptField("onClick",                OutParamClass("ReactEventH => Callback"), None, None),
-    OptField("onBlur",                 OutParamClass("ReactEventH => Callback"), None, None),
-    OptField("onFocus",                OutParamClass("ReactFocusEventH => Callback"), None, None),
-    OptField("onKeyboardFocus",        OutParamClass("ReactKeyboardEventH => Callback"), None, None),
-    OptField("onKeyDown",              OutParamClass("ReactKeyboardEventH => Callback"), None, None),
-    OptField("onKeyUp",                OutParamClass("ReactKeyboardEventH => Callback"), None, None),
-    OptField("onTouchTap",             OutParamClass("ReactTouchEventH => Callback"), Some(PropComment.clean("Called when a touch tap event occurs on the button.")), None)
-  )
-}
-
-object SwitchSharedComponent extends SharedMuiComponent {
-  val name = CompName("EnhancedSwitch")
-  val inheritProps = List[OutField](
-    OptField("id",                 TypeMapper(name, "id"                )("string"),              None, None),
-//    ReqField("inputType",          TypeMapper(name, "inputType"         )("string"),              None, None),
-//    ReqField("switchElement",      TypeMapper(name, "switchElement"     )("element"),             None, None),
-//    ReqField("switched",           TypeMapper(name, "switched"          )("bool"),                None, None),
-    OptField("rippleStyle",        TypeMapper(name, "rippleStyle"       )("object"),              None, None),
-    OptField("rippleColor",        TypeMapper(name, "rippleColor"       )("string"),              None, None),
-    OptField("iconStyle",          TypeMapper(name, "iconStyle"         )("object"),              None, None),
-    OptField("thumbStyle",         TypeMapper(name, "thumbStyle"        )("object"),              None, None),
-    OptField("trackStyle",         TypeMapper(name, "trackStyle"        )("object"),              None, None),
-    OptField("labelStyle",         TypeMapper(name, "labelStyle"        )("object"),              None, None),
-    OptField("name",               TypeMapper(name, "name"              )("string"),              None, None),
-    OptField("value",              TypeMapper(name, "value"             )("string"),              None, None),
-    OptField("label",              TypeMapper(name, "label"             )("node"),                None, None),
-    OptField("required",           TypeMapper(name, "required"          )("bool"),                None, None),
-    OptField("disabled",           TypeMapper(name, "disabled"          )("bool"),                None, None),
-    OptField("defaultSwitched",    TypeMapper(name, "defaultSwitched"   )("bool"),                None, None),
-    OptField("labelPosition",      TypeMapper(name, "labelPosition"     )("oneOf [left, right]"), None, None),
-    OptField("disableFocusRipple", TypeMapper(name, "disableFocusRipple")("bool"),                None, None),
-    OptField("disableTouchRipple", TypeMapper(name, "disableTouchRipple")("bool"),                None, None)
-  )
-  val inheritEvents = List[OutField](
-    OptField("onParentShouldUpdate", OutParamClass("Boolean => Callback"), None, None),
-    OptField("onSwitch",             OutParamClass("(ReactEvent, Boolean) => Callback"), None, None)
-  )
 }
 
 object MuiComponent {
   val nonexisting = Some("nonexisting")
+  val noJson = """[{"name":"Props","infoArray":[]}]"""
 
   object MuiAppBar extends MuiComponent {
     val name = CompName("MuiAppBar")
     val json = """[{"name":"Props","infoArray":[{"name":"iconClassNameLeft","type":"string","header":"optional","desc":"The classname of the icon on the left of the app bar. If you are using a stylesheet for your icons, enter the class name for the icon to be used here."},{"name":"iconClassNameRight","type":"string","header":"optional","desc":"Similiar to the iconClassNameLeft prop except that it applies to the icon displayed on the right of the app bar."},{"name":"iconElementLeft","type":"element","header":"optional","desc":"The custom element to be displayed on the left side of the app bar such as an SvgIcon."},{"name":"iconElementRight","type":"element","header":"optional","desc":"Similiar to the iconElementLeft prop except that this element is displayed on the right of the app bar."},{"name":"iconStyleRight","type":"string","header":"optional","desc":"Override the inline-styles of the element displayed on the right side of the app bar."},{"name":"style","type":"object","header":"optional","desc":"Override the inline-styles of the app bar's root element."},{"name":"showMenuIconButton","type":"bool","header":"default: true","desc":"Determines whether or not to display the Menu icon next to the title. Setting this prop to false will hide the icon."},{"name":"title","type":"node","header":"optional","desc":"The title to display on the app bar. Could be number, string, element or an array containing these types."},{"name":"zDepth","type":"oneOf [0,1,2,3,4,5]","header":"default: 1","desc":"The zDepth of the app bar. The shadow of the app bar is also dependent on this property."}]},{"name":"Events","infoArray":[{"name":"onLeftIconButtonTouchTap","header":"AppBar.onLeftIconButtonTouchTap(e)","desc":"Callback function for when the left icon is selected via a touch tap."},{"name":"onRightIconButtonTouchTap","header":"AppBar.onRightIconButtonTouchTap(e)","desc":"Callback function for when the right icon is selected via a touch tap."},{"name":"onTitleTouchTap","header":"AppBar.onTitleTouchTap(e)","desc":"Callback function for when the title text is selected via a touch tap."}]}]"""
   }
+  object MuiAppCanvas extends MuiComponent {
+    val name = CompName("MuiAppCanvas")
+    override val json = noJson
+  }
   object MuiAvatar extends MuiComponent {
-
     val name = CompName("MuiAvatar")
     val json = """[{"name":"Props","infoArray":[{"name":"icon","type":"element","header":"optional","desc":"This is the SvgIcon or FontIcon to be used inside the avatar."},{"name":"backgroundColor","type":"string","header":"default: grey400","desc":"The backgroundColor of the avatar. Does not apply to image avatars."},{"name":"color","type":"string","header":"default: white","desc":"The icon or letter color."},{"name":"size","type":"number","header":"default: 40","desc":"This is the size of the avatar in pixels"},{"name":"src","type":"string","header":"optional","desc":"If passed in, this component will render an img element. Otherwise, a div will be rendered."},{"name":"style","type":"object","header":"optional","desc":"Override the inline-styles of the root element."}]}]"""
   }
   object MuiAutoComplete extends MuiComponent {
-
     val name = CompName("MuiAutoComplete")
     val json = """[{"name":"Props","infoArray":[]}]"""
   }
   object MuiBadge extends MuiComponent {
-
     val name = CompName("MuiBadge")
     val json = """[{"name":"Props","infoArray":[{"name":"badgeContent","type":"node","header":"required","desc":"This is the content rendered within the badge."},{"name":"primary","type":"bool","header":"default: false","desc":"If true, the badge will use the primary badge colors."},{"name":"secondary","type":"bool","header":"default: false","desc":"If true, the badge will use the secondary badge colors."},{"name":"style","type":"object","header":"optional","desc":"Override the inline-styles of the root element."},{"name":"badgeStyle","type":"object","header":"optional","desc":"Override the inline-styles of the badge element."}]}]"""
   }
 
-  trait MuiButtons extends MuiComponent {
-
-    override val shared = Some(ButtonSharedComponent)
+  object MuiBeforeAfterWrapper extends MuiComponent {
+    val name = CompName("MuiBeforeAfterWrapper")
+    val json = noJson
   }
+
+  trait MuiButtons extends MuiComponent {
+    override val shared = Some(CompName("EnhancedButton"))
+  }
+
   object MuiFlatButton extends MuiButtons {
     val name = CompName("MuiFlatButton")
     override val json = """[{"name":"Flat Button Props","infoArray":[{"name":"containerElement","type":"oneOfType [string, element]","header":"default: button","desc":"This component will render a button element by default and an anchor element if linkButton is set to true. However, you can override this behavior by passing in a string or another react element into this prop. This is useful for generating link buttons with the react router link element."},{"name":"disabled","type":"bool","header":"optional","desc":"Disables the button if set to true."},{"name":"hoverColor","type":"string","header":"optional","desc":"Override the inline hover color of the button's root element."},{"name":"label or children","type":"string (label) or HTML/React elements (children)","header":"required","desc":"This is what will be displayed inside the button. If a label is specified, the text within the label prop will be displayed. Otherwise, the component will expect children which will then be displayed (in our example, we are nesting an <input type=\"file\" />and a span that acts as our label to be displayed.) This only applies to flat and raised buttons."},{"name":"labelStyle","type":"object","header":"optional","desc":"Override the inline-styles of the button's label element."},{"name":"labelPosition","type":"oneOf [\"before\", \"after\"]","header":"default: \"before\"","desc":"Place label before or after the passed children"},{"name":"linkButton","type":"bool","header":"default: false","desc":"If true, an anchor element will be generated instead of a button element."},{"name":"primary","type":"bool","header":"default: false","desc":"If true, the button will use the primary button colors."},{"name":"secondary","type":"bool","header":"default: false","desc":"If true, the button will use the secondary button colors."},{"name":"rippleColor","type":"string","header":"optional","desc":"Override the inline color of the button's ripple element."},{"name":"style","type":"object","header":"optional","desc":"Override the inline-styles of the button's root element."}]}]"""
@@ -130,33 +67,29 @@ object MuiComponent {
     val json = """[{"name":"Card.Props","infoArray":[{"name":"initiallyExpanded","type":"bool","header":"optional","desc":"Whether this card is initially expanded."}]},{"name":"Props","infoArray":[{"name":"expandable","type":"bool","header":"optional","desc":"Whether this card component is expandable. Can be set on any child of the Card component."},{"name":"actAsExpander","type":"bool","header":"optional","desc":"Whether a click on this card component expands the card. Can be set on any child of the Card component."},{"name":"showExpandableButton","type":"bool","header":"optional","desc":"Whether this card component include a button to expand the card. CardTitle, CardHeader and CardActions implement showExpandableButton. Any child component of Card can implements showExpandableButton or forwards the property to a child component supporting it."},{"name":"style","type":"object","header":"optional","desc":"Override the inline-styles of the card's root element."}]},{"name":"Card.Events","infoArray":[{"name":"onExpandChange","type":"function(isExpanded)","header":"optional","desc":"Fired when the expandable state changes."}]}]"""
   }
   object MuiCard extends MuiCards{
-
     override val name = CompName("MuiCard")
     override val propsSections = Seq("Card.Props", "Props")
   }
   object MuiCardHeader extends MuiCards{
-
     override val name = CompName("MuiCardHeader")
   }
+  object MuiCardExpandable extends MuiCards{
+    override val name = CompName("MuiCardExpandable")
+  }
   object MuiCardMedia extends MuiCards{
-
     override val name = CompName("MuiCardMedia")
   }
   object MuiCardTitle extends MuiCards{
-
     override val name = CompName("MuiCardTitle")
   }
   object MuiCardActions extends MuiCards{
-
     override val name = CompName("MuiCardActions")
   }
   object MuiCardText extends MuiCards{
-
     override val name = CompName("MuiCardText")
   }
 
   object MuiDatePicker extends MuiComponent {
-
     val name = CompName("MuiDatePicker")
     val json = """[{"name":"Props","infoArray":[{"name":"container","type":"oneOf [\"dialog\", \"inline\"]","header":"default: dialog","desc":"Used to control how the DatePicker will be displayed when a user tries to set a date. `dialog` (default) displays the DatePicker as a dialog with a modal. `inline` displays the DatePicker below the input field (similar to auto complete)"},{"name":"DateTimeFormat","type":"func","header":"default: custom function defined inside utils/date-time.js that only supports en-US locale","desc":"Constructor for time formatting. Follow this specificaction: ECMAScript Internationalization API 1.0 (ECMA-402)."},{"name":"locale","type":"string","header":"default: en-US","desc":"Locale used for formatting date. If you are not using the default value, you have to provide a DateTimeFormat that supports it. You can use Intl.DateTimeFormat if it's supported by your environment. https://github.com/andyearnshaw/Intl.js is a good polyfill."},{"name":"wordings","type":"object","header":"default: {ok: 'OK', cancel: 'Cancel' }","desc":"Wordings used inside the button of the dialog."},{"name":"autoOk","type":"bool","header":"default: false","desc":"If true, automatically accept and close the picker on select a date."},{"name":"defaultDate","type":"instanceOf(Date)","header":"optional","desc":"This is the initial date value of the component. If either `value` or `valueLink` is provided they will override this prop with `value` taking precedence."},{"name":"disableYearSelection","type":"bool","header":"optional","desc":"If true, year selection will be disabled, otherwise, year selection will be enabled."},{"name":"floatingLabelText","type":"string","header":"optional","desc":"The text string to use for the floating label element."},{"name":"formatDate","type":"func","header":"default: formats to M/D/YYYY","desc":"This function is called to format the date to display in the input box. By default, date objects are formatted to M/D/YYYY."},{"name":"hintText","type":"string","header":"optional","desc":"The hint text string to display. Note, floatingLabelText will overide this."},{"name":"maxDate","type":"instanceOf(Date)","header":"optional","desc":"The ending of a range of valid dates. The range includes the endDate. The default value is current date + 100 years."},{"name":"minDate","type":"instanceOf(Date)","header":"optional","desc":"The beginning of a range of valid dates. The range includes the startDate. The default value is current date - 100 years."},{"name":"mode","type":"oneOf [\"portrait\", \"landscape\"]","header":"default: portrait","desc":"Tells the component to display the picker in portrait or landscape mode."},{"name":"shouldDisableDate","type":"func","header":"optional","desc":"Called during render time of a given day. If this method returns false the day is disabled otherwise it is displayed normally."},{"name":"style","type":"object","header":"optional","desc":"Override the inline-styles of DatePicker's root element."},{"name":"textFieldStyle","type":"object","header":"optional","desc":"Override the inline-styles of DatePicker's TextField element."}]},{"name":"Methods","infoArray":[{"name":"getDate","header":"DatePicker.getDate()","desc":"Returns the current date value."},{"name":"setDate","header":"DatePicker.setDate(d)","desc":"Sets the date value to d, where d is a date object."},{"name":"openDialog","header":"DatePicker.openDialog()","desc":"Opens the date-picker dialog programmatically. Use this if you want to open the dialog in response to some event other than focus/tap on the input field, such as an external button click."},{"name":"focus","header":"DatePicker.focus()","desc":"An alias for the `openDialog()` method to allow more generic use alongside `TextField`."}]},{"name":"Events","infoArray":[{"name":"onChange","header":"function(null, date)","desc":"Callback function that is fired when the date value changes. Since there is no particular event associated with the change the first argument will always be null and the second argument will be the new Date instance."},{"name":"onDismiss","header":"function()","desc":"Fired when the datepicker dialog is dismissed."},{"name":"onFocus","header":"function(event)","desc":"Callback function that is fired when the datepicker field gains focus."},{"name":"onShow","header":"function()","desc":"Fired when the datepicker dialog is shown."}]}]"""
     override val postlude: Option[String] = Some(
@@ -168,12 +101,16 @@ object MuiComponent {
       """.stripMargin)
   }
   object MuiDialog extends MuiComponent {
-
     val name = CompName("MuiDialog")
     val json = """[{"name":"Props","infoArray":[{"name":"actions","type":"array","header":"optional","desc":"This prop can be either a JSON object containing the actions to render, or an array of react objects."},{"name":"actionFocus","type":"string","header":"optional","desc":"The ref of the action to focus on when the dialog is displayed."},{"name":"style","type":"object","header":"optional","desc":"Override the inline-styles of the dialog's root element."},{"name":"bodyStyle","type":"object","header":"optional","desc":"Overrides the inline-styles of the dialog container under the title."},{"name":"contentClassName","type":"string","header":"optional","desc":"The className to add to the dialog window content container. This is the Paper element that is seen when the dialog is shown."},{"name":"contentStyle","type":"object","header":"optional","desc":"Overrides the inline-styles of the dialog window content container."},{"name":"modal","type":"bool","header":"default: false","desc":"Force the user to use one of the actions in the dialog. Clicking outside the dialog will not dismiss the dialog."},{"name":"openImmediately","type":"bool","header":"default: false","desc":"Deprecated: Set to true to have the dialog automatically open on mount."},{"name":"defaultOpen","type":"bool","header":"default: false","desc":"Set to true to have the dialog automatically open on mount."},{"name":"open","type":"bool","header":"default: null","desc":"Controls whether the Dialog is opened or not."},{"name":"title","type":"node","header":"optional","desc":"The title to display on the dialog. Could be number, string, element or an array containing these types."},{"name":"autoDetectWindowHeight","type":"bool","header":"default: true","desc":"If set to true, the height of the dialog will be auto detected. A max height will be enforced so that the content does not extend beyond the viewport."},{"name":"autoScrollBodyContent","type":"bool","header":"default: false","desc":"If set to true, the body content of the dialog will be scrollable."}]},{"name":"Methods","infoArray":[{"name":"dismiss","header":"Dialog.dismiss()","desc":"Deprecated: Hides the dialog."},{"name":"show","header":"Dialog.show()","desc":"Deprecated: Shows the dialog."},{"name":"isOpen","header":"Dialog.isOpen()","desc":"Get the dialog open state."}]},{"name":"Events","infoArray":[{"name":"onDismiss","header":"function()","desc":"Deprecated: Fired when the dialog is dismissed."},{"name":"onShow","header":"function()","desc":"Deprecated: Fired when the dialog is shown."},{"name":"onRequestClose","header":"function(buttonClicked)","desc":"Fired when the dialog is requested to be closed by a click outside the dialog or on the buttons."}]}]"""
   }
-  object MuiDropDownMenu extends MuiComponent {
 
+//  object MuiDivider extends MuiComponent {
+//    val name = CompName("MuiDivider")
+//    override val json: String = noJson
+//  }
+
+  object MuiDropDownMenu extends MuiComponent {
     val name = CompName("MuiDropDownMenu")
     val json = """[{"name":"Props","infoArray":[{"name":"displayMember","type":"string","header":"default: text","desc":"DropDownMenu will use text as default value, with this property you can choose another name."},{"name":"valueMember","type":"string","header":"default: payload","desc":"DropDownMenu will use payload as default value, with this property you can choose another name."},{"name":"labelMember","type":"string","header":"default: text","desc":"DropDownMenu will use text as default value, with this property you can choose another name."},{"name":"autoWidth","type":"bool","header":"default: true","desc":"The width will automatically be set according to the items inside the menu. To control this width in Css instead, set this prop to false."},{"name":"menuItems","type":"array","header":"required","desc":"JSON data representing all menu items in the dropdown."},{"name":"menuItemStyle","type":"object","header":"optional","desc":"Overrides the inline-styles of the MenuItems when the DropDownMenu is expanded."},{"name":"selectedIndex","type":"number","header":"default: 0","desc":"Index of the item selected."},{"name":"underlineStyle","type":"object","header":"optional","desc":"Overrides the styles of DropDownMenu's underline."},{"name":"iconStyle","type":"object","header":"optional","desc":"Overrides the styles of DropDownMenu's icon element."},{"name":"labelStyle","type":"object","header":"optional","desc":"Overrides the styles of DropDownMenu's label when the DropDownMenu is inactive."},{"name":"style","type":"object","header":"optional","desc":"Overrides the inline-styles of DropDownMenu's root element."},{"name":"disabled","type":"bool","header":"default: false","desc":"Disables the menu."},{"name":"openImmediately","type":"bool","header":"default: false","desc":"Set to true to have the DropDownMenu automatically open on mount."}]},{"name":"Events","infoArray":[{"name":"onChange","header":"function(event, selectedIndex, menuItem)","desc":"Fired when a menu item is clicked that is not the one currently selected."}]}]"""
     override val postlude: Option[String] = Some(
@@ -188,15 +125,17 @@ object MuiComponent {
         |}
       """.stripMargin)
   }
+  object MuiDropDownIcon extends MuiComponent {
+    val name = CompName("MuiDropDownIcon")
+    val json = noJson
+  }
   object MuiFontIcon extends MuiComponent {
-
     override val name = CompName("MuiFontIcon")
     override val json = """[{"name":"Properties","infoArray":[{"name":"color","type":"string","header":"optional","desc":"This is the fill color of the svg icon. If not specified, this component will default to muiTheme.palette.textColor."},{"name":"hoverColor","type":"string","header":"optional","desc":"This is the icon color when the mouse hovers over the icon."},{"name":"style","type":"object","header":"optional","desc":"Override the inline-styles of the svg icon's root element."}]}]"""
     override val propsSections = Seq("Properties")
   }
 
   trait MuiGrid extends MuiComponent {
-
     val json = """[{"name":"GridList Props","infoArray":[{"name":"cols","type":"number","header":"optional","desc":"Number of columns. Defaults to 2."},{"name":"padding","type":"number","header":"optional","desc":"Number of px for the padding/spacing between items. Defaults to 4."},{"name":"cellHeight","type":"number","header":"optional","desc":"Number of px for one cell height. Defaults to 180."},{"name":"style","type":"object","header":"optional","desc":"Override the inline-styles of the grid list's root element."}]},{"name":"GridTile Props","infoArray":[{"name":"title","type":"node","header":"optional","desc":"Title to be displayed on tile."},{"name":"subtitle","type":"node","header":"optional","desc":"String or element serving as subtitle (support text)."},{"name":"titlePosition","type":"oneOf [\"top\", \"bottom\"]","header":"optional","desc":"Position of the title bar (container of title, subtitle and action icon). Defaults to \"bottom\"."},{"name":"titleBackground","type":"string","header":"optional","desc":"Style used for title bar background. Defaults to \"rgba(0, 0, 0, 0.4)\". Useful for setting custom gradients for example"},{"name":"actionIcon","type":"element","header":"optional","desc":"An IconButton element to be used as secondary action target (primary action target is the tile itself)."},{"name":"actionPosition","type":"oneOf [\"left\", \"right\"]","header":"optional","desc":"Position of secondary action IconButton. Defaults to \"right\"."},{"name":"cols","type":"number","header":"optional","desc":"Width of the tile in number of grid cells. Defaults to 1."},{"name":"rows","type":"number","header":"optional","desc":"Height of the tile in number of grid cells. Defaults to 1."},{"name":"style","type":"object","header":"optional","desc":"Override the inline-styles of the grid tile's root element."},{"name":"rootClass","type":"oneOfType [string, ReactComponent]","header":"optional","desc":"Either a string used as tag name for the tile root element, or a ReactComponent. Defaults to \"div\".This is useful when you have, for example, a custom implementation of a navigation link (that knowsabout your routes) and you want to use it as primary tile action. In case you pass a ReactComponent, please make sure that it passes all props, accepts styles overrides and render it's children."},{"name":"children","type":"node","header":"required","desc":"Theoretically you can pass any node as children, but the main use case is to pass an img, in whichcase GridTile takes care of making the image \"cover\" available space (similar to background-size: cover or to object-fit:cover)"}]}]"""
   }
   object MuiGridList extends MuiGrid {
@@ -210,17 +149,14 @@ object MuiComponent {
   val iconJson = """[{"name":"Properties","infoArray":[{"name":"color","type":"string","header":"optional","desc":"This is the fill color of the svg icon. If not specified, this component will default to muiTheme.palette.textColor."},{"name":"hoverColor","type":"string","header":"optional","desc":"This is the icon color when the mouse hovers over the icon."},{"name":"style","type":"object","header":"optional","desc":"Override the inline-styles of the svg icon's root element."}]}]"""
 
   object MuiIconButton extends MuiComponent {
-
     val name = CompName("MuiIconButton")
     val json = """[{"name":"Props","infoArray":[{"name":"iconClassName","type":"string","header":"optional","desc":"If you are using a stylesheet for your icons, enter the class name for the icon to be used here."},{"name":"iconStyle","type":"object","header":"optional","desc":"Overrides the inline-styles of the icon element."},{"name":"style","type":"object","header":"optional","desc":"Override the inline-styles of the button's root element."},{"name":"tooltip","type":"string","header":"optional","desc":"The tooltip text to show."},{"name":"tooltipPosition","type":"string","header":"default: bottom-center","desc":"Allows the tooltip to be viewed with different alignments: \"bottom-center\", \"top-center\", \"bottom-right\", \"top-right\", \"bottom-left\" and \"top-left\""},{"name":"tooltipStyles","type":"object","header":"optional","desc":"Allows modification of tooltip styles."},{"name":"touch","type":"bool","header":"default: false","desc":"If true, this component will render the touch sized tooltip."}]},{"name":"Events","infoArray":[{"name":"onBlur","header":"IconButton.onBlur(e)","desc":"Callback function for when the component loses focus."},{"name":"onFocus","header":"IconButton.onFocus(e)","desc":"Callback function for when the component gains focus."},{"name":"onTouchTap","header":"IconButton.onTouchTap(e)","desc":"Callback function for when a touch tap / click event occurs on the button."}]}]""" }
 
   object MuiIconMenu extends MuiComponent {
-
     val name = CompName("MuiIconMenu")
     val json = """[{"name":"Props","infoArray":[{"name":"anchorOrigin","type":"origin object","header":"optional","desc":"This is the point on the icon where the menu targetOrigin will stick to.\nOptions:\nvertical: [top, middle, bottom]\nhorizontal: [left, center, right]\n"},{"name":"targetOrigin","type":"origin object","header":"optional","desc":"This is the point on the menu which will stick to the menu origin.Options:vertical: [top, middle, bottom]horizontal: [left, center, right]"},{"name":"closeOnItemTouchTap","type":"bool","header":"default: true","desc":"If true, menu will close after an item is touchTapped."},{"name":"desktop","type":"bool","header":"default: false","desc":"Indicates if the menu should render with compact desktop styles."},{"name":"style","type":"object","header":"optional","desc":"Override the inline-styles of the icon menu's root element."},{"name":"iconStyle","type":"object","header":"optional","desc":"The style object to use to override underlying icon style."},{"name":"iconButtonElement","type":"element: IconButton","header":"required","desc":"This is the IconButton to render. This button will open the menu."},{"name":"menuStyle","type":"object","header":"optional","desc":"The style object to use to override underlying menu style."},{"name":"multiple","type":"bool","header":"default: false","desc":"If true, the value can an array and allow the menu to be a multi-select."},{"name":"value","type":"oneOfType [string, array]","header":"optional","desc":"The value of the selected menu item. If passed in, this will make the menu a controlled component. This component also supports valueLink."},{"name":"width","type":"oneOfType [string, number]","header":"optional","desc":"Sets the width of the menu. If not specified, the menu width will be dictated by its children. The rendered width will always be a keyline increment (64px for desktop, 56px otherwise)."},{"name":"touchTapCloseDelay","type":"number","header":"default: 200","desc":"Sets the delay in milliseconds before closing the menu when an item is clicked."}]},{"name":"Events","infoArray":[{"name":"onItemTouchTap","header":"function(event, item)","desc":"Fired when a menu item is touchTapped."},{"name":"onChange","header":"function(event, value)","desc":"Fired when a menu item is touchTapped and the menu item value is not equal to the current menu value."}]}]"""
   }
   object MuiLeftNav extends MuiComponent {
-
     val name = CompName("MuiLeftNav")
     val json = """[{"name":"Props","infoArray":[{"name":"disableSwipeToOpen","type":"bool","header":"default: false","desc":"Indicates whether swiping sideways when the nav is closed should open the nav."},{"name":"docked","type":"bool","header":"default: true","desc":"Indicates that the left nav should be docked. In this state, the overlay won't show and clicking on a menu item will not close the left nav."},{"name":"open","type":"bool","header":"default: null","desc":"Indicates that the left nav should be opened, closed or uncontrolled. Providing a boolean will turn the left nav into a controlled component."},{"name":"header","type":"element","header":"optional","desc":"A react component that will be displayed above all the menu items. Usually, this is used for a logo or a profile image."},{"name":"menuItems","type":"array","header":"optional","desc":"JSON data representing all menu items to render."},{"name":"openRight","type":"bool","header":"default: false","desc":"Positions the LeftNav to open from the right side."},{"name":"selectedIndex","type":"number","header":"optional","desc":"Indicates the particular item in the menuItems array that is currently selected."},{"name":"style","type":"object","header":"optional","desc":"Override the inline-styles of LeftNav's root element."},{"name":"menuItemClassName","type":"string","header":"optional","desc":"Class name for the menuItem."},{"name":"menuItemClassNameSubheader","type":"string","header":"optional","desc":"Class name for the subheader menuItem."},{"name":"menuItemClassNameLink","type":"string","header":"optional","desc":"Class name for the link menuItem."}]},{"name":"Methods","infoArray":[{"name":"Deprecated: open","header":"LeftNav.open()","desc":"Opens the component. Using this method is deprecated, use the open property and handle onChangeRequest to control the left nav."},{"name":"Deprecated: close","header":"LeftNav.close()","desc":"Closes the component, hiding it from view. Using this method is deprecated, use the open property and handle onChangeRequest to control the left nav."},{"name":"Deprecated: toggle","header":"LeftNav.toggle()","desc":"Toggles between the open and closed states. Using this method is deprecated, use the open property and handle onChangeRequest to control the left nav."}]},{"name":"Events","infoArray":[{"name":"onChange","header":"function(event, selectedIndex, menuItem)","desc":"Fired when a menu item is clicked that is not the one currently selected. Note that this requires the injectTapEventPlugin component. See the \"Get Started\" section for more detail."},{"name":"Deprecated: onNavOpen","header":"function()","desc":"Fired when the component is opened. Using this method is deprecated, use the open property and handle onChangeRequest to control the left nav."},{"name":"Deprecated: onNavClose","header":"function()","desc":"Fired when the component is closed. Using this method is deprecated, use the open property and handle onChangeRequest to control the left nav."},{"name":"onChangeRequest","header":"function(open, reason)","desc":"Callback function that is fired when the open state of the left nav is requested to be changed. The provided open argument determines whether the left nav is requested to be opened or closed. Also, the reason argument states why the left nav got closed or opend. It can be either 'clickaway' for menuItem and overlay clicks, 'escape' for pressing the escape key and 'swipe' for swiping. For opening the reason is always 'swipe'."}]}]"""
   }
@@ -230,18 +166,16 @@ object MuiComponent {
   }
 
   object MuiList extends MuiLists {
-
     val name = CompName("MuiList")
     override val propsSections = Seq("List Props")
   }
 
   object MuiListDivider extends MuiLists {
-
     val name = CompName("MuiListDivider")
     override val propsSections = Nil
   }
-  object MuiListItem extends MuiLists {
 
+  object MuiListItem extends MuiLists {
     val name = CompName("MuiListItem")
     override val propsSections = Seq("ListItem Props")
     override val overrideEvents = Some("ListItem Events")
@@ -251,7 +185,6 @@ object MuiComponent {
     val json = """[{"name":"Menu Props","infoArray":[{"name":"animated","type":"bool","header":"default: false","desc":"If true, the menu will apply transitions when added it gets added to the DOM. In order for transitions to work, wrap the menu inside a ReactTransitionGroup."},{"name":"autoWidth","type":"bool","header":"default: true","desc":"If true, the width will automatically be set according to the items inside the menu using the proper keyline increment."},{"name":"desktop","type":"bool","header":"default: false","desc":"Indicates if the menu should render with compact desktop styles."},{"name":"style","type":"object","header":"optional","desc":"Override the inline-styles of the menu's root element."},{"name":"listStyle","type":"object","header":"optional","desc":"The style object to use to override underlying list style."},{"name":"maxHeight","type":"number","header":"optional","desc":"The maxHeight of the menu in pixels. If specified, the menu will scroll if larger than the maxHeight."},{"name":"multiple","type":"bool","header":"default: false","desc":"If true, the value can an array and allow the menu to be a multi-select."},{"name":"openDirection","type":"oneOf [\"bottom-left\", \"bottom-right\", \"top-left\", \"top-right\"]","header":"default: bottom-left","desc":"This is the placement of the menu relative to the IconButton."},{"name":"value","type":"oneOfType [string, array]","header":"optional","desc":"The value of the selected menu item. If passed in, this will make the menu a controlled component. This component also supports valueLink."},{"name":"width","type":"oneOfType [string, integer]","header":"optional","desc":"Sets the width of the menu. If not specified, the menu width will be dictated by its children. The rendered width will always be a keyline increment (64px for desktop, 56px otherwise)."},{"name":"zDepth","type":"oneOf [0,1,2,3,4,5]","header":"optional","desc":"Sets the width of the menu. If not specified, the menu width will be dictated by its children. The rendered width will always be a keyline increment (64px for desktop, 56px otherwise)."}]},{"name":"Menu Events","infoArray":[{"name":"onEscKeyDown","header":"function(event)","desc":"Fired when an Esc key is keyed down."},{"name":"onItemTouchTap","header":"function(event, item)","desc":"Fired when a menu item is touchTapped."},{"name":"onChange","header":"function(event, value)","desc":"Fired when a menu item is touchTapped and the menu item value is not equal to the current menu value."}]},{"name":"MenuItem Props","infoArray":[{"name":"checked","type":"bool","header":"default: false","desc":"If true, a left check mark will be rendered"},{"name":"desktop","type":"bool","header":"default: false","desc":"Indicates if the menu should render with compact desktop styles."},{"name":"disabled","type":"bool","header":"default: false","desc":"Disables a menu item."},{"name":"style","type":"object","header":"optional","desc":"Override the inline-styles of the menu item's root element."},{"name":"innerDivStyle","type":"object","header":"optional","desc":"Style overrides for the inner div."},{"name":"insetChildren","type":"bool","header":"default: false","desc":"If true, the children will be indented. Only needed when there is no leftIcon."},{"name":"leftIcon","type":"element","header":"optional","desc":"This is the SvgIcon or FontIcon to be displayed on the left side."},{"name":"primaryText","type":"node","header":"optional","desc":"This is the block element that contains the primary text. If a string is passed in, a div tag will be rendered."},{"name":"rightIcon","type":"element","header":"optional","desc":"This is the SvgIcon or FontIcon to be displayed on the right side."},{"name":"secondaryText","type":"node","header":"optional","desc":"This is the block element that contains the secondary text. If a string is passed in, a div tag will be rendered."},{"name":"value","type":"string","header":"optional","desc":"The value of the menu item."}]},{"name":"Menu Item Events","infoArray":[{"name":"onTouchTap","header":"function(event, item)","desc":"Fired when a menu item is touchTapped."}]}]"""
   }
   object MuiMenu extends MuiMenus {
-
     val name = CompName("MuiMenu")
     override val propsSections = Seq("Menu Props")
     override val postlude = Some(
@@ -263,33 +196,33 @@ object MuiComponent {
       """.stripMargin)
   }
   object MuiMenuDivider extends MuiMenus {
-
     val name = CompName("MuiMenuDivider")
     override val propsSections = Nil
     override val overrideMethods = nonexisting
     override val overrideEvents = nonexisting
   }
   object MuiMenuItem extends MuiMenus {
-
     val name = CompName("MuiMenuItem")
     override val propsSections = Seq("MenuItem Props")
     override val overrideEvents = Some("Menu Item Events")
   }
 
-  object MuiPaper extends MuiComponent {
+  object MuiOverlay extends MuiComponent {
+    val name = CompName("MuiOverlay")
+    val json = noJson
+  }
 
+  object MuiPaper extends MuiComponent {
     val name = CompName("MuiPaper")
     val json = """[{"name":"Props","infoArray":[{"name":"circle","type":"bool","header":"default: false","desc":"Set to true to generate a circlular paper container."},{"name":"rounded","type":"bool","header":"default: true","desc":"By default, the paper container will have a border radius. Set this to false to generate a container with sharp corners."},{"name":"style","type":"object","header":"optional","desc":"Override the inline-styles of Paper's root element."},{"name":"zDepth","type":"oneOf [0,1,2,3,4,5]","header":"default: 1","desc":"This number represents the zDepth of the paper shadow."},{"name":"transitionEnabled","type":"bool","header":"default: true","desc":"Set to false to disable CSS transitions for the paper element."}]}]"""
   }
 
   object MuiPopover extends MuiComponent {
-
     val name = CompName("MuiPopover")
     val json = """[{"name":"Props","infoArray":[{"name":"anchorEl","type":"object","header":"optional","desc":""},{"name":"anchorOrigin","type":"origin object","header":"optional","desc":"This is the point on the anchor where the popover targetOrigin will stick to.\nOptions:\nvertical: [top, middle, bottom]\nhorizontal: [left, center, right]\n"},{"name":"targetOrigin","type":"origin object","header":"optional","desc":"This is the point on the popover which will stick to the anchors origin.Options:vertical: [top, middle, bottom]horizontal: [left, center, right]"},{"name":"animated","type":"bool","header":"default: false","desc":"If true, the popover will apply transitions when added it gets added to the DOM."},{"name":"autoCloseWhenOffScreen","type":"bool","header":"default: true","desc":"If true, the popover will hide when the anchor scrolls off the screen"},{"name":"canAutoPosition","type":"bool","header":"default: true","desc":"If true, the popover (potentially) ignores targetOrigin and anchorOrigin to make itself fit on screen,which is useful for mobile devices."},{"name":"open","type":"bool","header":"default: false","desc":"Controls the visibility of the popover."},{"name":"zDepth","type":"oneOf [0,1,2,3,4,5]","header":"default: 1","desc":"This number represents the zDepth of the paper shadow."}]},{"name":"Events","infoArray":[{"name":"onRequestClose","header":"function()","desc":"This is a callback that fires when the popover thinks it should close. (e.g. click-away or scroll off-screen)"}]}]"""
   }
 
   trait MuiProgress extends MuiComponent {
-
     val json = """[{"name":"Props","infoArray":[{"name":"mode","type":"oneOf [\"determinate\", \"indeterminate\"]","header":"default: indeterminate","desc":"The mode of show your progress, indeterminate for when there is no value for progress. "},{"name":"value","type":"number","header":"default: 0","desc":"The value of progress, only works in determinate mode. "},{"name":"max","type":"number","header":"default: 100","desc":"The max value of progress, only works in determinate mode. "},{"name":"min","type":"number","header":"default: 0","desc":"The min value of progress, only works in determinate mode. "},{"name":"size","type":"number","header":"default: 1","desc":"The size of the progress."},{"name":"style","type":"object","header":"optional","desc":"Override the inline-styles of the progress's root element."},{"name":"color","type":"string","header":"optional","desc":"Override the progress's color."}]}]"""
   }
 
@@ -302,13 +235,24 @@ object MuiComponent {
   }
 
   object MuiRefreshIndicator extends MuiComponent {
-
     val name = CompName("MuiRefreshIndicator")
     val json = """[{"name":"Props","infoArray":[{"name":"percentage","type":"number","header":"default: 0","desc":"The confirmation progress to fetch data. Max value is 100"},{"name":"size","type":"number","header":"default: 40","desc":"Size in pixels."},{"name":"status","type":"oneOf [\"ready\", \"loading\", \"hide\"]","header":"default: hide","desc":"The display status of the indicator. If the status is \"ready\", the indicator will display the ready state arrow. If the status is \"loading\", it will display the loading progress indicator. If the status is \"hide\", the indicator will be hidden."},{"name":"style","type":"object","header":"optional","desc":"Override the inline-styles of the indicator's root element."},{"name":"color","type":"string","header":"optional","desc":"Override the theme's color of the indicator while it's status is \"ready\" or it's percentage is less than 100."},{"name":"loadingColor","type":"string","header":"optional","desc":"Override the theme's color of the indicator while it's status is \"loading\" or it's percentage is 100."},{"name":"top","type":"number","header":"required","desc":"The absolute right position of the indicator in pixels."},{"name":"left","type":"number","header":"required","desc":"The absolute left position of the indicator in pixels."}]}]"""
   }
 
-  object MuiSelectField extends MuiComponent {
+  object MuiCircleRipple extends MuiComponent {
+    val name = CompName("MuiCircleRipple")
+    val json = noJson
+  }
+  object MuiFocusRipple extends MuiComponent {
+    val name = CompName("MuiFocusRipple")
+    val json = noJson
+  }
+  object MuiTouchRipple extends MuiComponent {
+    val name = CompName("MuiTouchRipple")
+    val json = noJson
+  }
 
+  object MuiSelectField extends MuiComponent {
     val name = CompName("MuiSelectField")
     val json = """[{"name":"Props","infoArray":[{"name":"disabled","type":"bool","header":"optional","desc":"Disables the select field if set to true."},{"name":"displayMember","type":"string","header":"default: text","desc":"SelectField will use text as default value, with this property you can choose another name."},{"name":"labelMember","type":"string","header":"default: text","desc":"DropDownMenu will use text as default value, with this property you can choose another name."},{"name":"errorStyle","type":"object","header":"optional","desc":"The style object to use to override error styles."},{"name":"errorText","type":"node","header":"optional","desc":"The error content to display."},{"name":"floatingLabelStyle","type":"object","header":"optional","desc":"The style object to use to override floating label styles."},{"name":"floatingLabelText","type":"node","header":"optional","desc":"The content to use for the floating label element."},{"name":"fullWidth","type":"bool","header":"optional","desc":"If true, the field receives the property width 100%."},{"name":"hintText","type":"node","header":"optional","desc":"The hint content to display."},{"name":"iconStyle","type":"object","header":"optional","desc":"Overrides the styles of SelectField's icon element."},{"name":"labelStyle","type":"object","header":"optional","desc":"Overrides the styles of SelectField's label when the SelectField is inactive."},{"name":"valueMember","type":"string","header":"default: payload","desc":"SelectField will use payload as default value, with this property you can choose another name."},{"name":"menuItems","type":"array","header":"required","desc":"An array of objects to show. The name and payload of the object will be picked by specifying valueMember and displayMember props "},{"name":"menuItemStyle","type":"object","header":"optional","desc":"Overrides the inline-styles of the MenuItems when the SelectField is expanded."},{"name":"selectedIndex","type":"number","header":"default: 0","desc":"Index of the item selected."},{"name":"selectFieldRoot","type":"object","header":"optional","desc":"The style object to use to override the drop-down menu"},{"name":"style","type":"object","header":"optional","desc":"Override the inline-styles of the SelectField's root element."},{"name":"underlineDisabledStyle","type":"object","header":"optional","desc":"Override the inline-styles of the SelectField's underline element when disabled."},{"name":"underlineStyle","type":"object","header":"optional","desc":"Overrides the styles of SelectField's underline."}]},{"name":"Methods","infoArray":[]},{"name":"Events","infoArray":[{"name":"onBlur","header":"function(event)","desc":"Callback function that is fired when the selectfield losesfocus."},{"name":"onChange","header":"function(event, selectedIndex, item)","desc":"Callback function that is fired when the selectfield's value changes."},{"name":"onFocus","header":"function(event)","desc":"Callback function that is fired when the selectfield gains focus."}]}]"""
     override val overrideMethods = nonexisting
@@ -318,18 +262,19 @@ object MuiComponent {
                                    |""".stripMargin)
   }
   object MuiSlider extends MuiComponent {
-
     val name = CompName("MuiSlider")
     val json = """[{"name":"Props","infoArray":[{"name":"name","type":"string","header":"required","desc":"The name of the slider. Behaves like the name attribute of an input element."},{"name":"defaultValue","type":"number","header":"default: 0","desc":"The default value of the slider."},{"name":"description","type":"string","header":"optional","desc":"Describe the slider."},{"name":"disabled","type":"bool","header":"default: false","desc":"If true, the slider will not be interactable."},{"name":"error","type":"string","header":"optional","desc":"An error message for the slider."},{"name":"max","type":"number","header":"default: 1","desc":"The maximum value the slider can slide to on a scale from 0 to 1 inclusive. Cannot be equal to min."},{"name":"min","type":"number","header":"default: 0","desc":"The minimum value the slider can slide to on a scale from 0 to 1 inclusive. Cannot be equal to max."},{"name":"required","type":"bool","header":"default: true","desc":"Whether or not the slider is required in a form."},{"name":"step","type":"number","header":"default: 0.01","desc":"The granularity the slider can step through values."},{"name":"style","type":"object","header":"optional","desc":"Override the inline-styles of the Slider's root element."},{"name":"value","type":"number","header":"optional","desc":"The value of the slider."}]},{"name":"Events","infoArray":[{"name":"onBlur","type":"function(event)","header":"optional","desc":"Callback function that is fired when the focus has left the slider."},{"name":"onChange","type":"function(event, value)","header":"optional","desc":"Callback function that is fired when the user changes the slider's value."},{"name":"onDragStart","type":"function(event)","header":"optional","desc":"Callback function that is fired when the slider has begun to move."},{"name":"onDragStop","type":"function(event)","header":"optional","desc":"Callback function that is fried when teh slide has stopped moving."},{"name":"onFocus","type":"function(event)","header":"optional","desc":"Callback fired when the user has focused on the slider."}]}]"""
   }
 
-  object MuiSnackbar extends MuiComponent {
 
+  object MuiSnackbar extends MuiComponent {
     val name = CompName("MuiSnackbar")
     val json = """[{"name":"Props","infoArray":[{"name":"action","type":"string","header":"optional","desc":"The name of the action on the snackbar."},{"name":"autoHideDuration","type":"number","header":"optional","desc":"The number of milliseconds to wait before automatically dismissing. If no value is specified the snackbar will dismiss normally. If a value is provided the snackbar can still be dismissed normally. If a snackbar is dismissed before the timer expires, the timer will be cleared."},{"name":"message","type":"string","header":"required","desc":"The message to be displayed on the snackbar."},{"name":"openOnMount","type":"bool","header":"default: false","desc":"If true, the snackbar will open once mounted."},{"name":"style","type":"object","header":"optional","desc":"Override the inline-styles of the Snackbar's root element."},{"name":"bodyStyle","type":"object","header":"optional","desc":"Override the inline-styles of the Snackbar's body element."}]},{"name":"Methods","infoArray":[{"name":"dismiss","header":"Snackbar.dismiss()","desc":"Hides the snackbar."},{"name":"show","header":"Snackbar.show()","desc":"Shows the snackbar."}]},{"name":"Events","infoArray":[{"name":"onActionTouchTap","header":"function(event)","desc":"Fired when the action button is touchtapped."},{"name":"onDismiss","header":"function()","desc":"Fired when the snackbar is dismissed."},{"name":"onShow","header":"function()","desc":"Fired when the snackbar is shown."}]}]"""
   }
 
-  trait MuiSwitches extends MuiComponent
+  trait MuiSwitches extends MuiComponent{
+    override val shared = Some(CompName("EnhancedSwitch"))
+  }
 
   object MuiCheckbox extends MuiSwitches {
     val name = CompName("MuiCheckbox")
@@ -337,7 +282,6 @@ object MuiComponent {
     override val propsSections   = Seq("Checkbox Props")
     override val overrideMethods = Some("Checkbox Methods")
     override val overrideEvents  = Some("Checkbox Events")
-    override val shared          = Some(SwitchSharedComponent)
   }
   object MuiRadioButton extends MuiSwitches {
     val name = CompName("MuiRadioButton")
@@ -345,9 +289,8 @@ object MuiComponent {
     override val propsSections   = Seq("Radio Button Props")
     override val overrideMethods = nonexisting
     override val overrideEvents  = nonexisting
-    override val shared          = Some(SwitchSharedComponent)
   }
-  object MuiRadioButtonGroup extends MuiSwitches {
+  object MuiRadioButtonGroup extends MuiComponent {
     val name = CompName("MuiRadioButtonGroup")
     override val json = """[{"name":"Radio Button Props","infoArray":[{"name":"defaultChecked","type":"bool","header":"default:false","desc":"The default value of the radio button when the page finishes loading."},{"name":"iconStyle","type":"object","header":"optional","desc":"Overrides the inline-styles of the icon element."},{"name":"label","type":"node","header":"optional","desc":"The text that is displayed beside the radio button."},{"name":"labelStyle","type":"object","header":"optional","desc":"Overrides the inline-styles of the RadioButton element label."},{"name":"labelPosition","type":"oneOf [\"left\", \"right\"]","header":"default:\"right\"","desc":"Where the label will be placed next to the radio button. Options include \"left\" and \"right\" (case-sensitive). Default option is \"right\"."},{"name":"style","type":"object","header":"optional","desc":"Override the inline-styles of the RadioButton's root element."},{"name":"value","type":"string","header":"optional","desc":"The value of our radio button component."}]},{"name":"Radio Button Group","infoArray":[{"name":"defaultSelected","type":"string","header":"optional","desc":"Sets the default radio button to be the one whose value matches defaultSelected (case-sensitive). This will override any individual radio button with the defaultChecked or checked property stated."},{"name":"labelPosition","type":"oneOf [\"left\", \"right\"]","header":"optional","desc":"Where the label will be placed for all radio buttons. Options include \"left\" and \"right\" (case-sensitive). This will override any labelPosition properties defined for an individual radio button."},{"name":"name","type":"string","header":"required","desc":"The name that will be applied to all radio buttons inside it."},{"name":"style","type":"object","header":"optional","desc":"Override the inline-styles of the RadioButtonGroup's root element."},{"name":"valueSelected","type":"string","header":"optional","desc":"The value of the currently selected radio button."}]},{"name":"Radio Button Group Methods","infoArray":[{"name":"getSelectedValue","header":"RadioButtonGroup.getSelectedValue()","desc":"Returns the string value of the radio button that is currently selected. If nothing has been selected, an empty string is returned."},{"name":"setSelectedValue","header":"RadioButtonGroup.setSelectedValue(newSelectionValue)","desc":"Sets the selected radio button to the radio button whose value matches newSelectionValue"},{"name":"clearValue","header":"RadioButtonGroup.clearValue()","desc":"Clears the selected value for the radio button group."}]},{"name":"Radio Button Group Events","infoArray":[{"name":"onChange","type":"function(event, selected)","header":"optional","desc":"Callback function that is fired when a radio button has been clicked. Returns the event and the value of the radio button that has been selected."}]}]"""
     override val propsSections   = Seq("Radio Button Group")
@@ -360,11 +303,9 @@ object MuiComponent {
     override val propsSections   = Seq("Toggle Props")
     override val overrideMethods = Some("Toggle Methods")
     override val overrideEvents  = Some("Toggle Events")
-    override val shared          = Some(SwitchSharedComponent)
   }
 
   trait MuiTables extends MuiComponent {
-
     override val json = """[{"name":"Table Props","infoArray":[{"name":"allRowsSelected","type":"bool","header":"default: false","desc":"Set to true to indicate that all rows should be selected."},{"name":"bodyStyle","type":"object","header":"optional","desc":"Override the inline-styles of the body's table element."},{"name":"fixedFooter","type":"bool","header":"optional","desc":"If true, the footer will appear fixed below the table. The default value is true."},{"name":"fixedHeader","type":"bool","header":"optional","desc":"If true, the header will appear fixed above the table. The default value is true."},{"name":"footerStyle","type":"object","header":"optional","desc":"Override the inline-styles of the footer's table element."},{"name":"headerStyle","type":"object","header":"optional","desc":"Override the inline-styles of the header's table element."},{"name":"height","type":"string","header":"optional","desc":"The height of the table."},{"name":"multiSelectable","type":"bool","header":"optional","desc":"If true, multiple table rows can be selected. CTRL/CMD+Click and SHIFT+Click are valid actions. The default value is false."},{"name":"selectable","type":"bool","header":"optional","desc":"If true, table rows can be selected. If multiple row selection is desired, enable multiSelectable. The default value is true."},{"name":"style","type":"object","header":"optional","desc":"Override the inline-styles of header, footer and body wrapper elements."},{"name":"wrapperStyle","type":"object","header":"optional","desc":"Override the inline-styles of the table's wrapper element."}]},{"name":"Table Header Props","infoArray":[{"name":"adjustForCheckbox","type":"bool","header":"default: true","desc":"Controls whether or not header rows should be adjusted for a checkbox column. If the select all checkbox is true, this property will not influence the number of columns. This is mainly useful for \"super header\" rows so that the checkbox column does not create an offset that needs to be accounted for manually."},{"name":"displaySelectAll","type":"bool","header":"default: true","desc":"Controls whether or not the select all checkbox is displayed."},{"name":"enableSelectAll","type":"bool","header":"default: true","desc":"If set to true, the select all button will be interactable. If set to false, the button will not be interactable. To hide the checkbox, set displaySelectAll to false."},{"name":"selectAllSelected","type":"bool","header":"default: true","desc":"If set to true the select all checkbox will be programmatically checked and will not trigger the select all event."},{"name":"style","type":"object","header":"optional","desc":"Override the inline-styles of the table header's root element."}]},{"name":"Table Body Props","infoArray":[{"name":"allRowsSelected","type":"bool","header":"default: false","desc":"Set to true to indicate that all rows should be selected."},{"name":"deselectOnClickaway","type":"bool","header":"default: true","desc":"Controls whether or not to deselect all selected rows after clicking outside the table."},{"name":"displayRowCheckbox","type":"bool","header":"optional","desc":"Controls the display of the row checkbox. The default value is true."},{"name":"multiSelectable","type":"bool","header":"optional","desc":"If true, multiple table rows can be selected. CTRL/CMD+Click and SHIFT+Click are valid actions. The default value is false."},{"name":"preScanRows","type":"bool","header":"default: true","desc":"Controls whether or not the rows are pre-scanned to determine initial state. If your table has a large number of rows and you are experiencing a delay in rendering, turn off this property."},{"name":"selectable","type":"bool","header":"optional","desc":"If true, table rows can be selected. If multiple row selection is desired, enable multiSelectable. The default value is true."},{"name":"showRowHover","type":"bool","header":"optional","desc":"If true, table rows will be highlighted when the cursor is hovering over the row. The default value is false."},{"name":"stripedRows","type":"bool","header":"optional","desc":"If true, every other table row starting with the first row will be striped. The default value is false."},{"name":"style","type":"object","header":"optional","desc":"Override the inline-styles of the table body's root element."}]},{"name":"Table Footer Props","infoArray":[{"name":"adjustForCheckbox","type":"bool","header":"default: true","desc":"Controls whether or not header rows should be adjusted for a checkbox column. If the select all checkbox is true, this property will not influence the number of columns. This is mainly useful for \"super header\" rows so that the checkbox column does not create an offset that needs to be accounted for manually."},{"name":"style","type":"object","header":"optional","desc":"Override the inline-styles of the table footer's root element."}]},{"name":"Table Row Props","infoArray":[{"name":"displayBorder","type":"bool","header":"default: true","desc":"If true, row border will be displayed for the row. If false, no border will be drawn."},{"name":"hoverable","type":"bool","header":"default: false","desc":"Controls whether or not the row reponseds to hover events."},{"name":"rowNumber","type":"number","header":"optional","desc":"Number to identify the row. This property is automatically populated when used with the TableBody component."},{"name":"selectable","type":"bool","header":"default: true","desc":"If true, table rows can be selected. If multiple row selection is desired, enable multiSelectable. The default value is true."},{"name":"selected","type":"bool","header":"default: false","desc":"Indicates that a particular row is selected. This property can be used to programmatically select rows."},{"name":"striped","type":"bool","header":"default: false","desc":"Indicates whether or not the row is striped."},{"name":"style","type":"object","header":"optional","desc":"Override the inline-styles of the table row's root element."}]},{"name":"Table Header Column Props","infoArray":[{"name":"columnNumber","type":"number","header":"optional","desc":"Number to identify the header row. This property is automatically populated when used with TableHeader."},{"name":"tooltip","type":"string","header":"optional","desc":"The string to supply to the tooltip. If not string is supplied no tooltip will be shown."},{"name":"tooltipStyle","type":"object","header":"optional","desc":"Additional styling that can be applied to the tooltip."},{"name":"style","type":"object","header":"optional","desc":"Override the inline-styles of the table header column's root element."}]},{"name":"Table Row Column Props","infoArray":[{"name":"columnNumber","type":"number","header":"optional","desc":"Number to identify the header row. This property is automatically populated when used with TableHeader."},{"name":"hoverable","type":"bool","header":"default: false","desc":"If true, this column responds to hover events."},{"name":"style","type":"object","header":"optional","desc":"Override the inline-styles of the table row column's root element."}]},{"name":"Table Events","infoArray":[{"name":"onRowSelection","type":"function(selectedRows)","header":"optional","desc":"Called when a row is selected. selectedRows is an array of all row selections. IF all rows have been selected, the string \"all\" will be returned instead to indicate that all rows have been selected."},{"name":"onCellClick","type":"function(rowNumber, columnId)","header":"optional","desc":"Called when a row cell is clicked. rowNumber is the row number and columnId is the column number or the column key."},{"name":"onRowHover","type":"function(rowNumber)","header":"optional","desc":"Called when a table row is hovered. rowNumber is the row number of the hovered row."},{"name":"onRowHoverExit","type":"function(rowNumber)","header":"optional","desc":"Called when a table row is no longer hovered. rowNumber is the row number of the row that is no longer hovered."},{"name":"onCellHover","type":"function(rowNumber, columnId)","header":"optional","desc":"Called when a table cell is hovered. rowNumber is the row number of the hovered row and columnId is the column number or the column key of the cell."},{"name":"onCellHoverExit","type":"function(rowNumber, columnId)","header":"optional","desc":"Called when a table cell is no longer hovered. rowNumber is the row number of the row and columnId is the column number or the column key of the cell."}]},{"name":"Table Header Events","infoArray":[{"name":"onSelectAll","type":"function(checked)","header":"optional","desc":"Called when the select all checkbox has been toggled."}]}]"""
   }
 
@@ -412,7 +353,6 @@ object MuiComponent {
   }
 
   trait MuiTabsT extends MuiComponent {
-
     override val json = """[{"name":"Tabs Props","infoArray":[{"name":"contentContainerStyle","type":"object","header":"optional","desc":"Override the inline-styles of the content's container."},{"name":"initialSelectedIndex","type":"number","header":"optional","desc":"Specify initial visible tab index. Initial selected index is set by default to 0. If initialSelectedIndex is set but larger than the total amount of specified tabs, initialSelectedIndex will revert back to default"},{"name":"inkBarStyle","type":"object","header":"optional","desc":"Override the inline-styles of the InkBar."},{"name":"style","type":"object","header":"optional","desc":"Override the inline-styles of the Tabs' root element."},{"name":"tabItemContainerStyle","type":"object","header":"optional","desc":"Override the inline-styles of the tab-labels container."},{"name":"tabTemplate","type":"ReactClass","header":"optional","desc":"Override the default tab template used to wrap the content of each tab element."},{"name":"value","type":"oneOfType [string, number]","header":"optional","desc":"Makes Tabs controllable and selects the tab whose value prop matches this prop."}]},{"name":"Tabs Events","infoArray":[{"name":"onChange","type":"function(value, e, tab)","header":"optional","desc":"Fired on touch or tap of a tab. Passes the value of the tab, the touchTap event and the tab element."}]},{"name":"Tab Props","infoArray":[{"name":"label","type":"string","header":"optional","desc":"Sets the text value of the tab item to the string specified."},{"name":"value","type":"string","header":"optional","desc":"If value prop passed to Tabs component, this value prop is also required. It assigns a value to the tab so that it can be selected by the Tabs."}]},{"name":"Tab Events","infoArray":[{"name":"onActive","type":"function(tab)","header":"optional","desc":"Fired when the active tab changes by touch or tap. Use this event to specify any functionality when an active tab changes. For example - we are using this to route to home when the third tab becomes active. This function will always recieve the active tab as it's first argument."}]}]"""
   }
   object MuiTab extends MuiTabsT {
@@ -428,14 +368,16 @@ object MuiComponent {
     override val overrideEvents  = Some("Tabs Events")
   }
 
+//  object MuiThemeWrapper extends MuiComponent {
+//    val name = CompName("MuiThemeWrapper")
+//    val json = noJson
+//  }
   object MuiTextField extends MuiComponent {
-
     val name = CompName("MuiTextField")
     val json = """[{"name":"Props","infoArray":[{"name":"disabled","type":"bool","header":"optional","desc":"Disables the text field if set to true."},{"name":"defaultValue","type":"string","header":"optional","desc":"The text string to use for the default value."},{"name":"errorStyle","type":"object","header":"optional","desc":"The style object to use to override error styles."},{"name":"errorText","type":"node","header":"optional","desc":"The error content to display."},{"name":"floatingLabelStyle","type":"object","header":"optional","desc":"The style object to use to override floating label styles."},{"name":"floatingLabelText","type":"node","header":"optional","desc":"The content to use for the floating label element."},{"name":"fullWidth","type":"bool","header":"optional","desc":"If true, the field receives the property width 100%."},{"name":"hintStyle","type":"object","header":"optional","desc":"Override the inline-styles of the TextField's hint text element."},{"name":"hintText","type":"node","header":"optional","desc":"The hint content to display."},{"name":"inputStyle","type":"object","header":"optional","desc":"Override the inline-styles of the TextField's input element."},{"name":"multiLine","type":"bool","header":"default: false","desc":"If true, a textarea element will be rendered. The textarea also grows and shrinks according to the number of lines."},{"name":"rows","type":"number","header":"default: 1","desc":"Number of rows to display when multiLine option is set to true."},{"name":"rowsMax","type":"number","header":"default: null","desc":"Maximum number of rows to display when multiLine option is set to true."},{"name":"style","type":"object","header":"optional","desc":"Override the inline-styles of the TextField's root element."},{"name":"underlineStyle","type":"object","header":"optional","desc":"Override the inline-styles of the TextField's underline element."},{"name":"underlineFocusStyle","type":"object","header":"optional","desc":"Override the inline-styles of the TextField's underline element when focussed."},{"name":"underlineDisabledStyle","type":"object","header":"optional","desc":"Override the inline-styles of the TextField's underline element when disabled."},{"name":"type","type":"string","header":"optional","desc":"Specifies the type of input to display such as \"password\" or \"text\"."}]},{"name":"Methods","infoArray":[{"name":"blur","header":"TextField.blur()","desc":"Removes focus on the input element."},{"name":"clearValue","header":"TextField.clearValue()","desc":"Clears the value on the input element."},{"name":"focus","header":"TextField.focus()","desc":"Sets the focus on the input element."},{"name":"getValue","header":"TextField.getValue()","desc":"Returns the value of the input."},{"name":"setErrorText","header":"TextField.setErrorText(newErrorText)","desc":"Sets the error text on the input element."},{"name":"setValue","header":"TextField.setValue(newValue)","desc":"Sets the value of the input element."}]},{"name":"Events","infoArray":[{"name":"onBlur","header":"function(event)","desc":"Callback function that is fired when the textfield losesfocus."},{"name":"onChange","header":"function(event)","desc":"Callback function that is fired when the textfield's value changes."},{"name":"onEnterKeyDown","header":"function(event)","desc":"The function to call when the user presses the Enter key."},{"name":"onFocus","header":"function(event)","desc":"Callback function that is fired when the textfield gains focus."}]}]"""
   }
 
   object MuiTimePicker extends MuiComponent {
-
     val name = CompName("MuiTimePicker")
     val json = """[{"name":"Props","infoArray":[{"name":"autoOk","type":"bool","header":"default: false","desc":"If true, automatically accept and close the picker on set minutes."},{"name":"defaultTime","type":"instanceOf(Date)","header":"optional","desc":"This is the initial time value of the component."},{"name":"floatingLabelText","type":"string","header":"optional","desc":"The text string to use for the floating label element."},{"name":"format","type":"oneOf [\"ampm\", \"24hr\"]","header":"default: ampm","desc":"Tells the component to display the picker in ampm (12hr) format or 24hr format."},{"name":"hintText","type":"string","header":"optional","desc":"The hint text string to display. Note, floatingLabelText will overide this."},{"name":"pedantic","type":"bool","header":"default: false","desc":"It's technically more correct to refer to \"12 noon\" and \"12 midnight\" rather than \"12 a.m.\" and \"12 p.m.\" and it avoids real confusion between different locales. By default (for compatibility reasons) TimePicker uses (12 a.m./12 p.m.) To use (noon/midnight) set pedantic={true}."},{"name":"style","type":"object","header":"optional","desc":"Override the inline-styles of TimePicker's root element."},{"name":"textFieldStyle","type":"object","header":"optional","desc":"Override the inline-styles of TimePicker's TextField element."}]},{"name":"Methods","infoArray":[{"name":"getTime","header":"TimePicker.getTime()","desc":"Returns the current time value."},{"name":"setTime","header":"TimePicker.setTime(t)","desc":"Sets the time value to t, where t is a date object."},{"name":"formatTime","header":"TimePicker.formatTime(time)","desc":"Formats the Date object to a current component's time format."},{"name":"openDialog","header":"TimePicker.openDialog()","desc":"Opens the time-picker dialog programmatically. Use this if you want to open the dialog in response to some event other than focus/tap on the input field, such as an external button click."},{"name":"focus","header":"TimePicker.focus()","desc":"An alias for the `openDialog()` method to allow more generic use alongside `TextField`."}]},{"name":"Events","infoArray":[{"name":"onChange","header":"function(null, time)","desc":"Callback function that is fired when the time value changes. The time value is passed in a Date Object.Since there is no particular event associated with the change the first argument will always be null and the second argument will be the new Date instance."},{"name":"onDismiss","header":"function()","desc":"Fired when the timepicker dialog is dismissed."},{"name":"onFocus","header":"function(event)","desc":"Callback function that is fired when the timepicker field gains focus."},{"name":"onShow","header":"function()","desc":"Fired when the timepicker dialog is shown."}]}]"""
   }
@@ -444,36 +386,41 @@ object MuiComponent {
     //hack alert: removed som pointless entries from json here
     val json = """[{"name":"Toolbar","infoArray":[{"name":"style","type":"object","header":"optional","desc":"Override the inline-styles of the toolbar group's root element."}]},{"name":"ToolbarGroup","infoArray":[{"name":"float","type":"string","header":"optional","desc":"Optional pull \"left\" or \"right\""},{"name":"style","type":"object","header":"optional","desc":"Override the inline-styles of the toolbar group's root element."}]},{"name":"ToolbarSeparator","infoArray":[{"name":"style","type":"object","header":"optional","desc":"Override the inline-styles of the toolbar separator's root element."}]},{"name":"ToolbarTitle","infoArray":[{"name":"text","type":"string","header":"optional","desc":"The text to be displayed for the element."},{"name":"style","type":"object","header":"optional","desc":"Override the inline-styles of the toolbar title's root element."}]}]"""
   }
-  object MuiToolbar extends MuiToolbars{
 
+  object MuiToolbar extends MuiToolbars{
     override val name = CompName("MuiToolbar")
     override val propsSections   = Seq("Toolbar")
   }
   object MuiToolbarGroup extends MuiToolbars{
-
     override val name = CompName("MuiToolbarGroup")
     override val propsSections   = Seq("ToolbarGroup")
   }
   object MuiToolbarSeparator extends MuiToolbars{
-
     override val name = CompName("MuiToolbarSeparator")
     override val propsSections   = Seq("ToolbarSeparator")
   }
   object MuiToolbarTitle extends MuiToolbars{
-
     override val name = CompName("MuiToolbarTitle")
     override val propsSections   = Seq("ToolbarTitle")
+  }
+  object MuiTooltip extends MuiComponent {
+    override val name = CompName("MuiTooltip")
+    val json = noJson
   }
 
   val components = List(
     MuiAppBar,
+    MuiAppCanvas,
     MuiAvatar,
     MuiAutoComplete,
     MuiBadge,
-    MuiCard, MuiCardHeader, MuiCardMedia, MuiCardTitle, MuiCardActions, MuiCardText,
+    MuiBeforeAfterWrapper,
+    MuiCard, MuiCardHeader, MuiCardExpandable, MuiCardMedia, MuiCardTitle, MuiCardActions, MuiCardText,
     MuiDatePicker,
     MuiDialog,
+//    MuiDivider,
     MuiDropDownMenu,
+    MuiDropDownIcon,
     MuiFlatButton,
     MuiFloatingActionButton,
     MuiFontIcon,
@@ -484,19 +431,23 @@ object MuiComponent {
     MuiLeftNav,
     MuiList, MuiListDivider, MuiListItem,
     MuiMenu, MuiMenuItem, MuiMenuDivider,
+    MuiOverlay,
     MuiPaper,
     MuiPopover,
     MuiCircularProgress, MuiLinearProgress,
     MuiRaisedButton,
     MuiRefreshIndicator,
+    MuiCircleRipple, MuiTouchRipple, MuiFocusRipple,
     MuiSelectField,
     MuiSlider,
     MuiSnackbar,
     MuiCheckbox, MuiRadioButton, MuiRadioButtonGroup, MuiToggle,
     MuiTable, MuiTableBody, MuiTableHeader, MuiTableHeaderColumn, MuiTableFooter, MuiTableRow, MuiTableRowColumn,
     MuiTab, MuiTabs,
+//    MuiThemeWrapper,
     MuiTextField,
     MuiTimePicker,
-    MuiToolbar, MuiToolbarGroup, MuiToolbarSeparator, MuiToolbarTitle
+    MuiToolbar, MuiToolbarGroup, MuiToolbarSeparator, MuiToolbarTitle,
+    MuiTooltip
   )
 }
