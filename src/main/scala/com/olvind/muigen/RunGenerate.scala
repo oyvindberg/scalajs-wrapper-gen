@@ -37,10 +37,22 @@ object RunGenerate extends App {
   }
 
 
-  val outFiles = MuiComponent.components map ParseComponents(muiComponents)
-  outFiles foreach {
-    case OutFile(file, content, secondaries) =>
-      printToFile(new File(dest, file.value + ".scala")){
+  val outFiles = ManualComponent.components flatMap ParseComponents(muiComponents)
+  val (mainFiles, enumFiles) = outFiles.partition(_.isInstanceOf[PrimaryOutFile])
+
+  printToFile(new File(dest, "gen-types.scala")){
+    w =>
+      w.println(prelude)
+      enumFiles.asInstanceOf[Seq[SecondaryOutFile]].sortBy(_.content).distinct.foreach{
+        case enumFile: SecondaryOutFile =>
+          w.println(enumFile.content)
+          w.println("")
+      }
+  }
+
+  mainFiles foreach {
+    case PrimaryOutFile(file, content, secondaries) =>
+      printToFile(new File(dest, "Mui" + file.value + ".scala")){
         w =>
           w.println(prelude + content)
           secondaries.foreach{

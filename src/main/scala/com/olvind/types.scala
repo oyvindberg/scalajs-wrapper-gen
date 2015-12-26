@@ -1,7 +1,6 @@
 package com.olvind
 
 import ammonite.ops.Path
-import com.olvind.muigen.TypeMapper
 
 trait Wrapper[A]{
   def value: A
@@ -46,3 +45,11 @@ case class Import(
   varName: VarName,
   target:  Either[Path, String]
 )
+
+case class Identifier private (value: String) extends Wrapper[String]
+object Identifier{
+  def safe(m: String): Identifier = {
+    val memberName = if (m.head.isDigit) "_" + m else m
+    Identifier(memberName.replace("-", "_"))
+  }
+}

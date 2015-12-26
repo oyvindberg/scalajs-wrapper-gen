@@ -5,7 +5,7 @@ import com.olvind.StringUtils.padTo
 
 sealed trait OutField {
   val name:          PropName
-  val baseType:      OutParam
+  val baseType:      PropType
   val typeName:      String
   val commentOpt:    Option[PropComment]
   val deprecatedMsg: Option[String]
@@ -28,26 +28,16 @@ sealed trait OutField {
   }
 }
 
-final case class ReqField(name: PropName, baseType: OutParam, commentOpt: Option[PropComment], deprecatedMsg: Option[String], inheritedOpt: Option[CompName]) extends OutField {
+final case class ReqField(name: PropName, baseType: PropType, commentOpt: Option[PropComment], deprecatedMsg: Option[String], inheritedOpt: Option[CompName]) extends OutField {
   override val typeName = baseType.typeName
   override def toString(fs: FieldStats): String =
     intro(fs) + typeName
 }
 
-final case class OptField(name: PropName, baseType: OutParam, commentOpt: Option[PropComment], deprecatedMsg: Option[String], inheritedOpt: Option[CompName]) extends OutField {
+final case class OptField(name: PropName, baseType: PropType, commentOpt: Option[PropComment], deprecatedMsg: Option[String], inheritedOpt: Option[CompName]) extends OutField {
   override val typeName = s"js.UndefOr[${baseType.typeName}]"
   override def toString(fs: FieldStats): String =
     intro(fs) + padTo(typeName)(fs.maxTypeNameLen + 2) + " = js.undefined"
-}
-
-sealed trait OutParam {
-  def typeName: String
-}
-case class OutParamClass(override val typeName: String) extends OutParam
-
-case class OutParamEnum(component: CompName, name: PropName, ss: Seq[String]) extends OutParam{
-  override val typeName = component + name.value.capitalize
-  def enumClass = OutEnumClass(typeName, ss)
 }
 
 object OutField {
@@ -79,14 +69,14 @@ object OutField {
       case tpe                  => (tpe, None)
     }
 
-    val mappedType: OutParam =
-      TypeMapper(compName, propName)(typeStr)
+    val mappedType: PropType =
+      TypeMapper(origCompName, propName, typeStr)
 
     val isRequired: Boolean =
       propString.value.contains(".isRequired")
 
-    val inheritedOpt: Option[CompName] =     //todo: wtf
-      if (compName == origCompName.map("Mui" + _)) None else Some(origCompName)
+    val inheritedOpt: Option[CompName] =
+      if (compName == origCompName) None else Some(origCompName)
 
     if (isRequired && inheritedOpt.isEmpty)
       ReqField(propName, mappedType, commentOpt, deprecatedOpt, inheritedOpt)

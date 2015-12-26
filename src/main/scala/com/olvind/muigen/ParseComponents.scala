@@ -19,7 +19,7 @@ sealed trait OutClass {
 
   def enumClases: Seq[OutEnumClass] =
     fields.map(_.baseType).collect{
-      case o: OutParamEnum => o.enumClass
+      case o: PropTypeEnum => o.enumClass
     }
 }
 
@@ -29,19 +29,20 @@ case class OutComponentClass(name: CompName) extends OutClass{
   def childrenOpt = fields.find(_.name.value == "children")
 }
 case class OutMethodClass(name: String) extends OutClass
-case class OutEnumClass(name: String, members: Seq[String])
+case class OutEnumClass(name: String, fixedNames: Seq[(Identifier, String)])
 
-case class OutFile(filename: CompName, content: String, secondaries: Seq[SecondaryOutFile])
-case class SecondaryOutFile(filename: String, content: String)
+sealed trait OutFile
+case class PrimaryOutFile(filename: CompName, content: String, secondaries: Seq[SecondaryOutFile]) extends OutFile
+case class SecondaryOutFile(filename: String, content: String) extends OutFile
 
 object ParseComponents {
   def apply(allComps: Map[CompName, gen.Component])
-           (muiComp:  MuiComponent): OutFile = {
+           (muiComp:  ManualComponent): Seq[OutFile] = {
 
     val (commentMap, methodClassOpt) = MuiDocs(muiComp)
 
     val propTypes: Map[PropName, OriginalProp] =
-      allComps.get(muiComp.name.map(_.replaceAll("Mui", ""))).flatMap(_.propsOpt).getOrElse(
+      allComps.get(muiComp.name).flatMap(_.propsOpt).getOrElse(
         throw new RuntimeException(s"No Proptypes found for ${muiComp.name}")
       )
 
@@ -56,10 +57,10 @@ object ParseComponents {
 
     val out = OutComponentClass(muiComp.name)
 
-    out.addField(OptField(PropName("key"), OutParamClass("String"), None, None, None))
-    out.addField(OptField(PropName("ref"), OutParamClass(methodClassOpt.fold("String")(_.name + " => Unit")), None, None, None))
+    out.addField(OptField(PropName("key"), PropTypeClass("String"), None, None, None))
+    out.addField(OptField(PropName("ref"), PropTypeClass(methodClassOpt.fold("String")(c => prefix + c.name + " => Unit")), None, None, None))
 
-    (inheritedProps ++ propTypes).toSeq.sortBy(p => (p._2.origComp.map("Mui" + _) != muiComp.name, p._1.clean.value)).foreach{
+    (inheritedProps ++ propTypes).toSeq.sortBy(p => (p._2.origComp != muiComp.name, p._1.clean.value)).foreach{
       case (name, OriginalProp(origComp, tpe, commentOpt)) =>
         val field = OutField(muiComp.name, origComp, name, tpe, commentOpt orElse (commentMap get name))
         out.addField(field)
@@ -68,48 +69,67 @@ object ParseComponents {
     outComponent(muiComp, out, methodClassOpt)
   }
 
-  def outComponent(comp: MuiComponent, c: OutComponentClass, methodClassOpt: Option[OutMethodClass]): OutFile = {
+  def outComponent(comp: ManualComponent, c: OutComponentClass, methodClassOpt: Option[OutMethodClass]): Seq[OutFile] = {
     val fs = c.fieldStats
-    val p1 = s"\ncase class ${comp.name}("
+    val d1 = if (comp.deprecated) "@deprecated\n" else ""
+    val p1 = s"\n${d1}case class $prefix${comp.name}("
     val p2 = c.fields.filterNot(_.name == PropName("children")).map(_.toString(fs)).mkString("", ",\n", ")")
     val body = s"""{
       |
       |  def apply() = {
-      |    val props = JSMacro[${comp.name}](this)
-      |    val f = React.asInstanceOf[js.Dynamic].createFactory(Mui.${comp.name.value.replace("Mui", "")})
+      |    val props = JSMacro[$prefix${comp.name}](this)
+      |    val f = React.asInstanceOf[js.Dynamic].createFactory($prefix.${comp.name.value})
       |    f(props).asInstanceOf[ReactComponentU_]
       |  }
       |}
     """.stripMargin
-    def bodyChildren(c: OutField) =
-      s"""{
-         |
-         |  def apply(children: ${c.typeName}${if (c.typeName.startsWith("js.UndefOr")) " = js.undefined" else ""}) = {
-         |    val props = JSMacro[${comp.name}](this)
-         |    val f = React.asInstanceOf[js.Dynamic].createFactory(Mui.${comp.name.value.replace("Mui", "")})
-         |    f(props, children).asInstanceOf[ReactComponentU_]
-         |  }
-         |}""".stripMargin
 
-    val content = (Seq(p1, p2, c.childrenOpt.fold(body)((c: OutField) => bodyChildren(c))) ++ comp.postlude.toSeq).mkString("\n")
+    def bodyChildren(c: OutField): String = {
+      val cd = c.commentOpt.fold("")(d =>
+        s"""  /**
+           |   * @param children $d
+           |   */""".stripMargin)
 
-    OutFile(comp.name, content, (c.enumClases map outEnumClass) ++ (methodClassOpt map outMethodClass))
+      if (comp.multipleChildren)
+        s"""{
+           |$cd
+           |  def apply(children: ${c.baseType.typeName}*) = {
+           |    val props = JSMacro[$prefix${comp.name}](this)
+           |    val f = React.asInstanceOf[js.Dynamic].createFactory($prefix.${comp.name.value})
+           |    if (children.isEmpty)
+           |      f(props).asInstanceOf[ReactComponentU_]
+           |    else
+           |      f(props, children.toJsArray).asInstanceOf[ReactComponentU_]
+           |  }
+           |}""".stripMargin
+      else
+        s"""{
+           |$cd
+           |  def apply(children: ${c.typeName} = js.undefined) = {
+           |    val props = JSMacro[$prefix${comp.name}](this)
+           |    val f = React.asInstanceOf[js.Dynamic].createFactory($prefix.${comp.name.value})
+           |    f(props, children).asInstanceOf[ReactComponentU_]
+           |  }
+           |}""".stripMargin
+      }
+
+    val content      = (Seq(p1, p2, c.childrenOpt.fold(body)((c: OutField) => bodyChildren(c))) ++ comp.postlude.toSeq).mkString("\n")
+    val outFile      = PrimaryOutFile(comp.name, content, methodClassOpt.toSeq map outMethodClass)
+    val outEnumFiles = c.enumClases map outEnumClass
+
+    outFile +: outEnumFiles
   }
 
   def outEnumClass(c: OutEnumClass): SecondaryOutFile = {
-    val fixedNames: Seq[(String, String)] = c.members.map { m =>
-      val memberName = if (m.head.isDigit) "_" + m else m
-      (m, memberName.toUpperCase.replace("-", "_"))
-    }
     val content =
     s"""
        |class ${c.name}(val value: String) extends AnyVal
        |object ${c.name}{
-       |${fixedNames.map {
-          case (original, fixed) =>
-            s"""  val $fixed = new ${c.name}("$original")"""
+       |${c.fixedNames.map {
+          case (fixed, original) =>
+            s"""  val ${fixed.value} = new ${c.name}("$original")"""
         }.mkString("\n")}
-       |  val values = ${fixedNames.map(_._2).toList}
+       |  val values = ${c.fixedNames.map(_._1.value).toList}
        |}""".stripMargin
     SecondaryOutFile(c.name, content)
   }
@@ -117,7 +137,7 @@ object ParseComponents {
   def outMethodClass(c: OutMethodClass): SecondaryOutFile = {
     val content = s"""
        |@js.native
-       |class ${c.name} extends js.Object{
+       |class $prefix${c.name} extends js.Object{
        |${c.fields.map{m =>
           val deprecated = if (m.asInstanceOf[Object].toString.toLowerCase.contains("deprecated")) "  @deprecated\n" else ""
           s"${m.comment}$deprecated  def ${m.name.value}(): Unit = js.native"
