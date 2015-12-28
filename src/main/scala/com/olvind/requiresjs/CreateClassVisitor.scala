@@ -1,5 +1,5 @@
 package com.olvind
-package gen
+package requiresjs
 
 import ammonite.ops.Path
 import jdk.nashorn.internal.ir._

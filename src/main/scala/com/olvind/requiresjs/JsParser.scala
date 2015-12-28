@@ -1,5 +1,5 @@
 package com.olvind
-package gen
+package requiresjs
 
 import ammonite.ops.{Path, read}
 import jdk.nashorn.internal.parser.Parser

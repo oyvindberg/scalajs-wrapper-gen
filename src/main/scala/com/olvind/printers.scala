@@ -4,7 +4,7 @@ sealed trait OutFile
 case class PrimaryOutFile(filename: CompName, content: String, secondaries: Seq[SecondaryOutFile]) extends OutFile
 case class SecondaryOutFile(filename: String, content: String) extends OutFile
 
-object ComponentPrinter {
+object Printer {
   case class FieldStats(maxFieldNameLen: Int, maxTypeNameLen: Int)
 
   def apply(prefix: String, comp: ParsedComponent): (PrimaryOutFile, Seq[SecondaryOutFile]) = {

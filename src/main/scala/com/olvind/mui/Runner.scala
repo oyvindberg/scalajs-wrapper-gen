@@ -26,23 +26,23 @@ object Runner extends App {
     |import scala.scalajs.js.`|`
   """.stripMargin
 
-  val foundComponents: Map[CompName, gen.FoundComponent] = {
-    val ctx = new gen.ScanCtx
-    val res1: gen.ScanResult =
-      gen.LibraryScanner(
+  val foundComponents: Map[CompName, requiresjs.FoundComponent] = {
+    val ctx = new requiresjs.ScanCtx
+    val res1: requiresjs.Required =
+      requiresjs.Require(
         VarName("mui"),
         home / "pr" / "material-ui" / "lib",
         ctx
       )
-    gen.flattenRes(res1)
+    requiresjs.flattenScan(res1)
   }
 
 
   val (mainFiles: Seq[PrimaryOutFile], secondaryFiles: Seq[SecondaryOutFile]) =
     MuiLibrary.components.foldLeft((Seq.empty[PrimaryOutFile], Seq.empty[SecondaryOutFile])){
       case ((ps, ss), c) =>
-        val pc     = ParsedComponent(foundComponents, MuiLibrary)(c)
-        val (p, s) = ComponentPrinter(MuiLibrary.prefix, pc)
+        val pc     = ParseComponent(foundComponents, MuiLibrary, c)
+        val (p, s) = Printer(MuiLibrary.prefix, pc)
         (ps :+ p, ss ++ s)
   }
 

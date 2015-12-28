@@ -1,30 +1,24 @@
 package com.olvind
-package gen
+package requiresjs
 
 import java.io.File
 
 import ammonite.ops._
 import jdk.nashorn.internal.ir.FunctionNode
 
+import scala.collection.mutable.ArrayBuffer
 import scala.util.Try
 
-object flattenRes {
-  def apply(r: ScanResult): Map[CompName, FoundComponent] =
-    r match {
-      case Single(n, c)     => Map(n -> c)
-      case Module(_, _, rs) => (rs flatMap apply).toMap
-    }
-}
-object LibraryScanner {
+object Require {
   def exists(path: Path): Boolean =
     new File(path.toString).exists()
 
-  def apply(moduleName: VarName, p: Path, ctx: ScanCtx): ScanResult = {
+  def apply(moduleName: VarName, p: Path, ctx: ScanCtx): Required = {
     val path   = p / "index.js"
     val parsed = ctx.parsedFile(path)
     val c      = CreateClassVisitor(parsed.result, p)
 
-    Module(moduleName, p,
+    val modules: ArrayBuffer[Required] =
       c.imports map {
         case Import(varName, Left(_filePath)) =>
           if (Try(_filePath.isDir).getOrElse(false)){
@@ -37,8 +31,8 @@ object LibraryScanner {
             val containedComponents: CreateClassVisitor[FunctionNode] =
               CreateClassVisitor(parsedComp.result, p)
 
-            Module(varName, filePath,
-              containedComponents.components.map {
+            Multiple(varName, filePath,
+              containedComponents.components.toList.map {
                 case (compName, o) =>
                   Single(
                     compName,
@@ -53,6 +47,8 @@ object LibraryScanner {
               }
             )
           }
-    })
+      }
+
+    Multiple(moduleName, p, modules)
   }
 }

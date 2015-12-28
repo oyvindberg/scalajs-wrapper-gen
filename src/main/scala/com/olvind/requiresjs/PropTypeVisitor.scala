@@ -1,5 +1,5 @@
 package com.olvind
-package gen
+package requiresjs
 
 import jdk.nashorn.internal.ir.{IdentNode, PropertyNode, ObjectNode}
 import scala.collection.JavaConverters._

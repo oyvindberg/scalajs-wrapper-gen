@@ -1,5 +1,5 @@
 package com.olvind
-package gen
+package requiresjs
 
 import jdk.nashorn.internal.ir.{BlockLexicalContext, Node}
 import jdk.nashorn.internal.ir.visitor.NodeVisitor

@@ -7,18 +7,19 @@ trait Wrapper[A]{
   override def toString = value.toString
 }
 
-case class CompName(value: String) extends Wrapper[String]{
+final case class CompName(value: String) extends Wrapper[String]{
   def map(f: String => String) =
     CompName(f(value))
 }
 
-case class PropName(value: String) extends AnyVal{
+final case class PropName(value: String) extends AnyVal {
   def clean: PropName =
     PropName(value.replaceAll("Deprecated:", "").replaceAll("or children", "").trim)
 }
-case class PropComment private (value: String) extends Wrapper[String]
 
-object PropComment{
+final case class PropComment private (value: String) extends Wrapper[String]
+
+object PropComment {
   def clean(s: String): PropComment =
     PropComment(
       s.replaceAll("/\\*", "")
@@ -31,22 +32,15 @@ object PropComment{
     )
 }
 
-case class PropUnparsed(
-  fromComp:   CompName,
-  unparsed:   PropTypeUnparsed,
-  commentOpt: Option[PropComment]
-)
+final case class VarName(value: String) extends Wrapper[String]
 
-case class PropTypeUnparsed(value: String) extends Wrapper[String]
-
-case class VarName(value: String) extends Wrapper[String]
-
-case class Import(
+final case class Import(
   varName: VarName,
   target:  Either[Path, String]
 )
 
 case class Identifier private (value: String) extends Wrapper[String]
+
 object Identifier{
   def safe(m: String): Identifier = {
     val memberName = if (m.head.isDigit) "_" + m else m

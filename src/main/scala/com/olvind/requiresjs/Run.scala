@@ -1,5 +1,5 @@
 package com.olvind
-package gen
+package requiresjs
 
 import ammonite.ops._
 
@@ -7,9 +7,9 @@ object Run extends App {
   def indented(n: Int)(s: String) =
     println((" " * n) + s)
 
-  def print(indent: Int)(r: ScanResult): Unit = {
+  def print(indent: Int)(r: Required): Unit = {
     r match {
-      case Module(name, path, cs) =>
+      case Multiple(name, path, cs) =>
         println("-" * 20)
         indented(indent)(name.value)
         cs foreach print(indent + 2)
@@ -20,6 +20,6 @@ object Run extends App {
     }
   }
   val ctx = new ScanCtx
-  val result = LibraryScanner(VarName("mui"), home / "pr" / "material-ui" / "lib", ctx)
-  println(flattenRes(result).keySet)
+  val result = Require(VarName("mui"), home / "pr" / "material-ui" / "lib", ctx)
+  println(flattenScan(result).keySet)
 }

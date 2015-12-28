@@ -21,8 +21,8 @@ object JsonSection{
     casecodec2(JsonSection.apply, JsonSection.unapply)("name", "infoArray")
 }
 
-object MuiDocs extends DocProvider {
-  def apply(prefix: String, comp: ComponentDef): (Map[PropName, PropComment], Option[ParsedMethodClass]) = {
+object MuiDocs extends DocProvider[MuiComponent] {
+  def apply(prefix: String, comp: MuiComponent): (Map[PropName, PropComment], Option[ParsedMethodClass]) = {
     comp.json.decodeEither[List[JsonSection]] match {
       case \/-(sections) =>
         val sMap: Map[String, JsonSection] =
@@ -51,10 +51,12 @@ object MuiDocs extends DocProvider {
           methodSectionOpt map {
             case section: JsonSection =>
               ParsedMethodClass(
-                prefix,
-                comp.name,
+                prefix + comp.name.value + "M",
                 section.infoArray map { f =>
-                  ParsedMethod(MuiTypeMapperMethod(comp.name, f.name), Some(PropComment.clean(f.desc)))
+                  ParsedMethod(
+                    MuiTypeMapperMethod(comp.name, f.name),
+                    Some(PropComment.clean(f.desc))
+                  )
                 }
               )
           }
