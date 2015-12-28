@@ -1,7 +1,7 @@
 package com.olvind
 package muigen
 
-object TypeMapper {
+object MuiTypeMapper {
   def apply(compName: CompName, fieldName: PropName, typeString: String): PropType = {
     def is(s: String) =
       fieldName.value.toLowerCase contains s.toLowerCase
@@ -33,7 +33,6 @@ object TypeMapper {
       case ("DatePicker",       "value",                "any")                  => PropTypeClass("js.Date")
       case ("DatePicker",       "defaultDate",          "object")               => PropTypeClass("js.Date")
       case ("DatePicker",       "maxDate",              "object")               => PropTypeClass("js.Date")
-      case ("DatePicker",       "minDate",              "object")               => PropTypeClass("js.Date")
       case ("DatePicker",       "minDate",              "object")               => PropTypeClass("js.Date")
       case ("DatePicker",       "wordings",             "object")               => PropTypeClass("Wordings")
       case ("DatePicker",       "initialDate",          "object")               => PropTypeClass("js.Date")
@@ -74,7 +73,7 @@ object TypeMapper {
       case (_, _, "Mui.cornersAndCenter")                        => PropTypeClass("CornersAndCenter")
       case (_, _, "Mui.corners")                                 => PropTypeClass("Corners")
       case (_, _, "Mui.stringOrNumber")                          => PropTypeClass("String | Double")
-      case (_, _, "func")                                        => PropTypeClass(TypeMapperFunction(compName, fieldName))
+      case (_, _, "func")                                        => PropTypeClass(MuiTypeMapperFunction(compName, fieldName))
 
       /* dubious */
       case ("AutoComplete", "menuProps", "object") => PropTypeClass("js.Any")

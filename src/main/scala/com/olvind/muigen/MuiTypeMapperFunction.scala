@@ -1,7 +1,7 @@
 package com.olvind
 package muigen
 
-object TypeMapperFunction {
+object MuiTypeMapperFunction {
   def apply(compName: CompName, name: PropName): String =
     (compName.value, name.value) match {
       case ("AppBar", "onLeftIconButtonTouchTap") => "ReactTouchEventH => Callback"
@@ -17,7 +17,6 @@ object TypeMapperFunction {
       case ("DatePicker", "shouldDisableDate") => "js.Date => Boolean"
       case ("DatePicker", "formatDate") => "js.Date => String"
       case ("DatePicker", "onAccept") => "js.Date => Callback"
-      case ("DatePicker", "DateTimeFormat") => "js.Function"
       case ("DatePicker", "shouldDisableDate") => "js.Date => Boolean"
       case ("DatePickerDialog", "onAccept") => "js.Date => Callback"
       case ("DatePickerDialog", "DateTimeFormat") => "js.Function"

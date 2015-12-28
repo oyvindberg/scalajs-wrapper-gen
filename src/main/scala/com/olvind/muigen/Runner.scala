@@ -5,7 +5,7 @@ import java.io.File
 
 import ammonite.ops._
 
-object RunGenerate extends App {
+object Runner extends App {
   val WRITE = true
   val dest = new File(args.head)
   dest.mkdir()
@@ -37,7 +37,7 @@ object RunGenerate extends App {
   }
 
 
-  val outFiles = ManualComponent.components flatMap ParseComponents(muiComponents)
+  val outFiles = MuiComponents.components flatMap ComponentPrinter(muiComponents)
   val (mainFiles, enumFiles) = outFiles.partition(_.isInstanceOf[PrimaryOutFile])
 
   printToFile(new File(dest, "gen-types.scala")){

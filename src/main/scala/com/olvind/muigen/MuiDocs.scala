@@ -22,7 +22,7 @@ object JsonSection{
 }
 
 object MuiDocs {
-  def apply(comp: ManualComponent): (Map[PropName, PropComment], Option[OutMethodClass]) = {
+  def apply(comp: ComponentDef): (Map[PropName, PropComment], Option[OutMethodClass]) = {
     comp.json.decodeEither[List[JsonSection]] match {
       case \/-(sections) =>
         val sMap: Map[String, JsonSection] =
@@ -50,19 +50,12 @@ object MuiDocs {
         val methodClassOpt: Option[OutMethodClass] =
           methodSectionOpt map {
             case section: JsonSection =>
-              val methodOut = OutMethodClass(comp.name + "M")
-              section.infoArray.foreach { f =>
-                methodOut.addField(
-                  ReqField(
-                    f.name.clean,
-                    PropTypeClass("Unit"),
-                    Some(PropComment.clean(f.desc)),
-                    None,
-                    None
-                  )
-                )
-              }
-              methodOut
+              OutMethodClass(
+                comp.name,
+                section.infoArray map { f =>
+                  OutMethod(MuiTypeMapperMethod(comp.name, f.name), Some(PropComment.clean(f.desc)))
+                }
+              )
           }
         (propComments, methodClassOpt)
       case -\/(error) =>
