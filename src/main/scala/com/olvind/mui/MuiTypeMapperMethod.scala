@@ -1,6 +1,5 @@
-package com.olvind.muigen
-
-import com.olvind.{PropName, CompName}
+package com.olvind
+package mui
 
 object MuiTypeMapperMethod {
   def apply(c: CompName, m: PropName) = (c.value, m.clean.value) match {

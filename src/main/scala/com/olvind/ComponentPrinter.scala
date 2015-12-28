@@ -1,46 +1,56 @@
 package com.olvind
 
-case class FieldStats(maxFieldNameLen: Int, maxTypeNameLen: Int)
-
 sealed trait OutFile
 case class PrimaryOutFile(filename: CompName, content: String, secondaries: Seq[SecondaryOutFile]) extends OutFile
 case class SecondaryOutFile(filename: String, content: String) extends OutFile
 
 object ComponentPrinter {
+  case class FieldStats(maxFieldNameLen: Int, maxTypeNameLen: Int)
+
   def apply(prefix: String, comp: ParsedComponent): (PrimaryOutFile, Seq[SecondaryOutFile]) = {
     val fs: FieldStats =
       FieldStats(
-        maxFieldNameLen = comp.fields.map(_.fieldNameLength).max,
-        maxTypeNameLen  = comp.fields.map(_.typeNameLength).max
+        maxFieldNameLen = comp.fields.map(_.name.value.length).max,
+        maxTypeNameLen  = comp.fields.map(_.typeName.length).max
       )
 
-    val d1 = if (comp.definition.deprecated) "@deprecated\n" else ""
-    val p1 = s"\n${d1}case class $prefix${comp.name}("
-    val p2 = comp.fields.filterNot(_.name == PropName("children")).map(
-      p => outProp(p, fs)
-    ).mkString("", ",\n", ")")
+    val deprecated: String =
+      if (comp.definition.deprecated) "@deprecated\n" else ""
 
-    val body = s"""{
-      |
-      |${indent(1)}def apply() = {
-      |${indent(2)}val props = JSMacro[$prefix${comp.name}](this)
-      |${indent(2)}val f = React.asInstanceOf[js.Dynamic].createFactory($prefix.${comp.name.value})
-      |${indent(2)}f(props).asInstanceOf[ReactComponentU_]
-      |${indent(1)}}
-      |}
-    """.stripMargin
+    val p =
+      PrimaryOutFile(
+        comp.name,
+        Seq(
+          s"\n${deprecated}case class $prefix${comp.name}(",
 
-    def bodyChildren(c: ParsedProp): String = {
-      val cd = c.commentOpt.fold("")(d =>
-        s"""${indent(1)}/**
-           |${indent(1)} * @param children $d
-           |${indent(1)} */""".stripMargin
+          comp.fields.filterNot(_.name == PropName("children")).map(
+            p => outProp(p, fs)
+          ).mkString("", ",\n", ")") + bodyChildren(prefix, comp)
+
+        ) ++ comp.definition.postlude.toSeq mkString "\n",
+        comp.methodClassOpt.toSeq map outMethodClass
       )
 
-      if (comp.definition.multipleChildren)
+    (p, comp.enumClases map outEnumClass)
+  }
+
+  def bodyChildren(prefix: String, comp: ParsedComponent): String =
+    (comp.childrenOpt, comp.definition.multipleChildren) match {
+      case (None, _) =>
         s"""{
-           |$cd
-           |${indent(1)}def apply(children: ${c.baseType.typeName}*) = {
+          |
+          |${indent(1)}def apply() = {
+          |${indent(2)}val props = JSMacro[$prefix${comp.name}](this)
+          |${indent(2)}val f = React.asInstanceOf[js.Dynamic].createFactory($prefix.${comp.name.value})
+          |${indent(2)}f(props).asInstanceOf[ReactComponentU_]
+          |${indent(1)}}
+          |}
+        """.stripMargin
+
+      case (Some(childrenProp), true) =>
+        s"""{
+           |${outChildrenComment(childrenProp.commentOpt)}
+           |${indent(1)}def apply(children: ${childrenProp.baseType.typeName}*) = {
            |${indent(2)}val props = JSMacro[$prefix${comp.name}](this)
            |${indent(2)}val f = React.asInstanceOf[js.Dynamic].createFactory($prefix.${comp.name.value})
            |${indent(2)}if (children.isEmpty)
@@ -49,23 +59,24 @@ object ComponentPrinter {
            |${indent(3)}f(props, children.toJsArray).asInstanceOf[ReactComponentU_]
            |${indent(1)}}
            |}""".stripMargin
-      else
+
+      case (Some(childrenProp), false) =>
         s"""{
-           |$cd
-           |${indent(1)}def apply(children: ${c.typeName} = js.undefined) = {
+           |${outChildrenComment(childrenProp.commentOpt)}
+           |${indent(1)}def apply(children: ${childrenProp.typeName} = js.undefined) = {
            |${indent(2)}val props = JSMacro[$prefix${comp.name}](this)
            |${indent(2)}val f = React.asInstanceOf[js.Dynamic].createFactory($prefix.${comp.name.value})
            |${indent(2)}f(props, children).asInstanceOf[ReactComponentU_]
            |${indent(1)}}
            |}""".stripMargin
-      }
+    }
 
-    val content      = (Seq(p1, p2, comp.childrenOpt.fold(body)((c: ParsedProp) => bodyChildren(c))) ++ comp.definition.postlude.toSeq).mkString("\n")
-    val outFile      = PrimaryOutFile(comp.name, content, comp.methodClassOpt.toSeq map outMethodClass)
-    val outEnumFiles = comp.enumClases map outEnumClass
-
-    (outFile, outEnumFiles)
-  }
+  def outChildrenComment(oc: Option[PropComment]) =
+    oc.fold("")(d =>
+      s"""${indent(1)}/**
+         |${indent(1)} * @param children $d
+         |${indent(1)} */""".stripMargin
+    )
 
   def outComment(commentOpt: Option[PropComment], inheritedFrom: Option[CompName]): String = {
     val lines = commentOpt.toSeq ++ inheritedFrom.map(i => s"(Passed on to $i)")

@@ -1,5 +1,5 @@
 package com.olvind
-package muigen
+package mui
 
 import java.io.File
 
@@ -16,6 +16,7 @@ object Runner extends App {
       try { op(p) } finally { p.close() }
     }
   }
+
   val prelude = """package chandu0101.scalajs.react.components
     |package materialui
     |
@@ -25,10 +26,10 @@ object Runner extends App {
     |import scala.scalajs.js.`|`
   """.stripMargin
 
-  val muiComponents: Map[CompName, gen.Component] = {
-    val ctx = new gen.Ctx
-    val res1: gen.Result =
-      gen.PropTypeParser(
+  val foundComponents: Map[CompName, gen.FoundComponent] = {
+    val ctx = new gen.ScanCtx
+    val res1: gen.ScanResult =
+      gen.LibraryScanner(
         VarName("mui"),
         home / "pr" / "material-ui" / "lib",
         ctx
@@ -38,10 +39,10 @@ object Runner extends App {
 
 
   val (mainFiles: Seq[PrimaryOutFile], secondaryFiles: Seq[SecondaryOutFile]) =
-    MuiComponents.components.foldLeft((Seq.empty[PrimaryOutFile], Seq.empty[SecondaryOutFile])){
+    MuiLibrary.components.foldLeft((Seq.empty[PrimaryOutFile], Seq.empty[SecondaryOutFile])){
       case ((ps, ss), c) =>
-        val pc     = ParsedComponent(muiComponents, MuiDocs)(c)
-        val (p, s) = ComponentPrinter(pc)
+        val pc     = ParsedComponent(foundComponents, MuiLibrary)(c)
+        val (p, s) = ComponentPrinter(MuiLibrary.prefix, pc)
         (ps :+ p, ss ++ s)
   }
 
@@ -57,7 +58,7 @@ object Runner extends App {
 
   mainFiles foreach {
     case PrimaryOutFile(file, content, secondaries) =>
-      printToFile(new File(dest, "Mui" + file.value + ".scala")){
+      printToFile(new File(dest, MuiLibrary.prefix + file.value + ".scala")){
         w =>
           w.println(prelude + content)
           secondaries.foreach{

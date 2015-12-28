@@ -1,9 +1,13 @@
 package com.olvind
-package muigen
+package mui
 
 import scala.language.implicitConversions
 
-object MuiComponents {
+object MuiLibrary extends Library {
+  override val prefix = "Mui"
+  override def docProvider = MuiDocs
+  override def typeMapper = MuiTypeMapper
+
   val nonexisting = Some("nonexisting")
   val noJson = """[{"name":"Props","infoArray":[]}]"""
 

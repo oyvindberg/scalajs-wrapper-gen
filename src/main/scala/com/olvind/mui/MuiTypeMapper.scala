@@ -1,7 +1,7 @@
 package com.olvind
-package muigen
+package mui
 
-object MuiTypeMapper {
+object MuiTypeMapper extends TypeMapper {
   def apply(compName: CompName, fieldName: PropName, typeString: String): PropType = {
     def is(s: String) =
       fieldName.value.toLowerCase contains s.toLowerCase

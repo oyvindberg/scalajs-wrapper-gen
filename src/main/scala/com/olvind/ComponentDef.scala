@@ -13,5 +13,16 @@ trait ComponentDef {
 }
 
 trait DocProvider {
-  def apply(comp: ComponentDef): (Map[PropName, PropComment], Option[ParsedMethodClass])
+  def apply(prefix: String, comp: ComponentDef): (Map[PropName, PropComment], Option[ParsedMethodClass])
+}
+
+trait TypeMapper {
+  def apply(compName: CompName, fieldName: PropName, typeString: String): PropType
+}
+
+trait Library {
+  def components: Seq[ComponentDef]
+  def docProvider: DocProvider
+  def typeMapper: TypeMapper
+  def prefix: String
 }

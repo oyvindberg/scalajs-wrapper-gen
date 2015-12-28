@@ -26,13 +26,13 @@ case class ParsedComponent(
     }
 }
 
-object ParsedComponent{
-  def apply(allComps: Map[CompName, gen.Component],
-            docProvider: DocProvider)
+object ParsedComponent {
+  def apply(allComps: Map[CompName, gen.FoundComponent],
+            library: Library)
            (muiComp:  ComponentDef): ParsedComponent = {
 
     val (commentMap, methodClassOpt: Option[ParsedMethodClass]) =
-      docProvider(muiComp)
+      library.docProvider(library.prefix, muiComp)
 
     val propTypes: Map[PropName, PropUnparsed] =
       allComps.get(muiComp.name).flatMap(_.propsOpt).getOrElse(
@@ -63,6 +63,7 @@ object ParsedComponent{
         .map {
         case (propName, PropUnparsed(origComp, tpe, commentOpt)) =>
           ParsedProp(
+            library,
             muiComp.name,
             origComp,
             propName,

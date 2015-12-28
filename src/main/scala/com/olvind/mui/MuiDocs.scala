@@ -1,5 +1,5 @@
 package com.olvind
-package muigen
+package mui
 
 import argonaut.CodecJson
 
@@ -22,7 +22,7 @@ object JsonSection{
 }
 
 object MuiDocs extends DocProvider {
-  def apply(comp: ComponentDef): (Map[PropName, PropComment], Option[ParsedMethodClass]) = {
+  def apply(prefix: String, comp: ComponentDef): (Map[PropName, PropComment], Option[ParsedMethodClass]) = {
     comp.json.decodeEither[List[JsonSection]] match {
       case \/-(sections) =>
         val sMap: Map[String, JsonSection] =

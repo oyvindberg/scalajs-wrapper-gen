@@ -1,7 +1,5 @@
 package com.olvind
 
-import com.olvind.muigen.MuiTypeMapper
-
 sealed trait PropType {
   def typeName: String
 }
@@ -26,9 +24,6 @@ final case class ParsedProp(
   deprecatedMsg: Option[String],
   inheritedFrom: Option[CompName]) {
 
-  def typeNameLength  = typeName.length
-  def fieldNameLength = name.value.length
-
   val typeName =
     if (isRequired) baseType.typeName
     else            s"js.UndefOr[${baseType.typeName}]"
@@ -38,7 +33,8 @@ object ParsedProp {
   //  "Deprecated(string, 'Instead, use a custom `actions` property.')"
   val Pattern = "Deprecated\\(([^,]+), '(.+)'\\)".r
 
-  def apply(compName:     CompName,
+  def apply(library:      Library,
+            compName:     CompName,
             origCompName: CompName,
             propName:     PropName,
             propString:   PropTypeUnparsed,
@@ -64,7 +60,7 @@ object ParsedProp {
     }
 
     val mappedType: PropType =
-      MuiTypeMapper(origCompName, propName, typeStr)
+      library.typeMapper(origCompName, propName, typeStr)
 
     val isRequired: Boolean =
       propString.value.contains(".isRequired")

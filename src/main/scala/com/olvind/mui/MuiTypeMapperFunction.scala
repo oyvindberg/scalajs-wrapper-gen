@@ -1,5 +1,5 @@
 package com.olvind
-package muigen
+package mui
 
 object MuiTypeMapperFunction {
   def apply(compName: CompName, name: PropName): String =
