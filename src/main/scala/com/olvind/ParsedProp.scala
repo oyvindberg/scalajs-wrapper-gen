@@ -1,5 +1,6 @@
 package com.olvind
-package muigen
+
+import com.olvind.muigen.MuiTypeMapper
 
 sealed trait PropType {
   def typeName: String
@@ -14,7 +15,7 @@ case class PropTypeEnum(component: CompName, name: PropName, ss: Seq[String]) ex
   override val typeName: String =
     fixedNames.map(_._1.value.capitalize).mkString("") //name.value.capitalize
 
-  def enumClass = OutEnumClass(typeName, fixedNames)
+  def enumClass = ParsedEnumClass(typeName, fixedNames)
 }
 
 final case class ParsedProp(
@@ -40,7 +41,7 @@ object ParsedProp {
   def apply(compName:     CompName,
             origCompName: CompName,
             propName:     PropName,
-            propString:   PropString,
+            propString:   PropTypeUnparsed,
             commentOpt:   Option[PropComment]): ParsedProp = {
 
     val _clean: String =

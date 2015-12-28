@@ -11,3 +11,7 @@ trait ComponentDef {
   val multipleChildren: Boolean = true
   val deprecated: Boolean = false
 }
+
+trait DocProvider {
+  def apply(comp: ComponentDef): (Map[PropName, PropComment], Option[ParsedMethodClass])
+}

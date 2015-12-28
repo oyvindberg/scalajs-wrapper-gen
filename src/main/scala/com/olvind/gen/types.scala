@@ -21,5 +21,5 @@ case class Component(
   file:      Path,
   imports:   Seq[Import],
   jsContent: String,
-  propsOpt:  Option[Map[PropName, OriginalProp]]
+  propsOpt:  Option[Map[PropName, PropUnparsed]]
 )

@@ -31,13 +31,13 @@ object PropComment{
     )
 }
 
-case class OriginalProp(
-  origComp: CompName,
-  s: PropString,
-  oc: Option[PropComment]
+case class PropUnparsed(
+  fromComp:   CompName,
+  unparsed:   PropTypeUnparsed,
+  commentOpt: Option[PropComment]
 )
 
-case class PropString(value: String) extends Wrapper[String]
+case class PropTypeUnparsed(value: String) extends Wrapper[String]
 
 case class VarName(value: String) extends Wrapper[String]
 

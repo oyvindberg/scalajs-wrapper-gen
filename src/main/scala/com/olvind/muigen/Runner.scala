@@ -37,15 +37,20 @@ object Runner extends App {
   }
 
 
-  val outFiles = MuiComponents.components flatMap ComponentPrinter(muiComponents)
-  val (mainFiles, enumFiles) = outFiles.partition(_.isInstanceOf[PrimaryOutFile])
+  val (mainFiles: Seq[PrimaryOutFile], secondaryFiles: Seq[SecondaryOutFile]) =
+    MuiComponents.components.foldLeft((Seq.empty[PrimaryOutFile], Seq.empty[SecondaryOutFile])){
+      case ((ps, ss), c) =>
+        val pc     = ParsedComponent(muiComponents, MuiDocs)(c)
+        val (p, s) = ComponentPrinter(pc)
+        (ps :+ p, ss ++ s)
+  }
 
   printToFile(new File(dest, "gen-types.scala")){
     w =>
       w.println(prelude)
-      enumFiles.asInstanceOf[Seq[SecondaryOutFile]].sortBy(_.content).distinct.foreach{
-        case enumFile: SecondaryOutFile =>
-          w.println(enumFile.content)
+      secondaryFiles.sortBy(_.content).distinct.foreach{
+        case file =>
+          w.println(file.content)
           w.println("")
       }
   }

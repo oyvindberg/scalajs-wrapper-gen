@@ -17,7 +17,6 @@ object MuiTypeMapperFunction {
       case ("DatePicker", "shouldDisableDate") => "js.Date => Boolean"
       case ("DatePicker", "formatDate") => "js.Date => String"
       case ("DatePicker", "onAccept") => "js.Date => Callback"
-      case ("DatePicker", "shouldDisableDate") => "js.Date => Boolean"
       case ("DatePickerDialog", "onAccept") => "js.Date => Callback"
       case ("DatePickerDialog", "DateTimeFormat") => "js.Function"
       case ("DatePickerDialog", "shouldDisableDate") => "js.Date => Boolean"

@@ -6,23 +6,23 @@ import argonaut.CodecJson
 import scalaz.{-\/, \/-}
 import argonaut.Argonaut._
 
-case class JsonField(name: PropName, `type`: Option[PropString], header: PropString, desc: String)
+case class JsonField(name: PropName, `type`: Option[PropTypeUnparsed], header: PropTypeUnparsed, desc: String)
 case class JsonSection(name: String, infoArray: List[JsonField])
 
 object JsonSection{
-  implicit val S = CodecJson.derived[String]
-  implicit val I1: CodecJson[PropName] =
+  implicit val S                                        = CodecJson.derived[String]
+  implicit val I1: CodecJson[PropName]                  =
     implicitly[CodecJson[String]].xmap(PropName)(_.value)
-  implicit val I2: CodecJson[PropString] =
-    implicitly[CodecJson[String]].xmap(PropString)(_.value)
-  implicit val FieldCodecJson: CodecJson[JsonField] =
+  implicit val I2: CodecJson[PropTypeUnparsed]          =
+    implicitly[CodecJson[String]].xmap(PropTypeUnparsed)(_.value)
+  implicit val FieldCodecJson: CodecJson[JsonField]     =
     casecodec4(JsonField.apply, JsonField.unapply)("name", "type", "header", "desc")
   implicit val SectionCodecJson: CodecJson[JsonSection] =
     casecodec2(JsonSection.apply, JsonSection.unapply)("name", "infoArray")
 }
 
-object MuiDocs {
-  def apply(comp: ComponentDef): (Map[PropName, PropComment], Option[OutMethodClass]) = {
+object MuiDocs extends DocProvider {
+  def apply(comp: ComponentDef): (Map[PropName, PropComment], Option[ParsedMethodClass]) = {
     comp.json.decodeEither[List[JsonSection]] match {
       case \/-(sections) =>
         val sMap: Map[String, JsonSection] =
@@ -47,13 +47,14 @@ object MuiDocs {
         val methodSectionOpt: Option[JsonSection] =
           sMap.get(comp.overrideMethods getOrElse "Methods")
 
-        val methodClassOpt: Option[OutMethodClass] =
+        val methodClassOpt: Option[ParsedMethodClass] =
           methodSectionOpt map {
             case section: JsonSection =>
-              OutMethodClass(
+              ParsedMethodClass(
+                prefix,
                 comp.name,
                 section.infoArray map { f =>
-                  OutMethod(MuiTypeMapperMethod(comp.name, f.name), Some(PropComment.clean(f.desc)))
+                  ParsedMethod(MuiTypeMapperMethod(comp.name, f.name), Some(PropComment.clean(f.desc)))
                 }
               )
           }
