@@ -13,10 +13,10 @@ object MuiTypeMapper extends TypeMapper {
     (compName.value, fieldName.value, typeString) match {
       case (_, _, "func") =>
         Type(MuiTypeMapperFunction(compName, fieldName))
-      case (_, _, enum) if enum.startsWith("oneOf") =>
-        Enum(compName, fieldName, split(1, enum))
       case (_, _, e) if e.contains("oneOfType") =>
         Type( split(1, e) map (t => apply(compName, fieldName, t)) map (_.typeName) mkString " | ")
+      case (_, _, enum) if enum.startsWith("oneOf") =>
+        Enum(compName, fieldName, split(1, enum))
 
       /* Double => Int */
       case (_,                     "autoHideDuration",     "number") => Type("Int")
