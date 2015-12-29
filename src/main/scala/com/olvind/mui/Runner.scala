@@ -17,14 +17,19 @@ object Runner extends App {
     }
   }
 
-  val prelude = """package chandu0101.scalajs.react.components
-    |package materialui
-    |
-    |import chandu0101.macros.tojs.JSMacro
-    |import japgolly.scalajs.react._
-    |import scala.scalajs.js
-    |import scala.scalajs.js.`|`
-  """.stripMargin
+  val prelude =
+    """package chandu0101.scalajs.react.components
+      |package materialui
+      |
+      |import chandu0101.macros.tojs.JSMacro
+      |import japgolly.scalajs.react._
+      |import scala.scalajs.js
+      |import scala.scalajs.js.`|`
+      |
+      |/**
+      | * This file is generated - submit issues instead of PR against it
+      | */
+    """.stripMargin
 
   val foundComponents: Map[CompName, requiresjs.FoundComponent] = {
     val ctx = new requiresjs.ScanCtx
@@ -36,7 +41,6 @@ object Runner extends App {
       )
     requiresjs.flattenScan(res1)
   }
-
 
   val (mainFiles: Seq[PrimaryOutFile], secondaryFiles: Seq[SecondaryOutFile]) =
     MuiLibrary.components.foldLeft((Seq.empty[PrimaryOutFile], Seq.empty[SecondaryOutFile])){

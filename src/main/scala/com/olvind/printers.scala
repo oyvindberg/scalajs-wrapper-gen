@@ -121,7 +121,9 @@ object Printer {
          |@js.native
          |class ${c.className} extends js.Object {
          |${c.ms.map{m =>
-            val deprecated = if (m.asInstanceOf[Object].toString.toLowerCase.contains("deprecated")) s"${indent(1)}@deprecated\n" else ""
+            val deprecated: String =
+              if (m.toString().toLowerCase.contains("deprecated")) s"${indent(1)}@deprecated\n"
+              else ""
             val comment = outComment(m.commentOpt, None)
             s"$comment$deprecated${indent(1)}def ${m.definition} = js.native"
             }.mkString("\n\n")

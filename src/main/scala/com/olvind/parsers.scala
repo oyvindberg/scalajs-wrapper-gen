@@ -2,31 +2,35 @@ package com.olvind
 
 object ParseComponent {
   def apply[D <: ComponentDef](
-    allComps: Map[CompName, requiresjs.FoundComponent],
-    library:  Library[D],
-    muiComp:  D): ParsedComponent = {
+    scope:   Map[CompName, requiresjs.FoundComponent],
+    library: Library[D],
+    comp:    D): ParsedComponent = {
 
     val (commentMap, methodClassOpt: Option[ParsedMethodClass]) =
-      library.docProvider(library.prefix, muiComp)
+      library.docProvider(library.prefix, comp)
 
     val propTypes: Map[PropName, PropUnparsed] =
-      allComps.get(muiComp.name).flatMap(_.propsOpt).getOrElse(
-        throw new RuntimeException(s"No Proptypes found for ${muiComp.name}")
+      scope.get(comp.name).flatMap(_.propsOpt).getOrElse(
+        throw new RuntimeException(s"No Proptypes found for ${comp.name}")
       )
 
     val inheritedProps: Map[PropName, PropUnparsed] =
-      muiComp.shared match {
+      comp.shared match {
         case None         => Map.empty
         case Some(shared) =>
-          allComps.get(shared).flatMap(_.propsOpt).getOrElse(
+          scope.get(shared).flatMap(_.propsOpt).getOrElse(
             throw new RuntimeException(s"No Proptypes found for $shared")
           )
       }
 
     val basicFields: Seq[ParsedProp] =
       Seq(
-        ParsedProp(PropName("key"), isRequired = false, PropType.Type("String"), None, None, None),
-        ParsedProp(PropName("ref"), isRequired = false, PropType.Type(methodClassOpt.fold("String")(c => c.className + " => Unit")), None, None, None)
+        ParsedProp(PropName("key"), isRequired = false,
+          PropType.Type("String"), None, None, None
+        ),
+        ParsedProp(PropName("ref"), isRequired = false,
+          PropType.Type(methodClassOpt.fold("String")(c => c.className + " => Unit")), None, None, None
+        )
   //    out.addField(ReqField(PropName("untyped"), PropTypeClass("Map[String, js.Any]"), None, None, None))
       )
 
@@ -34,12 +38,12 @@ object ParseComponent {
       (inheritedProps ++ propTypes)
         .filterNot(t => basicFields.exists(_.name == t._1))
         .toSeq
-        .sortBy(p => (p._2.fromComp != muiComp.name, p._1.clean.value))
+        .sortBy(p => (p._2.fromComp != comp.name, p._1.clean.value))
         .map {
         case (propName, PropUnparsed(origComp, tpe, commentOpt)) =>
           ParseProp(
             library,
-            muiComp.name,
+            comp.name,
             origComp,
             propName,
             tpe,
@@ -47,7 +51,7 @@ object ParseComponent {
           )
       }
 
-    ParsedComponent( muiComp, basicFields ++ parsedFields, methodClassOpt)
+    ParsedComponent( comp, basicFields ++ parsedFields, methodClassOpt)
   }
 }
 

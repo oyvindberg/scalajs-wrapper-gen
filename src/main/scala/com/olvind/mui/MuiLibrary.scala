@@ -3,17 +3,11 @@ package mui
 
 import scala.language.implicitConversions
 
-trait MuiComponent extends ComponentDef {
-  val propsSections: Seq[String] = Seq("Props")
-  val overrideMethods: Option[String] = None
-  val overrideEvents: Option[String] = None
-}
-
 object MuiLibrary extends Library[MuiComponent] {
   override val prefix = "Mui"
 
-  override def docProvider: DocProvider[MuiComponent] = MuiDocs
-  override def typeMapper = MuiTypeMapper
+  override def docProvider = MuiDocs
+  override def typeMapper  = MuiTypeMapper
 
   val nonexisting = Some("nonexisting")
   val noJson = """[{"name":"Props","infoArray":[]}]"""
