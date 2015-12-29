@@ -51,7 +51,7 @@ object ParseComponent {
           )
       }
 
-    ParsedComponent( comp, basicFields ++ parsedFields, methodClassOpt)
+    ParsedComponent(comp, basicFields ++ parsedFields, methodClassOpt)
   }
 }
 
@@ -66,14 +66,13 @@ object ParseProp {
             propName:     PropName,
             propString:   PropTypeUnparsed,
             commentOpt:   Option[PropComment]): ParsedProp = {
-    //todo: this is fairly mui specific
     val _clean: String =
       propString.value
-        .replace("React.", "")
         .replace("PropTypes.", "")
         .replace(".isRequired", "")
         /* old style */
         .replace("_react2['default'].", "")
+        //todo: this is fairly mui specific
         .replace("_utilsPropTypes2['default'].", "Mui.")
         .replace("(0, _utilsDeprecatedPropType2['default'])", "Deprecated")
         /* new style */

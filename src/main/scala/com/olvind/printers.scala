@@ -55,6 +55,8 @@ object Printer {
            |${indent(2)}val f = React.asInstanceOf[js.Dynamic].createFactory($prefix.${comp.name.value})
            |${indent(2)}if (children.isEmpty)
            |${indent(3)}f(props).asInstanceOf[ReactComponentU_]
+           |${indent(2)}else if (children.size == 1)
+           |${indent(3)}f(props, children.head).asInstanceOf[ReactComponentU_]
            |${indent(2)}else
            |${indent(3)}f(props, children.toJsArray).asInstanceOf[ReactComponentU_]
            |${indent(1)}}
