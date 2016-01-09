@@ -19,7 +19,6 @@ object Run extends App {
         c.propsOpt.fold(())(_ foreach {case (name, tpe) => indented(indent + 2)(name + " -> " + tpe)})
     }
   }
-  val ctx = new ScanCtx
-  val result = Require(VarName("mui"), home / "pr" / "material-ui" / "lib", ctx)
+  val result = Require(VarName("mui"), home / "pr" / "material-ui" / "lib")
   println(flattenScan(result).keySet)
 }

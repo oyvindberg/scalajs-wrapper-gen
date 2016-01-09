@@ -13,7 +13,10 @@ object Require {
   def exists(path: Path): Boolean =
     new File(path.toString).exists()
 
-  def apply(moduleName: VarName, p: Path, ctx: ScanCtx): Required = {
+  def apply(moduleName: VarName, p: Path): Required =
+    apply(moduleName, p, new ScanCtx)
+
+  private def apply(moduleName: VarName, p: Path, ctx: ScanCtx): Required = {
     val path   = p / "index.js"
     val parsed = ctx.parsedFile(path)
     val c      = CreateClassVisitor(parsed.result, p)

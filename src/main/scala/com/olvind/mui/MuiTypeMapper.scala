@@ -83,7 +83,7 @@ object MuiTypeMapper extends TypeMapper {
       case (_, _, "Mui.stringOrNumber")    => Type("String | Double")
 
       /* general */
-      case (_, "valueLink", _)             => Type("js.Any")
+      case (_, "valueLink", "object")             => Type("js.Any")
       case (_, _, "string")                => Type("String")
       case (_, _, "bool")                  => Type("Boolean")
       case (_, _, "element")               => Type("ReactElement")

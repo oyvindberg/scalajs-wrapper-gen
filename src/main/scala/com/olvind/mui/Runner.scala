@@ -32,12 +32,10 @@ object Runner extends App {
     """.stripMargin
 
   val foundComponents: Map[CompName, requiresjs.FoundComponent] = {
-    val ctx = new requiresjs.ScanCtx
     val res1: requiresjs.Required =
       requiresjs.Require(
         VarName("mui"),
-        home / "pr" / "material-ui" / "lib",
-        ctx
+        home / "pr" / "material-ui" / "lib"
       )
     requiresjs.flattenScan(res1)
   }

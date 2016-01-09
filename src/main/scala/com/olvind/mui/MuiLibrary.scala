@@ -26,8 +26,11 @@ object MuiLibrary extends Library[MuiComponent] {
     override val multipleChildren = false
   }
   object AutoComplete extends MuiComponent{
+    override val propsSections = Seq("props")
+    override val overrideEvents = Some("events")
+
     override val name = CompName("AutoComplete")
-    override val json = noJson
+    override val json = """[{"name":"props","infoArray":[{"name":"dataSource","type":"array","header":"optional","desc":"Array of type string or type object that populate the auto complete list."},{"name":"errorText","type":"string","header":"optional","desc":"The error content to display."},{"name":"floatingLabelText","type":"string","header":"optional","desc":"The content to use for adding floating label element."},{"name":"fullWidth","type":"string","header":"optional","desc":"If true, the field receives the property width 100%."},{"name":"hintText","type":"string","header":"optional","desc":"The hint content to display."},{"name":"showAllItems","type":"bool","header":"optional","desc":"If true, the item list will not be filtered and will show when the control is focused (works like a drop down list)."}]},{"name":"events","infoArray":[{"name":"onUpdateInput","type":"func","header":"optional","desc":"Gets called each time the user updates the text field"},{"name":"onNewRequest","type":"func","header":"optional","desc":"Gets called when list item is clicked or pressed enter"}]}]"""
   }
   object Badge extends MuiComponent{
     override val name = CompName("Badge")
@@ -105,10 +108,10 @@ object MuiLibrary extends Library[MuiComponent] {
     override val json = """[{"name":"Props","infoArray":[{"name":"actions","type":"array","header":"optional","desc":"This prop can be either a JSON object containing the actions to render, or an array of react objects."},{"name":"actionFocus","type":"string","header":"optional","desc":"The ref of the action to focus on when the dialog is displayed."},{"name":"style","type":"object","header":"optional","desc":"Override the inline-styles of the dialog's root element."},{"name":"bodyStyle","type":"object","header":"optional","desc":"Overrides the inline-styles of the dialog container under the title."},{"name":"contentClassName","type":"string","header":"optional","desc":"The className to add to the dialog window content container. This is the Paper element that is seen when the dialog is shown."},{"name":"contentStyle","type":"object","header":"optional","desc":"Overrides the inline-styles of the dialog window content container."},{"name":"modal","type":"bool","header":"default: false","desc":"Force the user to use one of the actions in the dialog. Clicking outside the dialog will not dismiss the dialog."},{"name":"openImmediately","type":"bool","header":"default: false","desc":"Deprecated: Set to true to have the dialog automatically open on mount."},{"name":"defaultOpen","type":"bool","header":"default: false","desc":"Set to true to have the dialog automatically open on mount."},{"name":"open","type":"bool","header":"default: null","desc":"Controls whether the Dialog is opened or not."},{"name":"title","type":"node","header":"optional","desc":"The title to display on the dialog. Could be number, string, element or an array containing these types."},{"name":"autoDetectWindowHeight","type":"bool","header":"default: true","desc":"If set to true, the height of the dialog will be auto detected. A max height will be enforced so that the content does not extend beyond the viewport."},{"name":"autoScrollBodyContent","type":"bool","header":"default: false","desc":"If set to true, the body content of the dialog will be scrollable."}]},{"name":"Methods","infoArray":[{"name":"dismiss","header":"Dialog.dismiss()","desc":"Deprecated: Hides the dialog."},{"name":"show","header":"Dialog.show()","desc":"Deprecated: Shows the dialog."},{"name":"isOpen","header":"Dialog.isOpen()","desc":"Get the dialog open state."}]},{"name":"Events","infoArray":[{"name":"onDismiss","header":"function()","desc":"Deprecated: Fired when the dialog is dismissed."},{"name":"onShow","header":"function()","desc":"Deprecated: Fired when the dialog is shown."},{"name":"onRequestClose","header":"function(buttonClicked)","desc":"Fired when the dialog is requested to be closed by a click outside the dialog or on the buttons."}]}]"""
   }
 
-//  object Divider extends MuiComponent {
-//    val name = CompName("Divider")
-//    override val json: String = noJson
-//  }
+  object Divider extends MuiComponent {
+    val name = CompName("Divider")
+    override val json: String = noJson
+  }
 
   object DropDownMenu extends MuiComponent{
     override val name = CompName("DropDownMenu")
@@ -172,11 +175,11 @@ object MuiLibrary extends Library[MuiComponent] {
     override val propsSections = Seq("List Props")
   }
 
-  object ListDivider extends MuiLists {
-    override val name = CompName("ListDivider")
-    override val propsSections = Nil
-    override val deprecated: Boolean = true
-  }
+//  object ListDivider extends MuiLists {
+//    override val name = CompName("ListDivider")
+//    override val propsSections = Nil
+//    override val deprecated: Boolean = true
+//  }
 
   object ListItem extends MuiLists {
     override val name = CompName("ListItem")
@@ -433,7 +436,7 @@ object MuiLibrary extends Library[MuiComponent] {
     Card, CardHeader, CardExpandable, CardMedia, CardTitle, CardActions, CardText,
     DatePicker,
     Dialog,
-//    Divider,
+//    Divider//,
     DropDownMenu,
     DropDownIcon,
     FlatButton,
@@ -444,7 +447,9 @@ object MuiLibrary extends Library[MuiComponent] {
     IconButton,
     IconMenu,
     LeftNav,
-    MuiList, ListDivider, ListItem,
+    MuiList,
+//    ListDivider,
+    ListItem,
     Menu, MenuItem, MenuDivider,
     Overlay,
     Paper,
