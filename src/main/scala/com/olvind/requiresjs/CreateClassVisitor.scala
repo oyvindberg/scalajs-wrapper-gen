@@ -64,12 +64,13 @@ case class CreateClassVisitor[N <: Node](n: N, currentPath: Path) extends MyNode
           case None =>
             ???
         }
-      case (i: IdentNode, List(arg: IdentNode)) if i.getName == "_interopRequireDefault" =>
+      case (i: IdentNode, List(arg: IdentNode)) if i.getName.contains("interopRequireDefault") =>
         nameStack.headOption match {
           case Some(name) =>
             imports.find(_.varName == VarName(arg.getName)) match {
               case Some(referenced) => imports += referenced.copy(varName = name)
-              case None => ???
+              case None =>
+                println(s"Warning: Undefined import ${arg.getName}")
             }
           case None => ???
         }

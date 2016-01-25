@@ -1,26 +1,22 @@
 package com.olvind
-package mui
 
 import java.io.File
 
 import ammonite.ops._
 
-object Runner extends App {
-  val WRITE = true
-  val dest = new File(args.head)
-  dest.mkdir()
+class Runner[D <: ComponentDef](library: Library[D]) {
+  val basedir = new File("/Users/oyvindberg/pr/scalajs-react-components/core/src/main/scala/chandu0101/scalajs/react/components")
+  val WRITE   = true
 
-  def printToFile(f: java.io.File)(op: java.io.PrintWriter => Unit) {
+  def printToFile(f: java.io.File)(op: java.io.PrintWriter => Unit): Unit =
     if (WRITE){
       val p = new java.io.PrintWriter(f)
       try { op(p) } finally { p.close() }
     }
-  }
 
   val prelude =
-    """package chandu0101.scalajs.react.components
-      |package materialui
-      |
+    s"""package chandu0101.scalajs.react.components
+      |${library.nameOpt.fold("")(name => s"package $name\n")}
       |import chandu0101.macros.tojs.JSMacro
       |import japgolly.scalajs.react._
       |import scala.scalajs.js
@@ -34,21 +30,24 @@ object Runner extends App {
   val foundComponents: Map[CompName, requiresjs.FoundComponent] = {
     val res1: requiresjs.Required =
       requiresjs.Require(
-        VarName("mui"),
-        home / "pr" / "material-ui" / "lib"
+        library.importName,
+        library.location
       )
     requiresjs.flattenScan(res1)
   }
 
   val (mainFiles: Seq[PrimaryOutFile], secondaryFiles: Seq[SecondaryOutFile]) =
-    MuiLibrary.components.foldLeft((Seq.empty[PrimaryOutFile], Seq.empty[SecondaryOutFile])){
+    library.components.foldLeft((Seq.empty[PrimaryOutFile], Seq.empty[SecondaryOutFile])){
       case ((ps, ss), c) =>
-        val pc     = ParseComponent(foundComponents, MuiLibrary, c)
-        val (p, s) = Printer(MuiLibrary.prefix, pc)
+        val pc     = ParseComponent(foundComponents, library, c)
+        val (p, s) = Printer(library.prefixOpt.getOrElse(""), pc)
         (ps :+ p, ss ++ s)
   }
 
-  printToFile(new File(dest, "gen-types.scala")){
+  val destFolder = library.destinationFolder(basedir)
+  destFolder.mkdir()
+
+  printToFile(new File(destFolder, "gen-types.scala")){
     w =>
       w.println(prelude)
       secondaryFiles.sortBy(_.content).distinct.foreach{
@@ -59,8 +58,8 @@ object Runner extends App {
   }
 
   mainFiles foreach {
-    case PrimaryOutFile(file, content, secondaries) =>
-      printToFile(new File(dest, MuiLibrary.prefix + file.value + ".scala")){
+    case PrimaryOutFile(compName, content, secondaries) =>
+      printToFile(library.destinationFile(basedir, compName)){
         w =>
           w.println(prelude + content)
           secondaries.foreach{

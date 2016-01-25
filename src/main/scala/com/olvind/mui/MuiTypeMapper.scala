@@ -75,6 +75,7 @@ object MuiTypeMapper extends TypeMapper {
       /* mui general */
       case (_, _, "string") if is("color") => Type("MuiColor")
       case (_, _, "object") if is("style") => Type("CssProperties")
+      case (_, _, "object") if is("muiTheme") => Type("MuiTheme")
       case (_, "label", "validateLabel")   => Type("String")
       case (_, "zDepth", _)                => Type("ZDepth")
       case (_, _, "Mui.origin")            => Type("Origin")

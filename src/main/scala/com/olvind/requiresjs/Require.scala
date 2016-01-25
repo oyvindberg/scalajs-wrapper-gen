@@ -1,4 +1,4 @@
-package com.olvind
+/**/package com.olvind
 package requiresjs
 
 import java.io.File
@@ -16,8 +16,29 @@ object Require {
   def apply(moduleName: VarName, p: Path): Required =
     apply(moduleName, p, new ScanCtx)
 
+  private def a(varName:    VarName,
+                parsedComp: ParsedFile,
+                filePath:   Path,
+                v:          CreateClassVisitor[FunctionNode]): Multiple =
+    Multiple(varName,
+      filePath,
+      v.components.toList map {
+        case (compName, o) =>
+          Single(
+            compName,
+            FoundComponent(
+              name      = compName,
+              file      = filePath,
+              imports   = v.imports,
+              jsContent = parsedComp.content.substring(o.getStart, o.getFinish),
+              propsOpt  = PropTypeVisitor(compName, o, parsedComp.content, v.imports).propTypes
+            )
+          )
+      }
+    )
+
   private def apply(moduleName: VarName, p: Path, ctx: ScanCtx): Required = {
-    val path   = p / "index.js"
+    val path   = if (p.isFile) p else p / "index.js"
     val parsed = ctx.parsedFile(path)
     val c      = CreateClassVisitor(parsed.result, p)
 
@@ -29,27 +50,15 @@ object Require {
           } else {
             val filePath: Path =
               Path(_filePath.toString() + ".js")
-            val parsedComp: ParsedFile =
+            val parsedFile: ParsedFile =
               ctx.parsedFile(filePath)
             val containedComponents: CreateClassVisitor[FunctionNode] =
-              CreateClassVisitor(parsedComp.result, p)
-
-            Multiple(varName, filePath,
-              containedComponents.components.toList.map {
-                case (compName, o) =>
-                  Single(
-                    compName,
-                    FoundComponent(
-                      name      = compName,
-                      file      = filePath,
-                      imports   = containedComponents.imports,
-                      jsContent = parsedComp.content.substring(o.getStart, o.getFinish),
-                      propsOpt  = PropTypeVisitor(compName, o, parsedComp.content, containedComponents.imports).propTypes
-                    )
-                  )
-              }
-            )
+              CreateClassVisitor(parsedFile.result, p)
+            a(varName, parsedFile, filePath, containedComponents)
           }
+        case Import(varName, Right(ignored)) =>
+          println(s"ignoring import $ignored")
+          NotFound
       }
 
     Multiple(moduleName, p, modules)

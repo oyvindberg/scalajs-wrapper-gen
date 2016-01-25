@@ -1,16 +1,22 @@
 package com.olvind
 package mui
 
+import java.io.File
+
+import ammonite.ops._
+
 import scala.language.implicitConversions
 
 object MuiLibrary extends Library[MuiComponent] {
-  override val prefix = "Mui"
+  import DocProvider.{noJson, nonexisting}
 
-  override def docProvider = MuiDocs
-  override def typeMapper  = MuiTypeMapper
+  override val importName = VarName("mui")
+  override val location   = home / "pr" / "material-ui" / "lib"
+  override val prefixOpt  = Some("Mui")
+  override val nameOpt    = Some("materialui")
 
-  val nonexisting = Some("nonexisting")
-  val noJson = """[{"name":"Props","infoArray":[]}]"""
+  override val docProvider = MuiDocs
+  override val typeMapper  = MuiTypeMapper
 
   object AppBar extends MuiComponent{
     override val name = CompName("AppBar")
