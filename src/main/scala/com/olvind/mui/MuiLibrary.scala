@@ -122,22 +122,8 @@ object MuiLibrary extends Library[MuiComponent] {
   object DropDownMenu extends MuiComponent{
     override val name = CompName("DropDownMenu")
     override val json = """[{"name":"Props","infoArray":[{"name":"displayMember","type":"string","header":"default: text","desc":"DropDownMenu will use text as default value, with this property you can choose another name."},{"name":"valueMember","type":"string","header":"default: payload","desc":"DropDownMenu will use payload as default value, with this property you can choose another name."},{"name":"labelMember","type":"string","header":"default: text","desc":"DropDownMenu will use text as default value, with this property you can choose another name."},{"name":"autoWidth","type":"bool","header":"default: true","desc":"The width will automatically be set according to the items inside the menu. To control this width in Css instead, set this prop to false."},{"name":"menuItems","type":"array","header":"required","desc":"JSON data representing all menu items in the dropdown."},{"name":"menuItemStyle","type":"object","header":"optional","desc":"Overrides the inline-styles of the MenuItems when the DropDownMenu is expanded."},{"name":"selectedIndex","type":"number","header":"default: 0","desc":"Index of the item selected."},{"name":"underlineStyle","type":"object","header":"optional","desc":"Overrides the styles of DropDownMenu's underline."},{"name":"iconStyle","type":"object","header":"optional","desc":"Overrides the styles of DropDownMenu's icon element."},{"name":"labelStyle","type":"object","header":"optional","desc":"Overrides the styles of DropDownMenu's label when the DropDownMenu is inactive."},{"name":"style","type":"object","header":"optional","desc":"Overrides the inline-styles of DropDownMenu's root element."},{"name":"disabled","type":"bool","header":"default: false","desc":"Disables the menu."},{"name":"openImmediately","type":"bool","header":"default: false","desc":"Set to true to have the DropDownMenu automatically open on mount."}]},{"name":"Events","infoArray":[{"name":"onChange","header":"function(event, selectedIndex, menuItem)","desc":"Fired when a menu item is clicked that is not the one currently selected."}]}]"""
-    override val postlude: Option[String] = Some(
-      """
-        |case class MuiDropDownMenuItem(payload: String, text: String) {
-        |  val toJS = JSMacro[MuiDropDownMenuItem](this)
-        |}
-        |
-        |object DropDownMenuItem {
-        |  def fromJson(obj: js.Dynamic) =
-        |    MuiDropDownMenuItem(text = obj.text.toString, payload = obj.payload.toString)
-        |}
-      """.stripMargin)
   }
-  object DropDownIcon extends MuiComponent{
-    override val name = CompName("DropDownIcon")
-    override val json = noJson
-  }
+
   object FontIcon extends MuiComponent{
     override val name = CompName("FontIcon")
     override val json = """[{"name":"Properties","infoArray":[{"name":"color","type":"string","header":"optional","desc":"This is the fill color of the svg icon. If not specified, this component will default to muiTheme.palette.textColor."},{"name":"hoverColor","type":"string","header":"optional","desc":"This is the icon color when the mouse hovers over the icon."},{"name":"style","type":"object","header":"optional","desc":"Override the inline-styles of the svg icon's root element."}]}]"""
@@ -207,13 +193,13 @@ object MuiLibrary extends Library[MuiComponent] {
         |}
       """.stripMargin)
   }
-  object MenuDivider extends MuiMenus {
-    override val name = CompName("MenuDivider")
-    override val propsSections = Nil
-    override val overrideMethods = nonexisting
-    override val overrideEvents = nonexisting
-    override val deprecated: Boolean = true
-  }
+//  object MenuDivider extends MuiMenus {
+//    override val name = CompName("MenuDivider")
+//    override val propsSections = Nil
+//    override val overrideMethods = nonexisting
+//    override val overrideEvents = nonexisting
+//    override val deprecated: Boolean = true
+//  }
   object MenuItem extends MuiMenus {
     override val name = CompName("MenuItem")
     override val shared = Option(CompName("ListItem"))
@@ -444,7 +430,7 @@ object MuiLibrary extends Library[MuiComponent] {
     Dialog,
 //    Divider//,
     DropDownMenu,
-    DropDownIcon,
+//    DropDownIcon,
     FlatButton,
     FloatingActionButton,
     FontIcon,
