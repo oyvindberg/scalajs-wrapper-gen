@@ -39,6 +39,9 @@ object MuiTypeMapper extends TypeMapper {
       case (_, _, e) if e.toLowerCase.contains("index")              => Type("Int")
 
       /* specific */
+      case ("AutoComplete", "dataSource",      "array")  => Type("js.Array[Value]")
+      case ("AutoComplete", "menuProps",       "object") => Type("js.Object")
+      case ("AutoComplete", "searchText",       _) => Type("SearchText")
       case ("DatePicker",       "value",                "any")                  => Type("js.Date")
       case ("DatePicker",       "defaultDate",          "object")               => Type("js.Date")
       case ("DatePicker",       "maxDate",              "object")               => Type("js.Date")
@@ -60,9 +63,8 @@ object MuiTypeMapper extends TypeMapper {
       case ("TextField",        "defaultValue",         "any")                  => Type("String")
       case ("TimePicker",       "defaultTime",          "object")               => Type("js.Date")
 
+
       /* TODO: dubious */
-      case ("AutoComplete", "dataSource",      "array")  => Type("js.Array[js.Any]")
-      case ("AutoComplete", "menuProps",       "object") => Type("js.Any")
       case ("GridTile",     "rootClass",       "object") => Type("js.Any")
       case ("Popover",      "anchorEl",        "object") => Type("js.Any")
       case ("DropDownMenu", "value",           "any")    => Type("js.Any")
