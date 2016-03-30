@@ -11,8 +11,6 @@ object MuiTypeMapper extends TypeMapper {
       s.split("[\'\"\\(\\)\\[\\],\\s]").map(_.trim).filterNot(_.isEmpty).drop(drop)
 
     (compName.value, fieldName.value, typeString) match {
-      case (_, _, "func") =>
-        Type(MuiTypeMapperFunction(compName, fieldName))
       case (_, _, e) if e.contains("oneOfType") =>
         Type( split(1, e) map (t => apply(compName, fieldName, t)) map (_.typeName) mkString " | ")
       case (_, _, enum) if enum.startsWith("oneOf") =>
@@ -33,7 +31,8 @@ object MuiTypeMapper extends TypeMapper {
       case (_,                     "rows",                 "number") => Type("Int")
       case (_,                     "rowsMax",              "number") => Type("Int")
       case (_,                     "selectedIndex",        "number") => Type("Int")
-      case (_,                     "size",                 "number") => Type("Int")
+      case ("Avatar",              "size",                 "number") => Type("Int")
+      case ("RefreshIndicator",    "size",                 "number") => Type("Int")
       case (_,                     "top",                  "number") => Type("Int")
       case (_,                     "touchTapCloseDelay",   "number") => Type("Int")
       case (_, _, e) if e.toLowerCase.contains("index")              => Type("Int")
@@ -51,7 +50,7 @@ object MuiTypeMapper extends TypeMapper {
       case ("Dialog",           "width",                "any")                  => Type("Int")
       case ("DropDownMenu",     "menuItems",            "array")                => Type("js.Array[MuiDropDownMenuItem]")
       case ("DropDownIcon",     "menuItems",            "array")                => Type("js.Array[MuiMenuItemJson]")
-      case ("LeftNav",          "menuItems",            "array")                => Type("js.Array[MuiMenuItemJson]")
+      case ("Drawer",           "menuItems",            "array")                => Type("js.Array[MuiMenuItemJson]")
       case ("ListItem",         "nestedItems",          "arrayOf(element)")     => Type("js.Array[ReactElement]")
       case ("Menu",             "value",                "any")                  => Type("String | js.Array[String]")
       case ("SelectField",      "menuItems",            "array")                => Type("js.Array[MuiSelectItem]")
@@ -59,20 +58,26 @@ object MuiTypeMapper extends TypeMapper {
       case ("Slider",           "max",                  "minMaxPropType")       => Type("Double")
       case ("Slider",           "min",                  "minMaxPropType")       => Type("Double")
       case ("Slider",           "value",                "valueInRangePropType") => Type("Double")
+      case ("Step",             "controlButtonsGroup",  "arrayOf(node)")        => Type("js.Array[ReactNode]")
+      case ("Step",             "actions",              "arrayOf(node)")        => Type("js.Array[ReactNode]")
       case ("TextField",        "value",                "any")                  => Type("String")
       case ("TextField",        "defaultValue",         "any")                  => Type("String")
       case ("TimePicker",       "defaultTime",          "object")               => Type("js.Date")
+      case ("TimePicker",       "value",                "object")               => Type("js.Date")
 
 
       /* TODO: dubious */
-      case ("GridTile",     "rootClass",       "object") => Type("js.Any")
-      case ("Popover",      "anchorEl",        "object") => Type("js.Any")
-      case ("DropDownMenu", "value",           "any")    => Type("js.Any")
-      case ("MenuItem",     "value",           "any")    => Type("js.Any")
-      case ("SelectField",  "value",           "any")    => Type("js.Any")
-      case ("SelectField",  "selectFieldRoot", "object") => Type("js.Any")
-      case ("Tab",          "value",           "any")    => Type("js.Any")
-      case ("Tabs",         "value",           "any")    => Type("js.Any")
+      case ("EnhancedTextarea", "defaultValue",                "any")           => Type("js.Any")
+      case ("GridTile",         "rootClass",                   "object")        => Type("js.Any")
+      case ("Popover",          "anchorEl",                    "object")        => Type("js.Any")
+      case ("DropDownMenu",     "value",                       "any")           => Type("js.Any")
+      case ("MenuItem",         "value",                       "any")           => Type("js.Any")
+      case ("SelectField",      "value",                       "any")           => Type("js.Any")
+      case ("SelectField",      "selectFieldRoot",             "object")        => Type("js.Any")
+      case ("Stepper",          "createIcon",                  "func")          => Type("js.Function")
+      case ("Stepper",          "updateAvatarBackgroundColor", "func")          => Type("js.Function")
+      case ("Tab",              "value",                       "any")           => Type("js.Any")
+      case ("Tabs",             "value",                       "any")           => Type("js.Any")
 
       /* mui general */
       case (_, _, "string") if is("color") => Type("MuiColor")
@@ -92,6 +97,10 @@ object MuiTypeMapper extends TypeMapper {
       case (_, _, "element")               => Type("ReactElement")
       case (_, _, "node")                  => Type("ReactNode")
       case (_, _, "number")                => Type("Double")
+
+      case (_, _, "func") =>
+        Type(MuiTypeMapperFunction(compName, fieldName))
+
     }
   }
 }

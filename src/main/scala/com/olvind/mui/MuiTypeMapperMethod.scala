@@ -10,9 +10,9 @@ object MuiTypeMapperMethod {
     case ("Dialog",           "dismiss")          => "dismiss(): Unit"
     case ("Dialog",           "show")             => "show(): Unit"
     case ("Dialog",           "isOpen")           => "isOpen(): Boolean"
-    case ("LeftNav",          "open")             => "open(): Unit"
-    case ("LeftNav",          "close")            => "close(): Unit"
-    case ("LeftNav",          "toggle")           => "toggle(): Unit"
+    case ("Drawer",           "open")             => "open(): Unit"
+    case ("Drawer",           "close")            => "close(): Unit"
+    case ("Drawer",           "toggle")           => "toggle(): Unit"
     case ("Snackbar",         "dismiss")          => "dismiss(): Unit"
     case ("Snackbar",         "show")             => "show(): Unit"
     case ("Checkbox",         "isChecked")        => "isChecked(): Boolean"
@@ -34,4 +34,4 @@ object MuiTypeMapperMethod {
     case ("TimePicker",       "openDialog")       => "openDialog(): Unit"
     case ("TimePicker",       "focus")            => "focus(): Unit"
   }
-        }
+}

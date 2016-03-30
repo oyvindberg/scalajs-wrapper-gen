@@ -17,19 +17,27 @@ final case class PropName(value: String) extends AnyVal {
     PropName(value.replaceAll("Deprecated:", "").replaceAll("or children", "").trim)
 }
 
-final case class PropComment private (value: String) extends Wrapper[String]
+final case class PropComment (value: String, anns: Seq[Annotation])
 
 object PropComment {
-  def clean(s: String): PropComment =
-    PropComment(
-      s.replaceAll("/\\*", "")
-        .replaceAll("//", "")
-        .replaceAll("\\*/", "")
-        .split("\n")
-        .map(_.dropWhile(c => c.isWhitespace || c == '*').trim)
-        .filterNot(_.isEmpty)
-        .mkString("\n")
-    )
+  "^(\\s*)//".r
+  def clean(s: String): PropComment = {
+    val cleanLines =
+      s.split("\n")
+        .map(_.trim
+              .replaceAll("(^/\\*\\*?|^//|\\*?\\*/$|^\\*)", "")
+              .trim
+        ).filterNot(_.isEmpty)
+
+
+    val (_ans, _lines) = cleanLines.foldLeft[(Seq[Annotation], Seq[String])]((Seq.empty, Seq.empty)){
+      case ((as, lines), line) if line.toLowerCase.startsWith("@ignore") => (Ignore +: as, lines)
+      case ((as, lines), line) if line.toLowerCase.startsWith("@param") => (as :+ Param(line.drop("@param".length).trim), lines)
+      case ((as, lines), line) => (as, lines :+ line)
+    }
+
+    PropComment(_lines.mkString("\n"), _ans)
+  }
 }
 
 final case class VarName(value: String) extends Wrapper[String]

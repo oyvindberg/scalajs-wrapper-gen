@@ -79,6 +79,8 @@ object ParseProp {
         .replace("_react2.default.", "")
         .replace("_propTypes2.default.", "Mui.")
         .replace("(0, _deprecatedPropType2.default)", "Deprecated")
+        /* even another style*/
+        .replace("_react.", "")
 
     val (typeStr: String, deprecatedOpt: Option[String]) = _clean match {
       case Pattern(tpe, depMsg) => (tpe, Some(depMsg))

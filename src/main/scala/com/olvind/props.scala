@@ -25,6 +25,11 @@ final case class ParsedEnumClass(
   identifiers: Seq[(Identifier, String)]
 )
 
+sealed trait Annotation
+case class Deprecated(reason: String) extends Annotation
+case class Param(value: String) extends Annotation
+case object Ignore extends Annotation
+
 final case class ParsedProp(
   name:          PropName,
   isRequired:    Boolean,

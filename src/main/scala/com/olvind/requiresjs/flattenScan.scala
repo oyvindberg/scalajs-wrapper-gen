@@ -6,5 +6,8 @@ object flattenScan {
     r match {
       case Single(n, c)     => Map(n -> c)
       case Multiple(_, _, rs) => (rs flatMap apply).toMap
+      case NotFound =>
+        println(r)
+        ???
     }
 }

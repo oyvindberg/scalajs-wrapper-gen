@@ -6,7 +6,6 @@ import ammonite.ops.Path
 
 trait ComponentDef {
   val name: CompName
-  val json: String
   val shared: Option[CompName] = None
   val postlude: Option[String] = None
   val multipleChildren: Boolean = true
@@ -14,9 +13,6 @@ trait ComponentDef {
 }
 
 object DocProvider{
-  val nonexisting = Some("nonexisting")
-  val noJson = """[{"name":"Props","infoArray":[]}]"""
-
   object Dummy extends DocProvider[ComponentDef]{
     override def apply(prefix: String, comp: ComponentDef): (Map[PropName, PropComment], Option[ParsedMethodClass]) =
       (Map.empty, None)

@@ -76,14 +76,14 @@ object Printer {
   def outChildrenComment(oc: Option[PropComment]) =
     oc.fold("")(d =>
       s"""${indent(1)}/**
-         |${indent(1)} * @param children $d
+         |${indent(1)} * @param children ${d.value}
          |${indent(1)} */""".stripMargin
     )
 
   def outComment(commentOpt: Option[PropComment], inheritedFrom: Option[CompName]): String = {
-    val lines = commentOpt.toSeq ++ inheritedFrom.map(i => s"(Passed on to $i)")
+    val lines = commentOpt.map(_.value).toSeq ++ inheritedFrom.map(i => s"(Passed on to $i)")
     if (lines.isEmpty) ""
-    else lines.mkString(s"${indent(1)}/* ", s"\n${indent(1)}", "*/\n")
+    else lines.flatMap(_.split("\n")).mkString(s"${indent(1)}/* ", s"\n${indent(1)}", "*/\n")
   }
 
   def outProp(p: ParsedProp, fs: FieldStats): String = {
@@ -92,8 +92,14 @@ object Printer {
     val intro: String = {
       val fixedName: String =
         if (p.name.value == "type") "`type`" else p.name.value
-      val deprecated = p.deprecatedMsg.fold("")(msg => s"""${indent(1)}@deprecated("$msg")\n""")
-      s"$comment$deprecated${indent(1)}${padTo(fixedName + ": ")(fs.maxFieldNameLen + 2)}"
+      val deps: String =
+        (p.deprecatedMsg, p.commentOpt.exists(_.anns.contains(Ignore))) match {
+          case (Some(msg), _  ) => s"""${indent(1)}@deprecated("$msg")\n"""
+          case (None,     true) => s"""${indent(1)}@deprecated("Internal API")\n"""
+          case _                => ""
+        }
+//      val deprecated = p.deprecatedMsg.fold("")(msg => s"""${indent(1)}@deprecated("$msg")\n""")
+      s"$comment$deps${indent(1)}${padTo(fixedName + ": ")(fs.maxFieldNameLen + 2)}"
     }
 
     p.isRequired match {

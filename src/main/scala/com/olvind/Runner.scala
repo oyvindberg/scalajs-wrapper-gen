@@ -2,8 +2,6 @@ package com.olvind
 
 import java.io.File
 
-import ammonite.ops._
-
 class Runner[D <: ComponentDef](library: Library[D]) {
   val basedir = new File("/Users/oyvindberg/pr/scalajs-react-components/core/src/main/scala/chandu0101/scalajs/react/components")
   val WRITE   = true

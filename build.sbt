@@ -8,6 +8,7 @@ libraryDependencies ++= Seq(
   "io.argonaut"             %% "argonaut"          % "6.1-M4",
   "com.lihaoyi"             %% "ammonite-tools"    % "0.4.6",
   "com.lihaoyi"             %% "ammonite-ops"      % "0.4.6",
-  "com.lihaoyi"             %% "fastparse"         % "0.3.4"
+  "com.lihaoyi"             %% "fastparse"         % "0.3.4",
+  "org.scalatest"           %% "scalatest"         % "3.0.0-M15" % Test
 )
 
