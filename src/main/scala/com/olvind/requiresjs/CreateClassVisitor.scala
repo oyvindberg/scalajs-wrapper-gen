@@ -47,13 +47,30 @@ case class CreateClassVisitor[N <: Node](n: N, currentPath: Path) extends MyNode
     n
   }
 
+  override def enterBinaryNode(bn: BinaryNode): Boolean = {
+    (bn.lhs(), bn.rhs()) match {
+      case (a: AccessNode, o: ObjectNode) if a.getProperty == "propTypes" ⇒
+        components(CompName(a.getBase.asInstanceOf[IdentNode].getName)) = o
+      case other ⇒ ()
+    }
+    false
+  }
+
   override def enterCallNode(n: CallNode): Boolean =
     matcher((n.getFunction, n.getArgs.asScala.toList)){
+
       case (a: AccessNode, List(o: ObjectNode)) if a.getProperty == "createClass" =>
-        nameStack.headOption match {
-          case Some(name) => components += (CompName(name.value) -> o)
-          case None => ()
+        o.getElements.asScala.collect {
+          case p: PropertyNode ⇒ (p.getKey, p.getValue)
+        }.collectFirst {
+          case (i: IdentNode, o: ObjectNode) if i.getName == "propTypes" =>
+            nameStack.headOption match {
+              case Some(name) => components(CompName(name.value)) = o
+              case None => ()
+            }
         }
+
+
       case (i: IdentNode, List(o: LiteralNode[_])) if i.getName == "require" =>
         nameStack.headOption match {
           case Some(name) =>
@@ -64,6 +81,7 @@ case class CreateClassVisitor[N <: Node](n: N, currentPath: Path) extends MyNode
           case None =>
             ???
         }
+
       case (i: IdentNode, List(arg: IdentNode)) if i.getName.contains("interopRequireDefault") =>
         nameStack.headOption match {
           case Some(name) =>

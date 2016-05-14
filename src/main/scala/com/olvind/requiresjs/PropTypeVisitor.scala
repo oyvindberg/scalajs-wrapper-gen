@@ -1,7 +1,8 @@
 package com.olvind
 package requiresjs
 
-import jdk.nashorn.internal.ir.{IdentNode, PropertyNode, ObjectNode}
+import jdk.nashorn.internal.ir._
+
 import scala.collection.JavaConverters._
 
 case class PropTypeVisitor(n: CompName, o: ObjectNode, jsContent: String, is: Seq[Import]) extends MyNodeVisitor(o){
@@ -19,11 +20,10 @@ case class PropTypeVisitor(n: CompName, o: ObjectNode, jsContent: String, is: Se
     }
   }
 
-  override def enterPropertyNode(n: PropertyNode) =
-    matcher((n.getKey, n.getValue)){
-      case (i: IdentNode, o: ObjectNode) if i.getName == "propTypes" =>
-        propTypes = Some(
-          mapPropType(o.getStart + 1, o.getElements.asScala.toList).toMap
-        )
-    }
+  override def enterObjectNode(o: ObjectNode): Boolean = {
+    propTypes = Some(
+      mapPropType(o.getStart + 1, o.getElements.asScala.toList).toMap
+    )
+    false
+  }
 }
