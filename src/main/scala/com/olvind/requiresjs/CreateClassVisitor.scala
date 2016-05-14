@@ -8,8 +8,9 @@ import scala.collection.JavaConverters._
 import scala.collection.mutable
 
 case class CreateClassVisitor[N <: Node](n: N, currentPath: Path) extends MyNodeVisitor(n){
-  val components = mutable.Map.empty[CompName, ObjectNode]
-  val imports    = mutable.ArrayBuffer.empty[Import]
+  val imports       = mutable.ArrayBuffer.empty[Import]
+  val propTypeObjs  = mutable.Map.empty[CompName, ObjectNode]
+  val memberMethods = mutable.Map.empty[CompName, Set[MemberMethod]]
 
   private[CreateClassVisitor] var nameStack: List[VarName] = Nil
 
@@ -50,23 +51,45 @@ case class CreateClassVisitor[N <: Node](n: N, currentPath: Path) extends MyNode
   override def enterBinaryNode(bn: BinaryNode): Boolean = {
     (bn.lhs(), bn.rhs()) match {
       case (a: AccessNode, o: ObjectNode) if a.getProperty == "propTypes" ⇒
-        components(CompName(a.getBase.asInstanceOf[IdentNode].getName)) = o
+        propTypeObjs(CompName(a.getBase.asInstanceOf[IdentNode].getName)) = o
       case other ⇒ ()
     }
-    false
+    true
   }
 
   override def enterCallNode(n: CallNode): Boolean =
     matcher((n.getFunction, n.getArgs.asScala.toList)){
-
+      /* old style createClass way of creating react components.
+          We dig out `propTypes` out of the structure */
       case (a: AccessNode, List(o: ObjectNode)) if a.getProperty == "createClass" =>
         o.getElements.asScala.collect {
           case p: PropertyNode ⇒ (p.getKey, p.getValue)
         }.collectFirst {
           case (i: IdentNode, o: ObjectNode) if i.getName == "propTypes" =>
             nameStack.headOption match {
-              case Some(name) => components(CompName(name.value)) = o
+              case Some(name) => propTypeObjs(CompName(name.value)) = o
               case None => ()
+            }
+        }
+
+      /* dig out all member methods from a class variant */
+      case (createClassName: IdentNode, (compName: IdentNode) :: (members: LiteralNode.ArrayLiteralNode) :: Nil) if createClassName.getName.contains("createClass") ⇒
+        members.getArray.collect {
+          case member: ObjectNode ⇒
+            matcher(member.getElements.asScala.toList) {
+              case (name: PropertyNode) :: (value: PropertyNode) :: Nil ⇒
+                matcher((name.getValue, value.getValue)) {
+                  case (fi: LiteralNode[_], f: FunctionNode) ⇒
+                    val m = MemberMethod(fi.getString, f.getParameters.asScala.map(_.getName))
+                    val compName_ = CompName(compName.getName)
+                    memberMethods.get(compName_) match {
+                      case Some(existing) ⇒
+                        memberMethods(compName_) = existing + m
+                      case None ⇒
+                        memberMethods(compName_) = Set(m)
+                    }
+                }
+                name.getKeyName
             }
         }
 

@@ -1,13 +1,21 @@
 package com.olvind
 
 object ParseComponent {
-  def apply[D <: ComponentDef](
-    scope:   Map[CompName, requiresjs.FoundComponent],
-    library: Library[D],
-    comp:    D): ParsedComponent = {
+  val ignoredMembers: Set[String] =
+    Set(
+      "render",
+      "componentDidMount",
+      "componentWillMount",
+      "componentWillReceiveProps",
+      "componentDidUpdate",
+      "componentWillUnmount",
+      "shouldComponentUpdate"
+    )
 
-    val (commentMap, methodClassOpt: Option[ParsedMethodClass]) =
-      library.docProvider(library.prefix, comp)
+  def apply[D <: ComponentDef]
+           (scope:   Map[CompName, requiresjs.FoundComponent],
+            library: Library[D],
+            comp:    D): ParsedComponent = {
 
     val propTypes: Map[PropName, PropUnparsed] =
       scope.get(comp.name).flatMap(_.propsOpt).getOrElse(
@@ -18,10 +26,23 @@ object ParseComponent {
       comp.shared match {
         case None         => Map.empty
         case Some(shared) =>
-          scope.get(shared).flatMap(_.propsOpt).getOrElse(
+          scope.get(shared.name).flatMap(_.propsOpt).getOrElse(
             throw new RuntimeException(s"No Proptypes found for $shared")
           )
       }
+
+    val methodClassOpt: Option[ParsedMethodClass] =
+      scope
+        .get(comp.name)
+        .flatMap(_.methods)
+        .map(_.filterNot(m ⇒ ignoredMembers(m.name) || m.name.startsWith("handle") || m.name.startsWith("_")))
+        .filter(_.nonEmpty)
+        .map(members ⇒
+          ParsedMethodClass(
+            comp.name + "M",
+            members.toSeq.sortBy(_.name).map(library.memberMapper(comp.name))
+          )
+        )
 
     val basicFields: Seq[ParsedProp] =
       Seq(
@@ -47,7 +68,7 @@ object ParseComponent {
             origComp,
             propName,
             tpe,
-            commentOpt orElse (commentMap get propName)
+            commentOpt
           )
       }
 

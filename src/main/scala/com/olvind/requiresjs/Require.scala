@@ -22,7 +22,7 @@ object Require {
                 v:          CreateClassVisitor[FunctionNode]): Multiple =
     Multiple(varName,
       filePath,
-      v.components.toList map {
+      v.propTypeObjs.toList map {
         case (compName, o) =>
           Single(
             compName,
@@ -31,7 +31,8 @@ object Require {
               file      = filePath,
               imports   = v.imports,
               jsContent = parsedComp.content.substring(o.getStart, o.getFinish),
-              propsOpt  = PropTypeVisitor(compName, o, parsedComp.content, v.imports).propTypes
+              propsOpt  = PropTypeVisitor(compName, o, parsedComp.content, v.imports).propTypes,
+              methods   = v.memberMethods.get(compName)
             )
           )
       }

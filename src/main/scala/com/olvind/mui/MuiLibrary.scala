@@ -12,13 +12,13 @@ object MuiLibrary extends Library[ComponentDef] {
   override val prefixOpt  = Some("Mui")
   override val nameOpt    = Some("materialui")
 
-  override val docProvider = DocProvider.Dummy
   override val typeMapper  = MuiTypeMapper
-
+  override def memberMapper = MuiTypeMemberMethodMapper
 
   //todo: make requiresjs figure this stuff out!
 
   object AppBar extends ComponentDef {
+    override val shared = Option(Paper)
     override val name = CompName("AppBar")
   }
   object AppCanvas extends ComponentDef {
@@ -29,6 +29,7 @@ object MuiLibrary extends Library[ComponentDef] {
     override val multipleChildren = false
   }
   object AutoComplete extends ComponentDef {
+    override val shared = Some(TextField)
     override val name = CompName("AutoComplete")
   }
   object Badge extends ComponentDef {
@@ -39,8 +40,12 @@ object MuiLibrary extends Library[ComponentDef] {
     override val name = CompName("BeforeAfterWrapper")
   }
 
+  object EnhancedButton extends MuiButtons {
+    override val name = CompName("EnhancedButton")
+  }
+
   trait MuiButtons extends ComponentDef {
-    override val shared = Some(CompName("EnhancedButton"))
+    override val shared = Some(EnhancedButton)
   }
 
   object FlatButton extends MuiButtons {
@@ -57,6 +62,7 @@ object MuiLibrary extends Library[ComponentDef] {
   }
 
   object Card extends ComponentDef{
+    override val shared = Some(Paper)
     override val name = CompName("Card")
   }
   object CardHeader extends ComponentDef{
@@ -79,7 +85,7 @@ object MuiLibrary extends Library[ComponentDef] {
   }
 
   object DatePicker extends ComponentDef {
-    override val shared = Option(CompName("TextField"))
+    override val shared = Option(TextField)
     override val name = CompName("DatePicker")
     override val postlude: Option[String] = Some(
       """
@@ -113,8 +119,10 @@ object MuiLibrary extends Library[ComponentDef] {
   }
 
   object IconMenu extends ComponentDef {
+    override val shared = Option(Menu)
     override val name = CompName("IconMenu")
   }
+
   object Drawer extends ComponentDef {
     override val name = CompName("Drawer")
   }
@@ -129,10 +137,12 @@ object MuiLibrary extends Library[ComponentDef] {
   }
 
   object ListItem extends ComponentDef {
+    override val shared = Some(EnhancedButton)
     override val name = CompName("ListItem")
   }
 
   object Menu extends ComponentDef {
+    override val shared = Some(MuiList)
     override val name = CompName("Menu")
     override val postlude = Some(
       """
@@ -145,7 +155,7 @@ object MuiLibrary extends Library[ComponentDef] {
 
   object MenuItem extends ComponentDef {
     override val name = CompName("MenuItem")
-    override val shared = Option(CompName("ListItem"))
+    override val shared = Option(ListItem)
   }
 
   object Overlay extends ComponentDef {
@@ -159,6 +169,9 @@ object MuiLibrary extends Library[ComponentDef] {
   object Popover extends ComponentDef {
     override val multipleChildren: Boolean = false
     override val name = CompName("Popover")
+  }
+  object PopoverAnimationVertical extends ComponentDef {
+    override val name = CompName("PopoverAnimationVertical")
   }
 
   object LinearProgress extends ComponentDef {
@@ -184,7 +197,7 @@ object MuiLibrary extends Library[ComponentDef] {
   }
 
   object SelectField extends ComponentDef {
-    override val shared = Option(CompName("DropDownMenu"))
+    override val shared = Option(DropDownMenu)
     override val name = CompName("SelectField")
     override val postlude = Some("""case class MuiSelectItem(payload: String, text: String){
                                    |	val toJS = JSMacro[MuiSelectItem](this)
@@ -200,8 +213,12 @@ object MuiLibrary extends Library[ComponentDef] {
     override val name = CompName("Snackbar")
   }
 
+  object EnhancedSwitch extends ComponentDef {
+    override val name = CompName("EnhancedSwitch")
+  }
+
   trait MuiSwitches extends ComponentDef {
-    override val shared = Some(CompName("EnhancedSwitch"))
+    override val shared = Some(EnhancedSwitch)
   }
 
   object Checkbox extends MuiSwitches {
@@ -210,7 +227,9 @@ object MuiLibrary extends Library[ComponentDef] {
   object RadioButton extends MuiSwitches {
     override val name = CompName("RadioButton")
   }
+
   object RadioButtonGroup extends ComponentDef {
+    override val shared = Some(RadioButton)
     override val name = CompName("RadioButtonGroup")
   }
   object Toggle extends MuiSwitches {
@@ -240,6 +259,7 @@ object MuiLibrary extends Library[ComponentDef] {
   }
 
   object Tab extends ComponentDef {
+    override val shared = Some(EnhancedButton)
     override val name = CompName("Tab")
   }
   object Tabs extends ComponentDef {
@@ -252,11 +272,11 @@ object MuiLibrary extends Library[ComponentDef] {
 
   object TextField extends ComponentDef {
     override val name = CompName("TextField")
-    override val shared = Some(CompName("EnhancedTextarea"))
+    override val shared = Some(EnhancedTextarea)
   }
 
   object TimePicker extends ComponentDef {
-    override val shared = Option(CompName("TextField"))
+    override val shared = Option(TextField)
     override val name = CompName("TimePicker")
   }
 
@@ -285,16 +305,12 @@ object MuiLibrary extends Library[ComponentDef] {
   object Subheader extends ComponentDef {
     override val name = CompName("Subheader")
   }
-//  export Step from './Step';
-//  export StepButton from './StepButton';
-//  export StepContent from './StepContent';
-//  export StepLabel from './StepLabel';
-//  export Stepper from './Stepper';
 
   object Step extends ComponentDef {
     override val name = CompName("Step")
   }
   object StepButton extends ComponentDef {
+    override val shared = Some(EnhancedButton)
     override val name = CompName("StepButton")
   }
   object StepContent extends ComponentDef {
@@ -332,7 +348,7 @@ object MuiLibrary extends Library[ComponentDef] {
     MuiList,
     ListItem,
     Menu, MenuItem,
-    Popover,
+    Popover, PopoverAnimationVertical,
     CircularProgress, LinearProgress,
     RaisedButton,
     RefreshIndicator,

@@ -16,5 +16,6 @@ case class FoundComponent(
   file:      Path,
   imports:   Seq[Import],
   jsContent: String,
-  propsOpt:  Option[Map[PropName, PropUnparsed]]
+  propsOpt:  Option[Map[PropName, PropUnparsed]],
+  methods:   Option[Set[MemberMethod]]
 )

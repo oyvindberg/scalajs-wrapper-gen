@@ -6,6 +6,7 @@ trait Wrapper[A]{
   def value: A
   override def toString = value.toString
 }
+case class MemberMethod(name: String, paramNames: Seq[String])
 
 final case class CompName(value: String) extends Wrapper[String]{
   def map(f: String => String) =

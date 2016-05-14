@@ -6,25 +6,18 @@ import ammonite.ops.Path
 
 trait ComponentDef {
   val name: CompName
-  val shared: Option[CompName] = None
+  val shared: Option[ComponentDef] = None
   val postlude: Option[String] = None
   val multipleChildren: Boolean = true
   val deprecated: Boolean = false
 }
 
-object DocProvider{
-  object Dummy extends DocProvider[ComponentDef]{
-    override def apply(prefix: String, comp: ComponentDef): (Map[PropName, PropComment], Option[ParsedMethodClass]) =
-      (Map.empty, None)
-  }
-}
-
-trait DocProvider[D <: ComponentDef] {
-  def apply(prefix: String, comp: D): (Map[PropName, PropComment], Option[ParsedMethodClass])
-}
-
 trait TypeMapper {
   def apply(compName: CompName, fieldName: PropName, typeString: String): PropType
+}
+
+trait MemberMapper {
+  def apply(compName: CompName)(memberMethod: MemberMethod): ParsedMethod
 }
 
 trait Library[D <: ComponentDef] {
@@ -33,9 +26,8 @@ trait Library[D <: ComponentDef] {
   def importName: VarName
   def location: Path
   def components: Seq[D]
-  def docProvider: DocProvider[D]
   def typeMapper: TypeMapper
-
+  def memberMapper: MemberMapper
   @deprecated
   final def prefix: String =
     prefixOpt getOrElse ""
