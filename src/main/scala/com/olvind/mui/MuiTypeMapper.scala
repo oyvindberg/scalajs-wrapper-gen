@@ -80,23 +80,24 @@ object MuiTypeMapper extends TypeMapper {
       case ("Tabs",             "value",                       "any")           => Type("js.Any")
 
       /* mui general */
-      case (_, _, "string") if is("color") => Type("MuiColor")
-      case (_, _, "object") if is("style") => Type("CssProperties")
+      case (_, _, "string") if is("color")    => Type("MuiColor")
+      case (_, _, "object") if is("style")    => Type("CssProperties")
       case (_, _, "object") if is("muiTheme") => Type("MuiTheme")
-      case (_, "label", "validateLabel")   => Type("String")
-      case (_, "zDepth", _)                => Type("ZDepth")
-      case (_, _, "Mui.origin")            => Type("Origin")
-      case (_, _, "Mui.cornersAndCenter")  => Type("CornersAndCenter")
-      case (_, _, "Mui.corners")           => Type("Corners")
-      case (_, _, "Mui.stringOrNumber")    => Type("String | Double")
+      case (_, "label", "validateLabel")      => Type("String")
+      case (_, "zDepth", _)                   => Type("ZDepth")
+      case (_, _, "Mui.origin")               => Type("Origin")
+      case (_, _, "Mui.cornersAndCenter")     => Type("CornersAndCenter")
+      case (_, _, "Mui.corners")              => Type("Corners")
+      case (_, _, "Mui.stringOrNumber")       => Type("String | Double")
 
       /* general */
-      case (_, "valueLink", "object")             => Type("js.Any")
-      case (_, _, "string")                => Type("String")
-      case (_, _, "bool")                  => Type("Boolean")
-      case (_, _, "element")               => Type("ReactElement")
-      case (_, _, "node")                  => Type("ReactNode")
-      case (_, _, "number")                => Type("Double")
+      case (_, "valueLink", "object")          => Type("js.Any")
+      case (_, _, "string")                    => Type("String")
+      case (_, _, "bool")                      => Type("Boolean")
+      case (_, _, "element")                   => Type("ReactElement")
+      case (_, _, "node")                      => Type("ReactNode")
+      case (_, _, "number")                    => Type("Double")
+      case (_, "children", "arrayOf(element)") => Type("js.Array[ReactElement]")
 
       case (_, _, "func") =>
         Type(MuiTypeMapperFunction(compName, fieldName))

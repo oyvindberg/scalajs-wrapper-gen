@@ -8,7 +8,7 @@ import scala.language.implicitConversions
 object MuiLibrary extends Library[ComponentDef] {
 
   override val importName = VarName("mui")
-  override val location   = home / "pr" / "material-ui" / "lib"
+  override val location   = home / "pr" / "material-ui" / "build"
   override val prefixOpt  = Some("Mui")
   override val nameOpt    = Some("materialui")
 
@@ -285,14 +285,26 @@ object MuiLibrary extends Library[ComponentDef] {
   object Subheader extends ComponentDef {
     override val name = CompName("Subheader")
   }
-  object HorizontalStep extends ComponentDef {
-    override val name = CompName("HorizontalStep")
+//  export Step from './Step';
+//  export StepButton from './StepButton';
+//  export StepContent from './StepContent';
+//  export StepLabel from './StepLabel';
+//  export Stepper from './Stepper';
+
+  object Step extends ComponentDef {
+    override val name = CompName("Step")
+  }
+  object StepButton extends ComponentDef {
+    override val name = CompName("StepButton")
+  }
+  object StepContent extends ComponentDef {
+    override val name = CompName("StepContent")
+  }
+  object StepLabel extends ComponentDef {
+    override val name = CompName("StepLabel")
   }
   object Stepper extends ComponentDef {
     override val name = CompName("Stepper")
-  }
-  object VerticalStep extends ComponentDef {
-    override val name = CompName("Step")
   }
   object FlatButtonLabel extends ComponentDef {
     override val name = CompName("FlatButtonLabel")
@@ -300,7 +312,7 @@ object MuiLibrary extends Library[ComponentDef] {
 
   val components = List(
     EnhancedTextarea,
-    HorizontalStep, Stepper, VerticalStep,
+    Step, StepButton, StepContent, StepLabel, Stepper,
     AppBar,
     Avatar,
     AutoComplete,
@@ -334,12 +346,12 @@ object MuiLibrary extends Library[ComponentDef] {
     TextField,
     TimePicker,
     Toolbar, ToolbarGroup, ToolbarSeparator, ToolbarTitle
+    //    Subheader,
+//    Divider
 //    RenderToLayer,
-//    Subheader,
 //    FlatButtonLabel,
 //    AppCanvas,
 //    BeforeAfterWrapper,
-//    Divider,
 //    Overlay,
 //    CircleRipple, TouchRipple, FocusRipple,
 //    Tooltip
