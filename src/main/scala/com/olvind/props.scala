@@ -17,7 +17,7 @@ final case class ParsedComponent(
 
 final case class ParsedMethodClass(
   className: String,
-  ms: Seq[ParsedMethod]
+  methods: Seq[ParsedMethod]
 )
 
 final case class ParsedEnumClass(

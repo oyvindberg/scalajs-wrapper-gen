@@ -5,86 +5,111 @@ import ammonite.ops._
 
 import scala.language.implicitConversions
 
-object MuiLibrary extends Library[ComponentDef] {
+case object MuiLibrary extends Library[ComponentDef] {
 
-  override val importName = VarName("mui")
-  override val location   = home / "pr" / "material-ui" / "build"
-  override val prefixOpt  = Some("Mui")
-  override val nameOpt    = Some("materialui")
-
-  override val typeMapper  = MuiTypeMapper
+  override val importName  = VarName("mui")
+  override val location    = home / "pr" / "material-ui" / "build"
+  override val prefixOpt   = Some("Mui")
+  override val nameOpt     = Some("materialui")
+  override val typeMapper   = MuiTypeMapper
   override def memberMapper = MuiTypeMemberMethodMapper
 
   //todo: make requiresjs figure this stuff out!
+  case object Internal {
+    case object BeforeAfterWrapper extends ComponentDef {
+      override val name = CompName("BeforeAfterWrapper")
+    }
+    case object EnhancedButton extends ComponentDef {
+      override val name = CompName("EnhancedButton")
+    }
+    case object EnhancedSwitch extends ComponentDef {
+      override val name = CompName("EnhancedSwitch")
+    }
+    case object Overlay extends ComponentDef {
+      override val name = CompName("Overlay")
+    }
+    case object CircleRipple extends ComponentDef {
+      override val name = CompName("CircleRipple")
+    }
+    case object FocusRipple extends ComponentDef {
+      override val name = CompName("FocusRipple")
+    }
+    case object TouchRipple extends ComponentDef {
+      override val name = CompName("TouchRipple")
+    }
 
-  object AppBar extends ComponentDef {
+    case object RenderToLayer extends ComponentDef {
+      override val name = CompName("RenderToLayer")
+    }
+    case object EnhancedTextarea extends ComponentDef {
+      override val name = CompName("EnhancedTextarea")
+    }
+  }
+
+  case object AppBar extends ComponentDef {
     override val shared = Option(Paper)
     override val name = CompName("AppBar")
   }
-  object AppCanvas extends ComponentDef {
+
+  case object AppCanvas extends ComponentDef {
     override val name = CompName("AppCanvas")
   }
-  object Avatar extends ComponentDef {
+
+  case object Avatar extends ComponentDef {
     override val name = CompName("Avatar")
     override val multipleChildren = false
   }
-  object AutoComplete extends ComponentDef {
+
+  case object AutoComplete extends ComponentDef {
     override val shared = Some(TextField)
     override val name = CompName("AutoComplete")
   }
-  object Badge extends ComponentDef {
+
+  case object Badge extends ComponentDef {
     override val name = CompName("Badge")
   }
 
-  object BeforeAfterWrapper extends ComponentDef {
-    override val name = CompName("BeforeAfterWrapper")
-  }
-
-  object EnhancedButton extends MuiButtons {
-    override val name = CompName("EnhancedButton")
-  }
-
-  trait MuiButtons extends ComponentDef {
-    override val shared = Some(EnhancedButton)
-  }
-
-  object FlatButton extends MuiButtons {
+  case object FlatButton extends ComponentDef {
     override val name = CompName("FlatButton")
+    override val shared = Some(Internal.EnhancedButton)
   }
-  object RaisedButton extends MuiButtons {
+  case object RaisedButton extends ComponentDef {
     override val name = CompName("RaisedButton")
+    override val shared = Some(Internal.EnhancedButton)
   }
-  object FloatingActionButton extends MuiButtons {
+  case object FloatingActionButton extends ComponentDef {
     override val name = CompName("FloatingActionButton")
+    override val shared = Some(Internal.EnhancedButton)
   }
-  object IconButton extends MuiButtons {
+  case object IconButton extends ComponentDef {
     override val name = CompName("IconButton")
+    override val shared = Some(Internal.EnhancedButton)
   }
 
-  object Card extends ComponentDef{
+  case object Card extends ComponentDef{
     override val shared = Some(Paper)
     override val name = CompName("Card")
   }
-  object CardHeader extends ComponentDef{
+  case object CardHeader extends ComponentDef{
     override val name = CompName("CardHeader")
   }
-  object CardExpandable extends ComponentDef{
+  case object CardExpandable extends ComponentDef{
     override val name = CompName("CardExpandable")
   }
-  object CardMedia extends ComponentDef{
+  case object CardMedia extends ComponentDef{
     override val name = CompName("CardMedia")
   }
-  object CardTitle extends ComponentDef{
+  case object CardTitle extends ComponentDef{
     override val name = CompName("CardTitle")
   }
-  object CardActions extends ComponentDef{
+  case object CardActions extends ComponentDef{
     override val name = CompName("CardActions")
   }
-  object CardText extends ComponentDef{
+  case object CardText extends ComponentDef{
     override val name = CompName("CardText")
   }
 
-  object DatePicker extends ComponentDef {
+  case object DatePicker extends ComponentDef {
     override val shared = Option(TextField)
     override val name = CompName("DatePicker")
     override val postlude: Option[String] = Some(
@@ -95,53 +120,49 @@ object MuiLibrary extends Library[ComponentDef] {
         |
       """.stripMargin)
   }
-  object Dialog extends ComponentDef {
+
+  case object Dialog extends ComponentDef {
     override val name = CompName("Dialog")
   }
 
-  object Divider extends ComponentDef {
+  case object Divider extends ComponentDef {
     val name = CompName("Divider")
   }
 
-  object DropDownMenu extends ComponentDef {
+  case object DropDownMenu extends ComponentDef {
     override val name = CompName("DropDownMenu")
   }
 
-  object FontIcon extends ComponentDef {
+  case object FontIcon extends ComponentDef {
     override val name = CompName("FontIcon")
   }
 
-  object GridList extends ComponentDef {
+  case object GridList extends ComponentDef {
     override val name = CompName("GridList")
   }
-  object GridTile extends ComponentDef {
+  case object GridTile extends ComponentDef {
     override val name = CompName("GridTile")
   }
 
-  object IconMenu extends ComponentDef {
+  case object IconMenu extends ComponentDef {
     override val shared = Option(Menu)
     override val name = CompName("IconMenu")
   }
 
-  object Drawer extends ComponentDef {
+  case object Drawer extends ComponentDef {
     override val name = CompName("Drawer")
   }
 
-  object MuiList extends ComponentDef {
+  case object MuiList extends ComponentDef {
     override val name = CompName("List")
   }
 
-  object ListDivider extends ComponentDef {
-    override val name = CompName("ListDivider")
-    override val deprecated: Boolean = true
-  }
-
-  object ListItem extends ComponentDef {
-    override val shared = Some(EnhancedButton)
+  case object ListItem extends ComponentDef {
+    override val shared = Some(Internal.EnhancedButton)
     override val name = CompName("ListItem")
   }
 
-  object Menu extends ComponentDef {
+  case object Menu extends ComponentDef {
     override val shared = Some(MuiList)
     override val name = CompName("Menu")
     override val postlude = Some(
@@ -153,181 +174,151 @@ object MuiLibrary extends Library[ComponentDef] {
       """.stripMargin)
   }
 
-  object MenuItem extends ComponentDef {
+  case object MenuItem extends ComponentDef {
     override val name = CompName("MenuItem")
     override val shared = Option(ListItem)
   }
 
-  object Overlay extends ComponentDef {
-    override val name = CompName("Overlay")
-  }
-
-  object Paper extends ComponentDef {
+  case object Paper extends ComponentDef {
     override val name = CompName("Paper")
   }
 
-  object Popover extends ComponentDef {
+  case object Popover extends ComponentDef {
     override val multipleChildren: Boolean = false
     override val name = CompName("Popover")
   }
-  object PopoverAnimationVertical extends ComponentDef {
+
+  case object PopoverAnimationVertical extends ComponentDef {
     override val name = CompName("PopoverAnimationVertical")
   }
 
-  object LinearProgress extends ComponentDef {
+  case object LinearProgress extends ComponentDef {
     override val name = CompName("LinearProgress")
   }
 
-  object CircularProgress extends ComponentDef {
+  case object CircularProgress extends ComponentDef {
     override val name = CompName("CircularProgress")
   }
 
-  object RefreshIndicator extends ComponentDef {
+  case object RefreshIndicator extends ComponentDef {
     override val name = CompName("RefreshIndicator")
   }
 
-  object CircleRipple extends ComponentDef {
-    override val name = CompName("CircleRipple")
-  }
-  object FocusRipple extends ComponentDef {
-    override val name = CompName("FocusRipple")
-  }
-  object TouchRipple extends ComponentDef {
-    override val name = CompName("TouchRipple")
-  }
-
-  object SelectField extends ComponentDef {
+  case object SelectField extends ComponentDef {
     override val shared = Option(DropDownMenu)
     override val name = CompName("SelectField")
-    override val postlude = Some("""case class MuiSelectItem(payload: String, text: String){
-                                   |	val toJS = JSMacro[MuiSelectItem](this)
-                                   |}
-                                   |""".stripMargin)
   }
-  object Slider extends ComponentDef {
+
+  case object Slider extends ComponentDef {
     override val name = CompName("Slider")
   }
 
-
-  object Snackbar extends ComponentDef {
+  case object Snackbar extends ComponentDef {
     override val name = CompName("Snackbar")
   }
 
-  object EnhancedSwitch extends ComponentDef {
-    override val name = CompName("EnhancedSwitch")
-  }
-
-  trait MuiSwitches extends ComponentDef {
-    override val shared = Some(EnhancedSwitch)
-  }
-
-  object Checkbox extends MuiSwitches {
+  case object Checkbox extends ComponentDef {
     override val name = CompName("Checkbox")
+    override val shared = Some(Internal.EnhancedSwitch)
   }
-  object RadioButton extends MuiSwitches {
+  case object RadioButton extends ComponentDef {
     override val name = CompName("RadioButton")
+    override val shared = Some(Internal.EnhancedSwitch)
   }
 
-  object RadioButtonGroup extends ComponentDef {
+  case object RadioButtonGroup extends ComponentDef {
     override val shared = Some(RadioButton)
     override val name = CompName("RadioButtonGroup")
   }
-  object Toggle extends MuiSwitches {
+  case object Toggle extends ComponentDef {
     override val name = CompName("Toggle")
+    override val shared = Some(Internal.EnhancedSwitch)
   }
 
-  object Table extends ComponentDef {
+  case object Table extends ComponentDef {
     override val name = CompName("Table")
   }
-  object TableBody extends ComponentDef {
+  case object TableBody extends ComponentDef {
     override val name = CompName("TableBody")
   }
-  object TableHeader extends ComponentDef {
+  case object TableHeader extends ComponentDef {
     override val name = CompName("TableHeader")
   }
-  object TableHeaderColumn extends ComponentDef {
+  case object TableHeaderColumn extends ComponentDef {
     override val name = CompName("TableHeaderColumn")
   }
-  object TableFooter extends ComponentDef {
+  case object TableFooter extends ComponentDef {
     override val name = CompName("TableFooter")
   }
-  object TableRow extends ComponentDef {
+  case object TableRow extends ComponentDef {
     override val name = CompName("TableRow")
   }
-  object TableRowColumn extends ComponentDef {
+  case object TableRowColumn extends ComponentDef {
     override val name = CompName("TableRowColumn")
   }
 
-  object Tab extends ComponentDef {
-    override val shared = Some(EnhancedButton)
+  case object Tab extends ComponentDef {
+    override val shared = Some(Internal.EnhancedButton)
     override val name = CompName("Tab")
   }
-  object Tabs extends ComponentDef {
+
+  case object Tabs extends ComponentDef {
     override val name = CompName("Tabs")
   }
 
-  object ThemeWrapper extends ComponentDef {
-    override val name = CompName("ThemeWrapper")
-  }
-
-  object TextField extends ComponentDef {
+  case object TextField extends ComponentDef {
     override val name = CompName("TextField")
-    override val shared = Some(EnhancedTextarea)
+    override val shared = Some(Internal.EnhancedTextarea)
   }
 
-  object TimePicker extends ComponentDef {
+  case object TimePicker extends ComponentDef {
     override val shared = Option(TextField)
     override val name = CompName("TimePicker")
   }
 
-  object Toolbar extends ComponentDef{
+  case object Toolbar extends ComponentDef{
     override val name = CompName("Toolbar")
   }
-  object ToolbarGroup extends ComponentDef{
+  case object ToolbarGroup extends ComponentDef{
     override val name = CompName("ToolbarGroup")
   }
-  object ToolbarSeparator extends ComponentDef{
+  case object ToolbarSeparator extends ComponentDef{
     override val name = CompName("ToolbarSeparator")
   }
-  object ToolbarTitle extends ComponentDef{
+  case object ToolbarTitle extends ComponentDef{
     override val name = CompName("ToolbarTitle")
   }
-  object Tooltip extends ComponentDef {
+
+  case object Tooltip extends ComponentDef {
     override val name = CompName("Tooltip")
   }
 
-  object RenderToLayer extends ComponentDef {
-    override val name = CompName("RenderToLayer")
-  }
-  object EnhancedTextarea extends ComponentDef {
-    override val name = CompName("EnhancedTextarea")
-  }
-  object Subheader extends ComponentDef {
+  case object Subheader extends ComponentDef {
     override val name = CompName("Subheader")
   }
 
-  object Step extends ComponentDef {
+  case object Step extends ComponentDef {
     override val name = CompName("Step")
   }
-  object StepButton extends ComponentDef {
-    override val shared = Some(EnhancedButton)
+  case object StepButton extends ComponentDef {
+    override val shared = Some(Internal.EnhancedButton)
     override val name = CompName("StepButton")
   }
-  object StepContent extends ComponentDef {
+  case object StepContent extends ComponentDef {
     override val name = CompName("StepContent")
   }
-  object StepLabel extends ComponentDef {
+  case object StepLabel extends ComponentDef {
     override val name = CompName("StepLabel")
   }
-  object Stepper extends ComponentDef {
+  case object Stepper extends ComponentDef {
     override val name = CompName("Stepper")
   }
-  object FlatButtonLabel extends ComponentDef {
-    override val name = CompName("FlatButtonLabel")
+
+  case object ThemeProvider extends ComponentDef {
+    override val name = CompName("MuiThemeProvider")
   }
 
   val components = List(
-    EnhancedTextarea,
     Step, StepButton, StepContent, StepLabel, Stepper,
     AppBar,
     Avatar,
@@ -336,6 +327,7 @@ object MuiLibrary extends Library[ComponentDef] {
     Card, CardHeader, CardExpandable, CardMedia, CardTitle, CardActions, CardText,
     DatePicker,
     Dialog,
+    Divider,
     DropDownMenu,
     FlatButton,
     FloatingActionButton,
@@ -361,15 +353,7 @@ object MuiLibrary extends Library[ComponentDef] {
     Tab, Tabs,
     TextField,
     TimePicker,
-    Toolbar, ToolbarGroup, ToolbarSeparator, ToolbarTitle
-    //    Subheader,
-//    Divider
-//    RenderToLayer,
-//    FlatButtonLabel,
-//    AppCanvas,
-//    BeforeAfterWrapper,
-//    Overlay,
-//    CircleRipple, TouchRipple, FocusRipple,
-//    Tooltip
+    Toolbar, ToolbarGroup, ToolbarSeparator, ToolbarTitle,
+    ThemeProvider
   )
 }

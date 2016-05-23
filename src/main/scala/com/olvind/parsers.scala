@@ -27,7 +27,7 @@ object ParseComponent {
         case None         => Map.empty
         case Some(shared) =>
           scope.get(shared.name).flatMap(_.propsOpt).getOrElse(
-            throw new RuntimeException(s"No Proptypes found for $shared")
+              throw new RuntimeException(s"$comp: No Proptypes found for $shared. Imports: ${scope(comp.name).imports.map(_.varName)}")
           )
       }
 
@@ -39,7 +39,7 @@ object ParseComponent {
         .filter(_.nonEmpty)
         .map(members ⇒
           ParsedMethodClass(
-            comp.name + "M",
+            library.prefixOpt.getOrElse("") + comp.name + "M",
             members.toSeq.sortBy(_.name).map(library.memberMapper(comp.name))
           )
         )
@@ -52,7 +52,8 @@ object ParseComponent {
         ParsedProp(PropName("ref"), isRequired = false,
           PropType.Type(methodClassOpt.fold("String")(c => c.className + " => Unit")), None, None, None
         )
-  //    out.addField(ReqField(PropName("untyped"), PropTypeClass("Map[String, js.Any]"), None, None, None))
+//        , ParsedProp(PropName("untyped"), isRequired = false,
+//          PropType.Type("Map[String, js.Any]"), None, None, None)
       )
 
     val parsedFields: Seq[ParsedProp] =

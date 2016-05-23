@@ -14,9 +14,6 @@ case class CreateClassVisitor[N <: Node](n: N, currentPath: Path) extends MyNode
 
   private[CreateClassVisitor] var nameStack: List[VarName] = Nil
 
-  n accept this
-  require(nameStack.isEmpty)
-
   override def enterPropertyNode(n: PropertyNode): Boolean = {
     matcher(n.getKey){
       case (i: IdentNode) =>
@@ -93,7 +90,6 @@ case class CreateClassVisitor[N <: Node](n: N, currentPath: Path) extends MyNode
             }
         }
 
-
       case (i: IdentNode, List(o: LiteralNode[_])) if i.getName == "require" =>
         nameStack.headOption match {
           case Some(name) =>
@@ -116,4 +112,7 @@ case class CreateClassVisitor[N <: Node](n: N, currentPath: Path) extends MyNode
           case None => ???
         }
     }
+
+  n accept this
+  require(nameStack.isEmpty)
 }

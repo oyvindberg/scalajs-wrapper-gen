@@ -43,6 +43,8 @@ object MuiTypeMemberMethodMapper extends MemberMapper {
       case ("TimePicker",       0, "focus")            => "focus(): Unit"
       case other ⇒
         println(other)
-        m + args.map(_ + ": js.Any").mkString("(", ", ", ")") + ": js.Any"
+        m + args.map(sanitize(_) + ": js.Any").mkString("(", ", ", ")") + ": js.Any"
     }
+  def sanitize(s: String) =
+    if (s == "val") "`val`" else s
 }

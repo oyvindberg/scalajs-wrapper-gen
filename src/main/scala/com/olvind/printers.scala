@@ -128,7 +128,7 @@ object Printer {
       s"""
          |@js.native
          |class ${c.className} extends js.Object {
-         |${c.ms.map{m =>
+         |${c.methods.map{ m =>
             val deprecated: String =
               if (m.toString().toLowerCase.contains("deprecated")) s"${indent(1)}@deprecated\n"
               else ""

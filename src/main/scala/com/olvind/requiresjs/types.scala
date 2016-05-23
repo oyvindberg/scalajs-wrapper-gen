@@ -9,7 +9,7 @@ case class ParsedFile(path: Path, content: String, result: FunctionNode)
 sealed trait Required
 case class Multiple(name: VarName, path: Path, rs: Seq[Required]) extends Required
 case class Single(compName: CompName, c: FoundComponent) extends Required
-case object NotFound extends Required
+case class NotFound(name: VarName) extends Required
 
 case class FoundComponent(
   name:      CompName,

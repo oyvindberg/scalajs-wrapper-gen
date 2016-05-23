@@ -12,6 +12,7 @@ object JsParser {
   options.set("anon.functions", true)
   options.set("parse.only", true)
   options.set("scripting", true)
+  options.set("optimistic.types", true)
 
   def apply(jsFile: Path): ParsedFile = {
     println(s"reading $jsFile")

@@ -28,6 +28,7 @@ trait Library[D <: ComponentDef] {
   def components: Seq[D]
   def typeMapper: TypeMapper
   def memberMapper: MemberMapper
+
   @deprecated
   final def prefix: String =
     prefixOpt getOrElse ""
