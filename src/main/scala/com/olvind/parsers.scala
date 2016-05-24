@@ -27,7 +27,7 @@ object ParseComponent {
         case None         => Map.empty
         case Some(shared) =>
           scope.get(shared.name).flatMap(_.propsOpt).getOrElse(
-              throw new RuntimeException(s"$comp: No Proptypes found for $shared. Imports: ${scope(comp.name).imports.map(_.varName)}")
+              throw new RuntimeException(s"$comp: No Proptypes found for $shared")
           )
       }
 

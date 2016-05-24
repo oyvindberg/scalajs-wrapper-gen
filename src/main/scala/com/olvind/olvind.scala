@@ -1,5 +1,7 @@
 package com
 
+import java.io.File
+
 import ammonite.ops.Path
 
 package object olvind {
@@ -16,4 +18,6 @@ package object olvind {
       .filterNot(_ == ".")
       .foldLeft(p)(_ / _)
 
+  def exists(path: Path): Boolean =
+    new File(path.toString).exists
 }

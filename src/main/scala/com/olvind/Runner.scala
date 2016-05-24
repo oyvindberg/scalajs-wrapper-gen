@@ -4,13 +4,11 @@ import java.io.File
 
 class Runner[D <: ComponentDef](library: Library[D]) {
   val basedir = new File("/Users/oyvindberg/pr/scalajs-react-components/core/src/main/scala/chandu0101/scalajs/react/components")
-  val WRITE   = true
 
-  def printToFile(f: java.io.File)(op: java.io.PrintWriter => Unit): Unit =
-    if (WRITE){
-      val p = new java.io.PrintWriter(f)
-      try { op(p) } finally { p.close() }
-    }
+  def printToFile(f: java.io.File)(op: java.io.PrintWriter => Unit): Unit = {
+    val p = new java.io.PrintWriter(f)
+    try { op(p) } finally { p.close() }
+  }
 
   val prelude =
     s"""package chandu0101.scalajs.react.components
