@@ -2,7 +2,7 @@ package com.olvind
 package requiresjs
 
 import ammonite.ops._
-import jdk.nashorn.internal.ir.ObjectNode
+import jdk.nashorn.internal.ir.{Node, ObjectNode}
 
 import scala.language.postfixOps
 
@@ -19,7 +19,7 @@ object Require {
     val parsedFile: ParsedFile =
       ctx.parsedFile(filePath)
 
-    val importV: VisitorImports =
+    val importsV: VisitorImports =
       VisitorImports(parsedFile.result, folderPath)
 
     val componentsV: VisitorComponents =
@@ -28,24 +28,31 @@ object Require {
     val memberV: VisitorComponentMembers =
       VisitorComponentMembers(parsedFile.result)
 
+    val exportsV: VisitorExports =
+      VisitorExports(parsedFile.result)
+
+    val value: Seq[Node] =
+      exportsV.value
+
     //todo: split require/react parsing!
-    def component(compName: CompName, o: ObjectNode): Single =
+    def component(compName: CompName, o: ObjectNode): Single = {
       Single(
         compName,
         FoundComponent(
           name      = compName,
           file      = filePath,
           jsContent = parsedFile.content.substring(o.getStart, o.getFinish),
-          propsOpt  = VisitorPropType(compName, o, parsedFile.content, importV.value).value,
+          propsOpt  = VisitorPropType(compName, o, parsedFile.content, importsV.value).value,
           methods   = memberV.value.get(compName)
         )
       )
+    }
 
     componentsV.value.toList.distinct match {
       case Nil ⇒
         /* todo: Parse exports! */
         val modules: Seq[Required] =
-          importV.value.collect {
+          importsV.value.collect {
             case Import(varName, Left(innerPath: Path)) =>
               recurse(innerPath, ctx)
           }.distinct

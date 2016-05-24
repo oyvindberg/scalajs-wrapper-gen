@@ -73,7 +73,7 @@ object Printer {
            |}""".stripMargin
     }
 
-  def outChildrenComment(oc: Option[PropComment]) =
+  def outChildrenComment(oc: Option[PropComment]): String =
     oc.fold("")(d =>
       s"""${indent(1)}/**
          |${indent(1)} * @param children ${d.value}
@@ -130,7 +130,7 @@ object Printer {
          |class ${c.className} extends js.Object {
          |${c.methods.map{ m =>
             val deprecated: String =
-              if (m.toString().toLowerCase.contains("deprecated")) s"${indent(1)}@deprecated\n"
+              if (m.toString.toLowerCase.contains("deprecated")) s"${indent(1)}@deprecated\n"
               else ""
             val comment = outComment(m.commentOpt, None)
             s"$comment$deprecated${indent(1)}def ${m.definition} = js.native"
