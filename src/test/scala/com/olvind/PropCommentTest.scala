@@ -1,6 +1,6 @@
 package com.olvind
 
-class PropComment$Test
+class PropCommentTest
   extends org.scalatest.FunSuite
      with org.scalatest.Matchers {
 

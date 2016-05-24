@@ -8,20 +8,11 @@ object Require {
   def apply(p: Path): Required =
     recurse(p, new ScanCtx)
 
-  private def recurse(_p: Path, ctx: ScanCtx): Required = {
+  private def recurse(requiredPath: Path, ctx: ScanCtx): Required =
+    ctx.required(requiredPath, _recurse(requiredPath, ctx))
 
-    val (filePath, folderPath) =
-      exists(_p) match {
-        case true ⇒
-          _p.isDir match {
-            case true ⇒
-              (_p / "index.js", _p)
-            case false ⇒
-              (_p, _p.copy(_p.segments.dropRight(1)))
-          }
-        case false ⇒
-          (_p.copy(_p.segments.dropRight(1) :+ _p.segments.last + ".js"), _p.copy(_p.segments.dropRight(1)))
-      }
+  private def _recurse(requiredPath: Path, ctx: ScanCtx): Required = {
+    val ResolvedPath(filePath, folderPath) = ResolvePath(requiredPath)
 
     val parsedFile: ParsedFile =
       ctx.parsedFile(filePath)
@@ -29,6 +20,7 @@ object Require {
     val c: CreateClassVisitor[FunctionNode] =
       CreateClassVisitor(parsedFile.result, folderPath)
 
+    //todo: split require/react parsing!
     def component(compName: CompName, o: ObjectNode): Single =
       Single(
         compName,
@@ -41,21 +33,21 @@ object Require {
         )
       )
 
-    c.propTypeObjs.toList match {
+    c.propTypeObjs.toList.distinct match {
       case Nil ⇒
-        val modules: Seq[Required] =
-          c.imports collect {
-            case Import(varName, Left(requiredPath: Path)) =>
-              recurse(requiredPath, ctx)
-          }
         /* todo: Parse exports! */
-
-        Multiple(filePath, modules)
+        val modules: Seq[Required] =
+          c.imports.distinct.collect {
+            case Import(varName, Left(innerPath: Path)) =>
+              val required: Required = recurse(innerPath, ctx)
+              required
+          }.distinct
+        Required(requiredPath, modules)
 //        SingleNotComp(_p)
       case (compName, o) :: Nil ⇒
         component(compName, o)
       case many ⇒
-        Multiple(
+        Required(
           filePath,
           many.map { case (compName, o) ⇒ component(compName, o) }
         )

@@ -11,12 +11,12 @@ package object olvind {
   def indent(n: Int): String =
     "  " * n
 
-  def add(p: Path, frag: String): Path =
-    frag
-      .split("/")
-      .filterNot(_.isEmpty)
-      .filterNot(_ == ".")
-      .foldLeft(p)(_ / _)
+  def add(_p: Path, frags: String): Path =
+    frags.split("/").filterNot(_.isEmpty).foldLeft(_p){
+      case (p, ".")  ⇒ p
+      case (p, "..") ⇒ p.copy(p.segments.dropRight(1))
+      case (p, frag) ⇒ p / frag
+    }
 
   def exists(path: Path): Boolean =
     new File(path.toString).exists
