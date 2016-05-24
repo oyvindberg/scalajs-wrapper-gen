@@ -45,10 +45,27 @@ case class CreateClassVisitor(n: FunctionNode, currentPath: Path) extends MyNode
   }
 
   override def enterBinaryNode(bn: BinaryNode): Boolean = {
-    (bn.lhs(), bn.rhs()) match {
-      case (a: AccessNode, o: ObjectNode) if a.getProperty == "propTypes" ⇒
-        propTypeObjs(CompName(a.getBase.asInstanceOf[IdentNode].getName)) = o
-      case other ⇒ ()
+    bn.lhs match {
+      case a: AccessNode if a.getProperty == "propTypes" ⇒
+        bn.rhs match {
+          /* inline object*/
+          case o: ObjectNode ⇒
+            propTypeObjs(CompName(a.getBase.asInstanceOf[IdentNode].getName)) = o
+
+          /* referencing variable in scope, so search upwards */
+          case i: IdentNode ⇒
+            val founds = lc.getBlocks.asScala.toList.flatMap{
+              block ⇒ block.getStatements.asScala.collect {
+                case v: VarNode if v.getName.getName == i.getName ⇒ v.getInit
+              }
+            }
+            val foundOpt = founds collectFirst {
+              case o: ObjectNode ⇒ o
+            }
+            foundOpt.foreach(found ⇒ propTypeObjs(CompName(a.getBase.asInstanceOf[IdentNode].getName)) = found)
+        }
+      case other ⇒
+        ()
     }
     true
   }

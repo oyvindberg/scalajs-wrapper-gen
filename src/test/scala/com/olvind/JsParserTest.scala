@@ -13,8 +13,8 @@ class JsParserTest extends org.scalatest.FunSuite
     println(result)
   }
 
-  test("Drawer.propTypes = {...}") {
-    val result: Required = Require(mui15 / "Drawer.js")
-    println(result)
-  }
+//  test("Drawer.propTypes = {...}") {
+//    val result: Required = Require(mui15 / "Drawer.js")
+//    println(result)
+//  }
 }

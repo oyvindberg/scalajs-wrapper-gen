@@ -4,8 +4,7 @@ import java.io.File
 
 import ammonite.ops.Path
 
-trait ComponentDef {
-  val name: CompName
+abstract class ComponentDef(val name: CompName) {
   val shared: Option[ComponentDef] = None
   val postlude: Option[String] = None
   val multipleChildren: Boolean = true

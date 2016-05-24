@@ -53,10 +53,7 @@ object Require {
         component(compName, o)
 
       case many ⇒
-        Required(
-          filePath,
-          many map (component _ tupled)
-        )
+        Required(filePath, many map (component _ tupled))
     }
   }
 }

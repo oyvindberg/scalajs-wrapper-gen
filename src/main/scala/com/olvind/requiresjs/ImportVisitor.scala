@@ -48,16 +48,14 @@ case class ImportVisitor(n: FunctionNode, currentPath: Path) extends MyNodeVisit
   override def enterCallNode(n: CallNode): Boolean =
     matcher((n.getFunction, n.getArgs.asScala.toList)){
       case (i: IdentNode, List(o: LiteralNode[_])) if i.getName == "require" =>
-        val name = nameStack.head
         val target =
           if (o.getString.startsWith(".")) Left(add(currentPath, o.getString))
           else Right(o.getString)
-        imports += Import(name, target)
+        imports += Import(nameStack.head, target)
 
       case (i: IdentNode, List(arg: IdentNode)) if i.getName.contains("interopRequireDefault") =>
-        val name = nameStack.head
         imports.find(_.varName == VarName(arg.getName)) match {
-          case Some(referenced) => imports += referenced.copy(varName = name)
+          case Some(referenced) => imports += referenced.copy(varName = nameStack.head)
           case None =>
             println(s"Warning: Undefined import ${arg.getName}")
         }
