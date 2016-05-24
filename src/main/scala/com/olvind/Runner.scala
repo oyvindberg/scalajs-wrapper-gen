@@ -2,6 +2,8 @@ package com.olvind
 
 import java.io.File
 
+import com.olvind.requiresjs._
+
 class Runner[D <: ComponentDef](library: Library[D]) {
   val basedir = new File("/Users/oyvindberg/pr/scalajs-react-components/core/src/main/scala/chandu0101/scalajs/react/components")
 
@@ -24,11 +26,21 @@ class Runner[D <: ComponentDef](library: Library[D]) {
     """.stripMargin
 
   val foundComponents: Map[CompName, requiresjs.FoundComponent] = {
+    def flattenScan(r: Required): Map[CompName, FoundComponent] =
+      r match {
+        case Single(n, c)     =>
+          Map(n -> c)
+        case Multiple(_, rs) =>
+          (rs flatMap flattenScan).toMap
+        case NotFound(_) ⇒
+          Map.empty
+      }
+
     val res1: requiresjs.Required =
       requiresjs.Require(
         library.location
       )
-    requiresjs.flattenScan(res1)
+    flattenScan(res1)
   }
 
   val (mainFiles: Seq[PrimaryOutFile], secondaryFiles: Seq[SecondaryOutFile]) =
