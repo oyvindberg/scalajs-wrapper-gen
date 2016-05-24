@@ -2,7 +2,7 @@ package com.olvind
 package requiresjs
 
 import ammonite.ops._
-import jdk.nashorn.internal.ir.{FunctionNode, ObjectNode}
+import jdk.nashorn.internal.ir.ObjectNode
 
 import scala.language.postfixOps
 
@@ -11,18 +11,18 @@ object Require {
     recurse(p, new ScanCtx)
 
   private def recurse(requiredPath: Path, ctx: ScanCtx): Required =
-    ctx.required(requiredPath, _recurse(requiredPath, ctx))
+    ctx.required(requiredPath, _recurse(requiredPath))
 
-  private def _recurse(requiredPath: Path, ctx: ScanCtx): Required = {
+  private def _recurse(requiredPath: Path)(ctx: ScanCtx): Required = {
     val ResolvedPath(filePath, folderPath) = ResolvePath(requiredPath)
 
     val parsedFile: ParsedFile =
       ctx.parsedFile(filePath)
 
-    val i: ImportVisitor[FunctionNode] =
+    val i: ImportVisitor =
       ImportVisitor(parsedFile.result, folderPath)
 
-    val c: CreateClassVisitor[FunctionNode] =
+    val c: CreateClassVisitor =
       CreateClassVisitor(parsedFile.result, folderPath)
 
     //todo: split require/react parsing!
@@ -42,11 +42,11 @@ object Require {
       case Nil ⇒
         /* todo: Parse exports! */
         val modules: Seq[Required] =
-          i.imports.distinct.collect {
+          i.imports.collect {
             case Import(varName, Left(innerPath: Path)) =>
-              val required: Required = recurse(innerPath, ctx)
-              required
+              recurse(innerPath, ctx)
           }.distinct
+
         Required(requiredPath, modules)
 
       case (compName, o) :: Nil ⇒

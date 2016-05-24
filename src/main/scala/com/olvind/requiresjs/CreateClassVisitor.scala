@@ -7,7 +7,7 @@ import jdk.nashorn.internal.ir._
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 
-case class CreateClassVisitor[N <: Node](n: N, currentPath: Path) extends MyNodeVisitor(n){
+case class CreateClassVisitor(n: FunctionNode, currentPath: Path) extends MyNodeVisitor(n){
   val propTypeObjs  = mutable.Map.empty[CompName, ObjectNode]
   val memberMethods = mutable.Map.empty[CompName, Set[MemberMethod]]
 

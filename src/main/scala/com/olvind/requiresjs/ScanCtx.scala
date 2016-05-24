@@ -13,7 +13,6 @@ class ScanCtx {
   def parsedFile(p: Path): ParsedFile =
     parsedFiles.getOrElseUpdate(p, JsParser(p))
 
-  def required(p: Path, require: ⇒ Required): Required =
-    requiredFiles.getOrElseUpdate(p, require)
-
+  def required(p: Path, require: ScanCtx ⇒ Required): Required =
+    requiredFiles.getOrElseUpdate(p, require(this))
 }

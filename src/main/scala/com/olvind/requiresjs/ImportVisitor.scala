@@ -8,7 +8,7 @@ import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
-case class ImportVisitor[N <: Node](n: N, currentPath: Path) extends MyNodeVisitor(n){
+case class ImportVisitor(n: FunctionNode, currentPath: Path) extends MyNodeVisitor(n){
   val imports: ArrayBuffer[Import] =
     mutable.ArrayBuffer.empty[Import]
 
