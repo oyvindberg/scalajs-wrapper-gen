@@ -327,7 +327,7 @@ case object MuiLibrary extends Library[ComponentDef] {
     Card, CardHeader, CardExpandable, CardMedia, CardTitle, CardActions, CardText,
     DatePicker,
     Dialog,
-    Divider,
+//    Divider,
     DropDownMenu,
     FlatButton,
     FloatingActionButton,

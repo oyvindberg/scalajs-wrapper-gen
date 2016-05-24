@@ -9,9 +9,8 @@ object Run extends App {
 
   def print(indent: Int)(r: Required): Unit = {
     r match {
-      case Multiple(name, path, cs) =>
+      case Multiple(path, cs) =>
         println("-" * 20)
-        indented(indent)(name.value)
         cs foreach print(indent + 2)
         println("-" * 20)
       case Single(compName, c) =>
@@ -19,6 +18,6 @@ object Run extends App {
         c.propsOpt.fold(())(_ foreach {case (name, tpe) => indented(indent + 2)(name + " -> " + tpe)})
     }
   }
-  val result = Require(VarName("mui"), home / "pr" / "material-ui" / "lib")
+  val result = Require(home / "pr" / "material-ui" / "lib")
   println(flattenScan(result).keySet)
 }

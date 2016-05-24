@@ -23,15 +23,7 @@ class JsParserTest extends org.scalatest.FunSuite
   }
 
   test("Drawer.propTypes = {...}") {
-    val result: Required = Require(VarName("Drawer"), mui15 / "Drawer.js")
+    val result: Required = Require(mui15 / "Drawer.js")
     println(flattenScan(result).keySet)
-
-    val parsed: ParsedFile =
-      JsParser(mui15 / "Drawer.js")
-
-    val visitor: CreateClassVisitor[FunctionNode] =
-      new CreateClassVisitor[FunctionNode](parsed.result, mui15)
-
-    println(visitor)
   }
 }

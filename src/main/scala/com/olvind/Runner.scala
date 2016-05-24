@@ -26,7 +26,6 @@ class Runner[D <: ComponentDef](library: Library[D]) {
   val foundComponents: Map[CompName, requiresjs.FoundComponent] = {
     val res1: requiresjs.Required =
       requiresjs.Require(
-        library.importName,
         library.location
       )
     requiresjs.flattenScan(res1)

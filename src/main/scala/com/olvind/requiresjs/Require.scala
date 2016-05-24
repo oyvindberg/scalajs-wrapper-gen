@@ -4,78 +4,60 @@ package requiresjs
 import ammonite.ops._
 import jdk.nashorn.internal.ir.{FunctionNode, ObjectNode}
 
-import scala.util.Try
-
 object Require {
-  def apply(moduleName: VarName, p: Path): Required =
-    recurse(moduleName, p, new ScanCtx)
+  def apply(p: Path): Required =
+    recurse(p, new ScanCtx)
 
-  private def recurse(moduleName: VarName,
-                      _p:         Path,
-                      ctx:        ScanCtx): Required = {
+  private def recurse(_p: Path, ctx: ScanCtx): Required = {
 
-    val (file, folder) =
-      _p.isFile match {
-        case true  ⇒ (_p,              _p.copy(_p.segments.dropRight(1)))
-        case false ⇒ (_p / "index.js", _p)
-      }
-
-    val parsed: ParsedFile =
-      ctx.parsedFile(file)
-
-    val c: CreateClassVisitor[FunctionNode] =
-      CreateClassVisitor(parsed.result, folder)
-
-    val modules: Seq[Required] =
-      c.imports map {
-        case Import(varName, Left(requiredPath: Path)) =>
-          if (Try(requiredPath.isDir).getOrElse(false)) {
-            recurse(varName, requiredPath, ctx)
-          } else {
-            val requiredJsFile: Path = //meh api
-              requiredPath.copy(requiredPath.segments.dropRight(1) :+ requiredPath.segments.last + ".js")
-
-            resolved(varName, ctx, requiredJsFile, folder)
+    val (filePath, folderPath) =
+      exists(_p) match {
+        case true ⇒
+          _p.isDir match {
+            case true ⇒
+              (_p / "index.js", _p)
+            case false ⇒
+              (_p, _p.copy(_p.segments.dropRight(1)))
           }
-        case Import(varName, Right(ignored)) =>
-          ExternalDep(VarName(ignored))
+        case false ⇒
+          (_p.copy(_p.segments.dropRight(1) :+ _p.segments.last + ".js"), _p.copy(_p.segments.dropRight(1)))
       }
-
-    Multiple(moduleName, _p, modules)
-  }
-
-  private def resolved(varName:   VarName,
-                       ctx:       ScanCtx,
-                       filePath:  Path,
-                       outerPath: Path): Required = {
 
     val parsedFile: ParsedFile =
       ctx.parsedFile(filePath)
 
-    val containedComponents: CreateClassVisitor[FunctionNode] =
-      CreateClassVisitor(parsedFile.result, outerPath)
+    val c: CreateClassVisitor[FunctionNode] =
+      CreateClassVisitor(parsedFile.result, folderPath)
 
-    def single(compName: CompName, o: ObjectNode): Single =
+    def component(compName: CompName, o: ObjectNode): Single =
       Single(
         compName,
         FoundComponent(
           name      = compName,
           file      = filePath,
           jsContent = parsedFile.content.substring(o.getStart, o.getFinish),
-          propsOpt  = PropTypeVisitor(compName, o, parsedFile.content, containedComponents.imports).propTypes,
-          methods   = containedComponents.memberMethods.get(compName)
+          propsOpt  = PropTypeVisitor(compName, o, parsedFile.content, c.imports).propTypes,
+          methods   = c.memberMethods.get(compName)
         )
       )
 
-    containedComponents.propTypeObjs.toList match {
+    c.propTypeObjs.toList match {
       case Nil ⇒
-        SingleNotComp(varName)
+        val modules: Seq[Required] =
+          c.imports collect {
+            case Import(varName, Left(requiredPath: Path)) =>
+              recurse(requiredPath, ctx)
+          }
+        /* todo: Parse exports! */
+
+        Multiple(filePath, modules)
+//        SingleNotComp(_p)
       case (compName, o) :: Nil ⇒
-        single(compName, o)
+        component(compName, o)
       case many ⇒
-        Multiple(varName,
+        Multiple(
           filePath,
-          many.map { case (compName, o) ⇒ single(compName, o) }
+          many.map { case (compName, o) ⇒ component(compName, o) }
         )
     }
   }
