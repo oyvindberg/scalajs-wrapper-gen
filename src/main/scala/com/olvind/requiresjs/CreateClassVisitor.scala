@@ -8,7 +8,6 @@ import scala.collection.JavaConverters._
 import scala.collection.mutable
 
 case class CreateClassVisitor[N <: Node](n: N, currentPath: Path) extends MyNodeVisitor(n){
-  val imports       = mutable.ArrayBuffer.empty[Import]
   val propTypeObjs  = mutable.Map.empty[CompName, ObjectNode]
   val memberMethods = mutable.Map.empty[CompName, Set[MemberMethod]]
 
@@ -88,28 +87,6 @@ case class CreateClassVisitor[N <: Node](n: N, currentPath: Path) extends MyNode
                 }
                 name.getKeyName
             }
-        }
-
-      case (i: IdentNode, List(o: LiteralNode[_])) if i.getName == "require" =>
-        nameStack.headOption match {
-          case Some(name) =>
-            val target =
-              if (o.getString.startsWith(".")) Left(add(currentPath, o.getString))
-              else Right(o.getString)
-            imports += Import(name, target)
-          case None =>
-            ???
-        }
-
-      case (i: IdentNode, List(arg: IdentNode)) if i.getName.contains("interopRequireDefault") =>
-        nameStack.headOption match {
-          case Some(name) =>
-            imports.find(_.varName == VarName(arg.getName)) match {
-              case Some(referenced) => imports += referenced.copy(varName = name)
-              case None =>
-                println(s"Warning: Undefined import ${arg.getName}")
-            }
-          case None => ???
         }
     }
 

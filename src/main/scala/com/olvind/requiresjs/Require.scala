@@ -4,6 +4,8 @@ package requiresjs
 import ammonite.ops._
 import jdk.nashorn.internal.ir.{FunctionNode, ObjectNode}
 
+import scala.language.postfixOps
+
 object Require {
   def apply(p: Path): Required =
     recurse(p, new ScanCtx)
@@ -17,6 +19,9 @@ object Require {
     val parsedFile: ParsedFile =
       ctx.parsedFile(filePath)
 
+    val i: ImportVisitor[FunctionNode] =
+      ImportVisitor(parsedFile.result, folderPath)
+
     val c: CreateClassVisitor[FunctionNode] =
       CreateClassVisitor(parsedFile.result, folderPath)
 
@@ -28,7 +33,7 @@ object Require {
           name      = compName,
           file      = filePath,
           jsContent = parsedFile.content.substring(o.getStart, o.getFinish),
-          propsOpt  = PropTypeVisitor(compName, o, parsedFile.content, c.imports).propTypes,
+          propsOpt  = PropTypeVisitor(compName, o, parsedFile.content, i.imports).propTypes,
           methods   = c.memberMethods.get(compName)
         )
       )
@@ -37,19 +42,20 @@ object Require {
       case Nil ⇒
         /* todo: Parse exports! */
         val modules: Seq[Required] =
-          c.imports.distinct.collect {
+          i.imports.distinct.collect {
             case Import(varName, Left(innerPath: Path)) =>
               val required: Required = recurse(innerPath, ctx)
               required
           }.distinct
         Required(requiredPath, modules)
-//        SingleNotComp(_p)
+
       case (compName, o) :: Nil ⇒
         component(compName, o)
+
       case many ⇒
         Required(
           filePath,
-          many.map { case (compName, o) ⇒ component(compName, o) }
+          many map (component _ tupled)
         )
     }
   }
