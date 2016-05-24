@@ -5,9 +5,8 @@ import jdk.nashorn.internal.ir._
 
 import scala.collection.JavaConverters._
 
-case class PropTypeVisitor(n: CompName, o: ObjectNode, jsContent: String, is: Seq[Import]) extends MyNodeVisitor(o){
-  var propTypes: Option[Map[PropName, PropUnparsed]] = None
-  o accept this
+case class VisitorPropType(n: CompName, o: ObjectNode, jsContent: String, is: Seq[Import]) extends VisitorHelper[ObjectNode, Option[Map[PropName, PropUnparsed]]](o){
+  private var ret: Option[Map[PropName, PropUnparsed]] = None
 
   def mapPropType(start: Int, ps: List[PropertyNode]): List[(PropName, PropUnparsed)] = {
     ps match {
@@ -21,9 +20,12 @@ case class PropTypeVisitor(n: CompName, o: ObjectNode, jsContent: String, is: Se
   }
 
   override def enterObjectNode(o: ObjectNode): Boolean = {
-    propTypes = Some(
+    ret = Some(
       mapPropType(o.getStart + 1, o.getElements.asScala.toList).toMap
     )
     false
   }
+
+  override protected def fetchValue(): Option[Map[PropName, PropUnparsed]] =
+    ret
 }

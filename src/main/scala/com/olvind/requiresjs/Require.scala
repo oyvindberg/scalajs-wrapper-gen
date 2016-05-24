@@ -11,19 +11,22 @@ object Require {
     recurse(p, new ScanCtx)
 
   private def recurse(requiredPath: Path, ctx: ScanCtx): Required =
-    ctx.required(requiredPath, _recurse(requiredPath))
+    ctx.required(requiredPath, doRecurse(requiredPath))
 
-  private def _recurse(requiredPath: Path)(ctx: ScanCtx): Required = {
+  private def doRecurse(requiredPath: Path)(ctx: ScanCtx): Required = {
     val ResolvedPath(filePath, folderPath) = ResolvePath(requiredPath)
 
     val parsedFile: ParsedFile =
       ctx.parsedFile(filePath)
 
-    val i: ImportVisitor =
-      ImportVisitor(parsedFile.result, folderPath)
+    val importV: VisitorImports =
+      VisitorImports(parsedFile.result, folderPath)
 
-    val c: CreateClassVisitor =
-      CreateClassVisitor(parsedFile.result, folderPath)
+    val componentsV: VisitorComponents =
+      VisitorComponents(parsedFile.result)
+
+    val memberV: VisitorComponentMembers =
+      VisitorComponentMembers(parsedFile.result)
 
     //todo: split require/react parsing!
     def component(compName: CompName, o: ObjectNode): Single =
@@ -33,16 +36,16 @@ object Require {
           name      = compName,
           file      = filePath,
           jsContent = parsedFile.content.substring(o.getStart, o.getFinish),
-          propsOpt  = PropTypeVisitor(compName, o, parsedFile.content, i.imports).propTypes,
-          methods   = c.memberMethods.get(compName)
+          propsOpt  = VisitorPropType(compName, o, parsedFile.content, importV.value).value,
+          methods   = memberV.value.get(compName)
         )
       )
 
-    c.propTypeObjs.toList.distinct match {
+    componentsV.value.toList.distinct match {
       case Nil ⇒
         /* todo: Parse exports! */
         val modules: Seq[Required] =
-          i.imports.collect {
+          importV.value.collect {
             case Import(varName, Left(innerPath: Path)) =>
               recurse(innerPath, ctx)
           }.distinct

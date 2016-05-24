@@ -7,10 +7,10 @@ import scala.language.implicitConversions
 
 case object MuiLibrary extends Library[ComponentDef] {
 
-  override val importName  = VarName("mui")
-  override val location    = home / "pr" / "material-ui" / "build"
-  override val prefixOpt   = Some("Mui")
-  override val nameOpt     = Some("materialui")
+  override val importName   = VarName("mui")
+  override val location     = home / "pr" / "material-ui" / "build"
+  override val prefixOpt    = Some("Mui")
+  override val nameOpt      = Some("materialui")
   override val typeMapper   = MuiTypeMapper
   override def memberMapper = MuiTypeMemberMethodMapper
 
