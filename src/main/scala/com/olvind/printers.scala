@@ -21,7 +21,7 @@ object Printer {
       PrimaryOutFile(
         comp.name,
         Seq(
-          s"\n${deprecated}case class $prefix${comp.name}(",
+          s"\n${deprecated}case class ${comp.nameDef(prefix)}(",
 
           comp.fields.filterNot(_.name == PropName("children")).map(
             p => outProp(p, fs)
@@ -34,13 +34,20 @@ object Printer {
     (p, comp.enumClases map outEnumClass)
   }
 
+  def hack(comp: ParsedComponent): String =
+    if (comp.genericParams.nonEmpty && comp.definition.allowAllTypes)
+      "implicit def ev(t: T): js.Any = t.asInstanceOf[js.Any]"
+    else
+      ""
+
   def bodyChildren(prefix: String, comp: ParsedComponent): String =
     (comp.childrenOpt, comp.definition.multipleChildren) match {
       case (None, _) =>
         s"""{
           |
           |${indent(1)}def apply() = {
-          |${indent(2)}val props = JSMacro[$prefix${comp.name}](this)
+          |${indent(2)}${hack(comp)}
+          |${indent(2)}val props = JSMacro[${comp.nameDef(prefix)}](this)
           |${indent(2)}val f = React.asInstanceOf[js.Dynamic].createFactory($prefix.${comp.name.value})
           |${indent(2)}f(props).asInstanceOf[ReactComponentU_]
           |${indent(1)}}
@@ -50,8 +57,9 @@ object Printer {
       case (Some(childrenProp), true) =>
         s"""{
            |${outChildrenComment(childrenProp.commentOpt)}
-           |${indent(1)}def apply(children: ${childrenProp.baseType.typeName}*) = {
-           |${indent(2)}val props = JSMacro[$prefix${comp.name}](this)
+           |${indent(1)}def apply(children: ${childrenProp.baseType.name}*) = {
+           |${indent(2)}${hack(comp)}
+           |${indent(2)}val props = JSMacro[${comp.nameDef(prefix)}](this)
            |${indent(2)}val f = React.asInstanceOf[js.Dynamic].createFactory($prefix.${comp.name.value})
            |${indent(2)}if (children.isEmpty)
            |${indent(3)}f(props).asInstanceOf[ReactComponentU_]
@@ -66,7 +74,8 @@ object Printer {
         s"""{
            |${outChildrenComment(childrenProp.commentOpt)}
            |${indent(1)}def apply(children: ${childrenProp.typeName} = js.undefined) = {
-           |${indent(2)}val props = JSMacro[$prefix${comp.name}](this)
+           |${indent(2)}${hack(comp)}
+           |${indent(2)}val props = JSMacro[${comp.nameDef(prefix)}](this)
            |${indent(2)}val f = React.asInstanceOf[js.Dynamic].createFactory($prefix.${comp.name.value})
            |${indent(2)}f(props, children).asInstanceOf[ReactComponentU_]
            |${indent(1)}}
@@ -98,7 +107,6 @@ object Printer {
           case (None,     true) => s"""${indent(1)}@deprecated("Internal API")\n"""
           case _                => ""
         }
-//      val deprecated = p.deprecatedMsg.fold("")(msg => s"""${indent(1)}@deprecated("$msg")\n""")
       s"$comment$deps${indent(1)}${padTo(fixedName + ": ")(fs.maxFieldNameLen + 2)}"
     }
 

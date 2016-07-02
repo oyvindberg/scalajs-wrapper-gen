@@ -31,11 +31,12 @@ object PropComment {
         ).filterNot(_.isEmpty)
 
 
-    val (_ans, _lines) = cleanLines.foldLeft[(Seq[Annotation], Seq[String])]((Seq.empty, Seq.empty)){
-      case ((as, lines), line) if line.toLowerCase.startsWith("@ignore") => (Ignore +: as, lines)
-      case ((as, lines), line) if line.toLowerCase.startsWith("@param") => (as :+ Param(line.drop("@param".length).trim), lines)
-      case ((as, lines), line) => (as, lines :+ line)
-    }
+    val (_ans: Seq[Annotation], _lines: Seq[String]) =
+      cleanLines.foldLeft[(Seq[Annotation], Seq[String])]((Seq.empty, Seq.empty)){
+        case ((as, lines), line) if line.toLowerCase.startsWith("@ignore") => (Ignore +: as, lines)
+        case ((as, lines), line) if line.toLowerCase.startsWith("@param") => (as :+ Param(line.drop("@param".length).trim), lines)
+        case ((as, lines), line) => (as, lines :+ line)
+      }
 
     PropComment(_lines.mkString("\n"), _ans)
   }

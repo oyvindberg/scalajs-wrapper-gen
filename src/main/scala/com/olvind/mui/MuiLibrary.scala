@@ -100,8 +100,8 @@ case object MuiLibrary extends Library[ComponentDef] {
     override val postlude = Some(
       """
         |@js.native
-        |trait MuiMenuItemProps extends js.Object {
-        |	def value: js.UndefOr[String] = js.native
+        |trait MuiMenuItemProps[T] extends js.Object {
+        |	def value: js.UndefOr[T] = js.native
         |}
       """.stripMargin)
   }

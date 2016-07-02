@@ -7,12 +7,26 @@ final case class ParsedComponent(
 
   def name = definition.name
 
-  val childrenOpt = fields.find(_.name.value == "children")
+  val childrenOpt: Option[ParsedProp] =
+    fields.find(_.name.value == "children")
+
+  val genericParams: Seq[Generic] =
+    fields.map(_.baseType).collect {
+      case Normal(_, Some(g)) ⇒ g
+    }.distinct
 
   val enumClases: Seq[ParsedEnumClass] =
     fields.map(_.baseType).collect{
-      case o: PropType.Enum => o.enumClass
+      case o: Enum => o.enumClass
     }
+
+  def nameDef(prefix: String): String = {
+    val tpeParam =
+      if (genericParams.isEmpty) ""
+      else genericParams.map(p ⇒ p.name).mkString("[", ", ", "]")
+
+    s"$prefix${name}$tpeParam"
+  }
 }
 
 final case class ParsedMethodClass(
@@ -33,33 +47,36 @@ case object Ignore extends Annotation
 final case class ParsedProp(
   name:          PropName,
   isRequired:    Boolean,
-  baseType:      PropType,
+  baseType:      Type,
   commentOpt:    Option[PropComment],
   deprecatedMsg: Option[String],
   inheritedFrom: Option[CompName]) {
 
-  val typeName =
-    if (isRequired) baseType.typeName
-    else            s"js.UndefOr[${baseType.typeName}]"
+  val typeName: String =
+    if (isRequired) baseType.name
+    else            s"js.UndefOr[${baseType.name}]"
 }
 
-sealed trait PropType {
-  def typeName: String
+sealed trait Type {
+  def name: String
 }
 
-object PropType {
-  case class Type(override val typeName: String) extends PropType
+case class Generic(name: String)
 
-  case class Enum(component: CompName, name: PropName, ss: Seq[String]) extends PropType{
-    val fixedNames: Seq[(Identifier, String)] =
-      ss.map { m => (Identifier.safe(m), m)}
+case class Normal(name: String, genericOpt: Option[Generic] = None) extends Type {
+  def generic(name: String) =
+    copy(genericOpt = Some(Generic(name)))
+}
 
-    override val typeName: String =
-      fixedNames.map(_._1.value.capitalize).mkString("")
+case class Enum(component: CompName, ss: Seq[String]) extends Type {
+  val fixedNames: Seq[(Identifier, String)] =
+    ss.map { m => (Identifier.safe(m), m)}
 
-    def enumClass: ParsedEnumClass =
-      ParsedEnumClass(typeName, fixedNames)
-  }
+  override val name: String =
+    fixedNames.map(_._1.value.capitalize).mkString("")
+
+  def enumClass: ParsedEnumClass =
+    ParsedEnumClass(name, fixedNames)
 }
 
 final case class ParsedMethod(definition: String, commentOpt: Option[PropComment]) {

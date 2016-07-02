@@ -2,9 +2,9 @@ package com.olvind
 package mui
 
 object MuiTypeMapper extends TypeMapper {
-  import PropType.{Enum, Type}
-  
-  def apply(compName: CompName, fieldName: PropName, typeString: String): PropType = {
+  val typeT = Normal("T").generic("T")
+
+  def apply(compName: CompName, fieldName: PropName, typeString: String): Type = {
     def is(s: String) =
       fieldName.value.toLowerCase contains s.toLowerCase
     def split(drop: Int, s: String) =
@@ -12,95 +12,90 @@ object MuiTypeMapper extends TypeMapper {
 
     (compName.value, fieldName.value, typeString) match {
       case (_, _, e) if e.contains("oneOfType") =>
-        Type( split(1, e) map (t => apply(compName, fieldName, t)) map (_.typeName) mkString " | ")
+        Normal(split(1, e) map (t => apply(compName, fieldName, t)) map (_.name) mkString " | ")
       case (_, _, enum) if enum.startsWith("oneOf") =>
-        Enum(compName, fieldName, split(1, enum))
+        Enum(compName, split(1, enum))
 
       /* Double => Int */
-      case (_,                     "autoHideDuration",     "number") => Type("Int")
-      case (_,                     "cellHeight",           "number") => Type("Int")
-      case (_,                     "cols",                 "number") => Type("Int")
-      case (_,                     "columnNumber",         "number") => Type("Int")
-      case (_,                     "columnId",             "number") => Type("Int")
-      case (_,                     "initialSelectedIndex", "number") => Type("Int")
-      case (_,                     "left",                 "number") => Type("Int")
-      case (_,                     "maxHeight",            "number") => Type("Int")
-      case (_,                     "nestedLevel",          "number") => Type("Int")
-      case (_,                     "padding",              "number") => Type("Int")
-      case (_,                     "rowNumber",            "number") => Type("Int")
-      case (_,                     "rows",                 "number") => Type("Int")
-      case (_,                     "rowsMax",              "number") => Type("Int")
-      case (_,                     "selectedIndex",        "number") => Type("Int")
-      case ("Avatar",              "size",                 "number") => Type("Int")
-      case ("RefreshIndicator",    "size",                 "number") => Type("Int")
-      case (_,                     "top",                  "number") => Type("Int")
-      case (_,                     "touchTapCloseDelay",   "number") => Type("Int")
-      case (_, _, e) if e.toLowerCase.contains("index")              => Type("Int")
+      case (_,                     "autoHideDuration",     "number") => Normal("Int")
+      case (_,                     "cellHeight",           "number") => Normal("Int")
+      case (_,                     "cols",                 "number") => Normal("Int")
+      case (_,                     "columnNumber",         "number") => Normal("Int")
+      case (_,                     "columnId",             "number") => Normal("Int")
+      case (_,                     "initialSelectedIndex", "number") => Normal("Int")
+      case (_,                     "left",                 "number") => Normal("Int")
+      case (_,                     "maxHeight",            "number") => Normal("Int")
+      case (_,                     "nestedLevel",          "number") => Normal("Int")
+      case (_,                     "padding",              "number") => Normal("Int")
+      case (_,                     "rowNumber",            "number") => Normal("Int")
+      case (_,                     "rows",                 "number") => Normal("Int")
+      case (_,                     "rowsMax",              "number") => Normal("Int")
+      case (_,                     "selectedIndex",        "number") => Normal("Int")
+      case ("Avatar",              "size",                 "number") => Normal("Int")
+      case ("RefreshIndicator",    "size",                 "number") => Normal("Int")
+      case (_,                     "top",                  "number") => Normal("Int")
+      case (_,                     "touchTapCloseDelay",   "number") => Normal("Int")
+      case (_, _, e) if e.toLowerCase.contains("index")              => Normal("Int")
 
       /* specific */
-      case ("AutoComplete", "dataSource",      "array")  => Type("js.Array[Value]")
-      case ("AutoComplete", "menuProps",       "object") => Type("js.Object")
-      case ("AutoComplete", "searchText",       _) => Type("SearchText")
-      case ("DatePicker",       "value",                "any")                  => Type("js.Date")
-      case ("DatePicker",       "defaultDate",          "object")               => Type("js.Date")
-      case ("DatePicker",       "maxDate",              "object")               => Type("js.Date")
-      case ("DatePicker",       "minDate",              "object")               => Type("js.Date")
-      case ("DatePicker",       "wordings",             "object")               => Type("Wordings")
-      case ("DatePicker",       "initialDate",          "object")               => Type("js.Date")
-      case ("Dialog",           "width",                "any")                  => Type("Int")
-      case ("DropDownMenu",     "menuItems",            "array")                => Type("js.Array[MuiDropDownMenuItem]")
-      case ("DropDownIcon",     "menuItems",            "array")                => Type("js.Array[MuiMenuItemJson]")
-      case ("Drawer",           "menuItems",            "array")                => Type("js.Array[MuiMenuItemJson]")
-      case ("ListItem",         "nestedItems",          "arrayOf(element)")     => Type("js.Array[ReactElement]")
-      case ("Menu",             "value",                "any")                  => Type("String | js.Array[String]")
-      case ("SelectField",      "menuItems",            "array")                => Type("js.Array[MuiSelectItem]")
-      case ("Slider",           "defaultValue",         "valueInRangePropType") => Type("Double")
-      case ("Slider",           "max",                  "minMaxPropType")       => Type("Double")
-      case ("Slider",           "min",                  "minMaxPropType")       => Type("Double")
-      case ("Slider",           "value",                "valueInRangePropType") => Type("Double")
-      case ("Step",             "controlButtonsGroup",  "arrayOf(node)")        => Type("js.Array[ReactNode]")
-      case ("Step",             "actions",              "arrayOf(node)")        => Type("js.Array[ReactNode]")
-      case ("TextField",        "value",                "any")                  => Type("String")
-      case ("TextField",        "defaultValue",         "any")                  => Type("String")
-      case ("TimePicker",       "defaultTime",          "object")               => Type("js.Date")
-      case ("TimePicker",       "value",                "object")               => Type("js.Date")
-
+      case ("AutoComplete",     "dataSource",           "array")                => Normal("js.Array[Value]")
+      case ("AutoComplete",     "menuProps",            "object")               => Normal("js.Object")
+      case ("AutoComplete",     "searchText",           _)                      => Normal("SearchText")
+      case ("DatePicker",       "value",                "any")                  => Normal("js.Date")
+      case ("DatePicker",       "defaultDate",          "object")               => Normal("js.Date")
+      case ("DatePicker",       "maxDate",              "object")               => Normal("js.Date")
+      case ("DatePicker",       "minDate",              "object")               => Normal("js.Date")
+      case ("DatePicker",       "wordings",             "object")               => Normal("Wordings")
+      case ("DatePicker",       "initialDate",          "object")               => Normal("js.Date")
+      case ("Dialog",           "width",                "any")                  => Normal("Int")
+      case ("DropDownMenu",     "value",                "any")                  => typeT
+      case ("ListItem",         "nestedItems",          "arrayOf(element)")     => Normal("js.Array[ReactElement]")
+      case ("Menu",             "value",                "any")                  => Normal("T | js.Array[T]").generic("T")
+      case ("MenuItem",         "value",                "any")                  => typeT
+      case ("SelectField",      "selectFieldRoot",      "object")               => Normal("CssProperties")
+      case ("SelectField",      "value",                "any")                  => typeT
+      case ("Slider",           "defaultValue",         "valueInRangePropType") => Normal("Double")
+      case ("Slider",           "max",                  "minMaxPropType")       => Normal("Double")
+      case ("Slider",           "min",                  "minMaxPropType")       => Normal("Double")
+      case ("Slider",           "value",                "valueInRangePropType") => Normal("Double")
+      case ("Step",             "controlButtonsGroup",  "arrayOf(node)")        => Normal("js.Array[ReactNode]")
+      case ("Step",             "actions",              "arrayOf(node)")        => Normal("js.Array[ReactNode]")
+      case ("Tab",              "value",                "any")                  => typeT
+      case ("Tabs",             "value",                "any")                  => typeT
+      case ("TextField",        "value",                "any")                  => Normal("String")
+      case ("TextField",        "defaultValue",         "any")                  => Normal("String")
+      case ("TimePicker",       "defaultTime",          "object")               => Normal("js.Date")
+      case ("TimePicker",       "value",                "object")               => Normal("js.Date")
 
       /* TODO: dubious */
-      case ("EnhancedTextarea", "defaultValue",                "any")           => Type("js.Any")
-      case ("GridTile",         "rootClass",                   "object")        => Type("js.Any")
-      case ("Popover",          "anchorEl",                    "object")        => Type("js.Any")
-      case ("DropDownMenu",     "value",                       "any")           => Type("js.Any")
-      case ("MenuItem",         "value",                       "any")           => Type("js.Any")
-      case ("SelectField",      "value",                       "any")           => Type("js.Any")
-      case ("SelectField",      "selectFieldRoot",             "object")        => Type("js.Any")
-      case ("Stepper",          "createIcon",                  "func")          => Type("js.Function")
-      case ("Stepper",          "updateAvatarBackgroundColor", "func")          => Type("js.Function")
-      case ("Tab",              "value",                       "any")           => Type("js.Any")
-      case ("Tabs",             "value",                       "any")           => Type("js.Any")
+      case ("EnhancedTextarea", "defaultValue",                "any")           => Normal("js.Any")
+      case ("GridTile",         "rootClass",                   "object")        => Normal("js.Any")
+      case ("Popover",          "anchorEl",                    "object")        => Normal("js.Any")
+      case ("Stepper",          "createIcon",                  "func")          => Normal("js.Function")
+      case ("Stepper",          "updateAvatarBackgroundColor", "func")          => Normal("js.Function")
 
       /* mui general */
-      case (_, _, "string") if is("color")    => Type("MuiColor")
-      case (_, _, "object") if is("style")    => Type("CssProperties")
-      case (_, _, "object") if is("muiTheme") => Type("MuiTheme")
-      case (_, "label", "validateLabel")      => Type("String")
-      case (_, "zDepth", _)                   => Type("ZDepth")
-      case (_, _, "Mui.origin")               => Type("Origin")
-      case (_, _, "Mui.cornersAndCenter")     => Type("CornersAndCenter")
-      case (_, _, "Mui.corners")              => Type("Corners")
-      case (_, _, "Mui.stringOrNumber")       => Type("String | Double")
+      case (_, _, "string") if is("color")    => Normal("MuiColor")
+      case (_, _, "object") if is("style")    => Normal("CssProperties")
+      case (_, _, "object") if is("muiTheme") => Normal("MuiTheme")
+      case (_, "label", "validateLabel")      => Normal("String")
+      case (_, "zDepth", _)                   => Normal("ZDepth")
+      case (_, _, "Mui.origin")               => Normal("Origin")
+      case (_, _, "Mui.cornersAndCenter")     => Normal("CornersAndCenter")
+      case (_, _, "Mui.corners")              => Normal("Corners")
+      case (_, _, "Mui.stringOrNumber")       => Normal("String | Double")
 
       /* general */
-      case (_, "valueLink", "object")          => Type("js.Any")
-      case (_, _, "string")                    => Type("String")
-      case (_, _, "bool")                      => Type("Boolean")
-      case (_, _, "element")                   => Type("ReactElement")
-      case (_, _, "node")                      => Type("ReactNode")
-      case (_, _, "number")                    => Type("Double")
-      case (_, "children", "arrayOf(element)") => Type("js.Array[ReactElement]")
+      case (_, "valueLink", "object")          => Normal("js.Any")
+      case (_, _, "string")                    => Normal("String")
+      case (_, _, "bool")                      => Normal("Boolean")
+      case (_, _, "element")                   => Normal("ReactElement")
+      case (_, _, "node")                      => Normal("ReactNode")
+      case (_, _, "number")                    => Normal("Double")
+      case (_, "children", "arrayOf(element)") => Normal("js.Array[ReactElement]")
 
       case (_, _, "func") =>
-        Type(MuiTypeMapperFunction(compName, fieldName))
+        Normal(MuiTypeMapperFunction(compName, fieldName))
 
     }
   }

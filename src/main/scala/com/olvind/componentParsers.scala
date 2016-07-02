@@ -47,13 +47,11 @@ object ParseComponent {
     val basicFields: Seq[ParsedProp] =
       Seq(
         ParsedProp(PropName("key"), isRequired = false,
-          PropType.Type("String"), None, None, None
+          Normal("String"), None, None, None
         ),
         ParsedProp(PropName("ref"), isRequired = false,
-          PropType.Type(methodClassOpt.fold("String")(c => c.className + " => Unit")), None, None, None
+          Normal(methodClassOpt.fold("String")(c => c.className + " => Unit")), None, None, None
         )
-//        , ParsedProp(PropName("untyped"), isRequired = false,
-//          PropType.Type("Map[String, js.Any]"), None, None, None)
       )
 
     val parsedFields: Seq[ParsedProp] =
@@ -109,7 +107,7 @@ object ParseProp {
       case tpe                  => (tpe, None)
     }
 
-    val mappedType: PropType =
+    val mappedType: Type =
       library.typeMapper(origCompName, propName, typeStr)
 
     val isRequired: Boolean =

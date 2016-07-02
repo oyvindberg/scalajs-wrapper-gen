@@ -16,23 +16,13 @@ object Require {
   private def doRecurse(requiredPath: Path)(ctx: ScanCtx): Required = {
     val ResolvedPath(filePath, folderPath) = ResolvePath(requiredPath)
 
-    val parsedFile: ParsedFile =
-      ctx.parsedFile(filePath)
+    val parsedFile  = ctx.parsedFile(filePath)
+    val importsV    = VisitorImports(parsedFile.result, folderPath)
+    val componentsV = VisitorComponents(parsedFile.result)
+    val memberV     = VisitorComponentMembers(parsedFile.result)
+    val exportsV    = VisitorExports(parsedFile.result)
 
-    val importsV: VisitorImports =
-      VisitorImports(parsedFile.result, folderPath)
-
-    val componentsV: VisitorComponents =
-      VisitorComponents(parsedFile.result)
-
-    val memberV: VisitorComponentMembers =
-      VisitorComponentMembers(parsedFile.result)
-
-    val exportsV: VisitorExports =
-      VisitorExports(parsedFile.result)
-
-    val value: Seq[Node] =
-      exportsV.value
+    val value: Seq[Node] = exportsV.value
 
     //todo: split require/react parsing!
     def component(compName: CompName, o: ObjectNode): Single = {

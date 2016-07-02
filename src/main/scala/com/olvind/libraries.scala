@@ -9,10 +9,11 @@ abstract class ComponentDef(val name: CompName) {
   val postlude: Option[String] = None
   val multipleChildren: Boolean = true
   val deprecated: Boolean = false
+  val allowAllTypes: Boolean = true
 }
 
 trait TypeMapper {
-  def apply(compName: CompName, fieldName: PropName, typeString: String): PropType
+  def apply(compName: CompName, fieldName: PropName, typeString: String): Type
 }
 
 trait MemberMapper {
