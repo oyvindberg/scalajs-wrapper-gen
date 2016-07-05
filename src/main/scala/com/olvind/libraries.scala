@@ -1,15 +1,11 @@
 package com.olvind
 
-import java.io.File
-
 import ammonite.ops.Path
 
-abstract class ComponentDef(val name: CompName) {
-  val shared: Option[ComponentDef] = None
-  val postlude: Option[String] = None
-  val multipleChildren: Boolean = true
-  val deprecated: Boolean = false
-  val allowAllTypes: Boolean = true
+final case class ComponentDef(
+  name: CompName,
+  shared: Option[ComponentDef] = None,
+  multipleChildren: Boolean = true) {
 }
 
 trait TypeMapper {
@@ -21,10 +17,11 @@ trait MemberMapper {
 }
 
 trait Library[D <: ComponentDef] {
-  def nameOpt: Option[String]
+  def name: String
   def prefixOpt: Option[String]
   def importName: VarName
   def location: Path
+  def outputPath: Path
   def components: Seq[D]
   def typeMapper: TypeMapper
   def memberMapper: MemberMapper
@@ -33,12 +30,9 @@ trait Library[D <: ComponentDef] {
   final def prefix: String =
     prefixOpt getOrElse ""
 
-  final def destinationFolder(baseDir: File): File =
-    nameOpt.fold(baseDir)(name => new File(baseDir, name))
-
-  final def destinationFile(baseDir: File, comp: CompName): File = {
+  final def destinationPath(comp: CompName): Path = {
     val baseFile = comp.value + ".scala"
     val filename = prefixOpt.fold(baseFile)(_ + baseFile)
-    new File(destinationFolder(baseDir), filename)
+    outputPath / filename
   }
 }

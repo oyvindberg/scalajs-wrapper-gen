@@ -2,7 +2,8 @@ package com.olvind
 package mui
 
 object MuiTypeMapper extends TypeMapper {
-  val typeT = Normal("T").generic("T")
+  val typeT   = Normal("T").generic("T")
+  val typeTJs = Normal("T").genericJs("T")
 
   def apply(compName: CompName, fieldName: PropName, typeString: String): Type = {
     def is(s: String) =
@@ -45,7 +46,7 @@ object MuiTypeMapper extends TypeMapper {
       case ("DatePicker",       "defaultDate",          "object")               => Normal("js.Date")
       case ("DatePicker",       "maxDate",              "object")               => Normal("js.Date")
       case ("DatePicker",       "minDate",              "object")               => Normal("js.Date")
-      case ("DatePicker",       "wordings",             "object")               => Normal("Wordings")
+      case ("DatePicker",       "wordings",             "object")               => Normal("js.Object")
       case ("DatePicker",       "initialDate",          "object")               => Normal("js.Date")
       case ("Dialog",           "width",                "any")                  => Normal("Int")
       case ("DropDownMenu",     "value",                "any")                  => typeT
@@ -60,8 +61,8 @@ object MuiTypeMapper extends TypeMapper {
       case ("Slider",           "value",                "valueInRangePropType") => Normal("Double")
       case ("Step",             "controlButtonsGroup",  "arrayOf(node)")        => Normal("js.Array[ReactNode]")
       case ("Step",             "actions",              "arrayOf(node)")        => Normal("js.Array[ReactNode]")
-      case ("Tab",              "value",                "any")                  => typeT
-      case ("Tabs",             "value",                "any")                  => typeT
+      case ("Tab",              "value",                "any")                  => typeTJs
+      case ("Tabs",             "value",                "any")                  => typeTJs
       case ("TextField",        "value",                "any")                  => Normal("String")
       case ("TextField",        "defaultValue",         "any")                  => Normal("String")
       case ("TimePicker",       "defaultTime",          "object")               => Normal("js.Date")

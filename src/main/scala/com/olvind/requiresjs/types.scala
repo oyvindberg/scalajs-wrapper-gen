@@ -23,6 +23,6 @@ case class FoundComponent(
   name:      CompName,
   file:      Path,
   jsContent: String,
-  propsOpt:  Option[Map[PropName, PropUnparsed]],
+  propsOpt:  Map[PropName, PropUnparsed],
   methods:   Option[Set[MemberMethod]]
 )

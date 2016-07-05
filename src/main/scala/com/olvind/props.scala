@@ -10,22 +10,36 @@ final case class ParsedComponent(
   val childrenOpt: Option[ParsedProp] =
     fields.find(_.name.value == "children")
 
-  val genericParams: Seq[Generic] =
-    fields.map(_.baseType).collect {
-      case Normal(_, Some(g)) ⇒ g
-    }.distinct
+  val genericParams: Seq[ParsedGeneric] =
+    fields.foldLeft(Map.empty[String, Boolean]){
+      case (m, ParsedProp(_, _, Normal(_, Some(Generic(name, jsObject))), _, _, _)) ⇒
+        m.updated(name, m.getOrElse(name, jsObject) || jsObject)
+      case (m, other) ⇒
+        m
+    }.map(ParsedGeneric.tupled)
+     .toSeq
 
   val enumClases: Seq[ParsedEnumClass] =
     fields.map(_.baseType).collect{
       case o: Enum => o.enumClass
     }
 
-  def nameDef(prefix: String): String = {
+  def nameDef(prefix: String, withBounds: Boolean = false): String = {
     val tpeParam =
       if (genericParams.isEmpty) ""
-      else genericParams.map(p ⇒ p.name).mkString("[", ", ", "]")
+      else genericParams.map {
+        p ⇒
+          val bounds: String =
+            (p.jsObject, withBounds) match {
+              case (_, false)    ⇒ ""
+              case (true, true)  ⇒ "" //todo: revisit
+              case (false, true) ⇒ ""
+            }
+          s"${p.name}$bounds"
+      }.mkString("[", ", ", "]"
+      )
 
-    s"$prefix${name}$tpeParam"
+    s"$prefix$name$tpeParam"
   }
 }
 
@@ -57,15 +71,20 @@ final case class ParsedProp(
     else            s"js.UndefOr[${baseType.name}]"
 }
 
+final case class ParsedGeneric(name: String, jsObject: Boolean)
+
 sealed trait Type {
   def name: String
 }
 
-case class Generic(name: String)
+case class Generic(name: String, jsObject: Boolean = false)
 
 case class Normal(name: String, genericOpt: Option[Generic] = None) extends Type {
   def generic(name: String) =
     copy(genericOpt = Some(Generic(name)))
+
+  def genericJs(name: String) =
+    copy(genericOpt = Some(Generic(name, jsObject = true)))
 }
 
 case class Enum(component: CompName, ss: Seq[String]) extends Type {

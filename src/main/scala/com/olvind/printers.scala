@@ -14,20 +14,15 @@ object Printer {
         maxTypeNameLen  = comp.fields.map(_.typeName.length).max
       )
 
-    val deprecated: String =
-      if (comp.definition.deprecated) "@deprecated\n" else ""
-
     val p =
       PrimaryOutFile(
         comp.name,
         Seq(
-          s"\n${deprecated}case class ${comp.nameDef(prefix)}(",
-
+          s"\ncase class ${comp.nameDef(prefix, withBounds = true)}(",
           comp.fields.filterNot(_.name == PropName("children")).map(
             p => outProp(p, fs)
           ).mkString("", ",\n", ")") + bodyChildren(prefix, comp)
-
-        ) ++ comp.definition.postlude.toSeq mkString "\n",
+        ) mkString "\n",
         comp.methodClassOpt.toSeq map outMethodClass
       )
 
@@ -35,10 +30,9 @@ object Printer {
   }
 
   def hack(comp: ParsedComponent): String =
-    if (comp.genericParams.nonEmpty && comp.definition.allowAllTypes)
-      "implicit def ev(t: T): js.Any = t.asInstanceOf[js.Any]"
-    else
-      ""
+    comp.genericParams/*.filterNot(_.jsObject)*/.map{
+      p ⇒ s"implicit def ev${p.name}(${p.name.toLowerCase}: ${p.name}): js.Any = t.asInstanceOf[js.Any]"
+    }.mkString(";")
 
   def bodyChildren(prefix: String, comp: ParsedComponent): String =
     (comp.childrenOpt, comp.definition.multipleChildren) match {

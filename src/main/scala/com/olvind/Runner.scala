@@ -1,20 +1,13 @@
 package com.olvind
 
-import java.io.File
-
 import com.olvind.requiresjs._
 
 class Runner[D <: ComponentDef](library: Library[D]) {
-  val basedir = new File("/Users/oyvindberg/pr/scalajs-react-components/core/src/main/scala/chandu0101/scalajs/react/components")
 
-  def printToFile(f: java.io.File)(op: java.io.PrintWriter => Unit): Unit = {
-    val p = new java.io.PrintWriter(f)
-    try { op(p) } finally { p.close() }
-  }
-
-  val prelude =
+  val prelude: String =
     s"""package chandu0101.scalajs.react.components
-      |${library.nameOpt.fold("")(name => s"package $name\n")}
+      |package ${library.name}
+      |
       |import chandu0101.macros.tojs.JSMacro
       |import japgolly.scalajs.react._
       |import scala.scalajs.js
@@ -36,11 +29,7 @@ class Runner[D <: ComponentDef](library: Library[D]) {
           Map.empty
       }
 
-    val res1: requiresjs.Required =
-      requiresjs.Require(
-        library.location
-      )
-    flattenScan(res1)
+    flattenScan(requiresjs.Require(library.location))
   }
 
   val (mainFiles: Seq[PrimaryOutFile], secondaryFiles: Seq[SecondaryOutFile]) =
@@ -51,10 +40,9 @@ class Runner[D <: ComponentDef](library: Library[D]) {
         (ps :+ p, ss ++ s)
   }
 
-  val destFolder = library.destinationFolder(basedir)
-  destFolder.mkdir()
+  library.outputPath.toIO.mkdir()
 
-  printToFile(new File(destFolder, "gen-types.scala")){
+  printToFile(library.outputPath / "gen-types.scala"){
     w =>
       w.println(prelude)
       secondaryFiles.sortBy(_.content).distinct.foreach{
@@ -66,9 +54,9 @@ class Runner[D <: ComponentDef](library: Library[D]) {
 
   mainFiles foreach {
     case PrimaryOutFile(compName, content, secondaries) =>
-      printToFile(library.destinationFile(basedir, compName)){
+      printToFile(library.destinationPath(compName)){
         w =>
-          w.println(prelude + content)
+          w.println(trimEmptyLines(prelude + content))
           secondaries.foreach{
             case SecondaryOutFile(_, c) =>
               w.println("")

@@ -1,13 +1,11 @@
-package com.olvind.requiresjs
+package com.olvind
+package requiresjs
 
 import ammonite.ops.{Path, exists}
 
 case class ResolvedPath(file: Path, folder: Path)
 
 object ResolvePath {
-  def notFound(p: Path): Nothing =
-    throw new RuntimeException(s"Could not resolve path: $p")
-
   def apply(p: Path): ResolvedPath =
     exists(p) match {
       case true ⇒
@@ -15,17 +13,18 @@ object ResolvePath {
           case true ⇒
             ResolvedPath(p / "index.js", p)
           case false ⇒
-            ResolvedPath(p, p.copy(p.segments.dropRight(1)))
+            panic("handle this when it happens")
         }
+
       case false ⇒
         val withExtension: Path =
-          p.copy(p.segments.dropRight(1) :+ p.segments.last + ".js")
+          p.copy(segments = p.segments.dropRight(1) :+ p.segments.last + ".js")
 
         exists(withExtension) match {
           case true ⇒
-            ResolvedPath(withExtension, p.copy(p.segments.dropRight(1)))
+            ResolvedPath(withExtension, p.copy(segments = p.segments.dropRight(1)))
           case false ⇒
-            notFound(p)
+            panic(s"Could not resolve path: $p")
         }
     }
 }

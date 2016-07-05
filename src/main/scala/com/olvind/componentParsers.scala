@@ -18,16 +18,16 @@ object ParseComponent {
             comp:    D): ParsedComponent = {
 
     val propTypes: Map[PropName, PropUnparsed] =
-      scope.get(comp.name).flatMap(_.propsOpt).getOrElse(
-        throw new RuntimeException(s"No Proptypes found for ${comp.name}")
+      scope.get(comp.name).map(_.propsOpt).getOrElse(
+        panic(s"No Proptypes found for ${comp.name}")
       )
 
     val inheritedProps: Map[PropName, PropUnparsed] =
       comp.shared match {
         case None         => Map.empty
         case Some(shared) =>
-          scope.get(shared.name).flatMap(_.propsOpt).getOrElse(
-              throw new RuntimeException(s"$comp: No Proptypes found for $shared")
+          scope.get(shared.name).map(_.propsOpt).getOrElse(
+            panic(s"$comp: No Proptypes found for $shared")
           )
       }
 

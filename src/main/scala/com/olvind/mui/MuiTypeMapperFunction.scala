@@ -43,7 +43,7 @@ object MuiTypeMapperFunction {
       case ("ListItem",         "onNestedListToggle")        => "js.Any => Callback"
       case ("Menu",             "onEscKeyDown")              => "ReactKeyboardEventH => Callback"
       case ("Menu",             "onChange")                  => "(ReactEventH, T | js.Array[T]) => Callback"
-      case ("Menu",             "onItemTouchTap")            => "(ReactUIEventH, JsComponentM[MuiMenuItemProps[T], _, TopNode]) => Callback"
+      case ("Menu",             "onItemTouchTap")            => "(ReactUIEventH, JsComponentM[HasValue[T], _, TopNode]) => Callback"
       case ("MenuItem",         "onClick")                   => "ReactEventH => Callback"
       case ("Popover",          "onRequestClose")            => "Callback"
       case ("Popover",          "animation")                 => "js.Any"

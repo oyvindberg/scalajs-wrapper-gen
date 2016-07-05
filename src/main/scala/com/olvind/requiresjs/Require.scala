@@ -2,7 +2,7 @@ package com.olvind
 package requiresjs
 
 import ammonite.ops._
-import jdk.nashorn.internal.ir.{Node, ObjectNode}
+import jdk.nashorn.internal.ir.{FunctionNode, Node, ObjectNode}
 
 import scala.language.postfixOps
 
@@ -14,35 +14,35 @@ object Require {
     ctx.required(requiredPath, doRecurse(requiredPath))
 
   private def doRecurse(requiredPath: Path)(ctx: ScanCtx): Required = {
-    val ResolvedPath(filePath, folderPath) = ResolvePath(requiredPath)
+    val ResolvedPath(filePath: Path, folderPath: Path) =
+      ResolvePath(requiredPath)
 
-    val parsedFile  = ctx.parsedFile(filePath)
-    val importsV    = VisitorImports(parsedFile.result, folderPath)
-    val componentsV = VisitorComponents(parsedFile.result)
-    val memberV     = VisitorComponentMembers(parsedFile.result)
-    val exportsV    = VisitorExports(parsedFile.result)
+    val ParsedFile(_, fileStr: String, fileParsed: FunctionNode) =
+      ctx.parsedFile(filePath)
 
-    val value: Seq[Node] = exportsV.value
+    val imports:       Seq[Import]                      = VisitorImports(fileParsed, folderPath).value
+    val components:    Map[CompName, ObjectNode]        = VisitorComponents(fileParsed).value
+    val memberMethods: Map[CompName, Set[MemberMethod]] = VisitorComponentMembers(fileParsed).value
+    val exports:       Seq[Node]                        = VisitorExports(fileParsed).value
 
     //todo: split require/react parsing!
-    def component(compName: CompName, o: ObjectNode): Single = {
+    def component(compName: CompName, o: ObjectNode) =
       Single(
         compName,
         FoundComponent(
           name      = compName,
           file      = filePath,
-          jsContent = parsedFile.content.substring(o.getStart, o.getFinish),
-          propsOpt  = VisitorPropType(compName, o, parsedFile.content, importsV.value).value,
-          methods   = memberV.value.get(compName)
+          jsContent = fileStr.substring(o.getStart, o.getFinish),
+          propsOpt  = VisitorPropType(compName, o, fileStr, imports).value,
+          methods   = memberMethods.get(compName)
         )
       )
-    }
 
-    componentsV.value.toList.distinct match {
+    components.toList.distinct match {
       case Nil ⇒
         /* todo: Parse exports! */
         val modules: Seq[Required] =
-          importsV.value.collect {
+          imports.collect {
             case Import(varName, Left(innerPath: Path)) =>
               recurse(innerPath, ctx)
           }.distinct
