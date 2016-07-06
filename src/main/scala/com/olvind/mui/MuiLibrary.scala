@@ -13,10 +13,11 @@ object MuiLibrary extends Library[ComponentDef] {
   override val name         = "materialui"
   override val typeMapper   = MuiTypeMapper
   override val memberMapper = MuiTypeMemberMethodMapper
-  override val outputPath   = home/'pr / "scalajs-react-components"/'core /'src/'main/'scala/'chandu0101/'scalajs/'react/'components/name
+  override val outputPath   = home / 'pr / "scalajs-react-components" / 'core / 'src / 'main / 'scala / 'chandu0101 / 'scalajs / 'react / 'components / name
 
   //todo: make requiresjs figure this stuff out!
   case object Internal {
+    val AppCanvas          = ComponentDef(CompName("AppCanvas"))
     val BeforeAfterWrapper = ComponentDef(CompName("BeforeAfterWrapper"))
     val EnhancedButton     = ComponentDef(CompName("EnhancedButton"))
     val EnhancedSwitch     = ComponentDef(CompName("EnhancedSwitch"))
@@ -26,6 +27,7 @@ object MuiLibrary extends Library[ComponentDef] {
     val TouchRipple        = ComponentDef(CompName("TouchRipple"))
     val RenderToLayer      = ComponentDef(CompName("RenderToLayer"))
     val EnhancedTextarea   = ComponentDef(CompName("EnhancedTextarea"))
+    val Tooltip            = ComponentDef(CompName("Tooltip"))
   }
 
   def DropDownMenu = ComponentDef(CompName("DropDownMenu"))
@@ -34,12 +36,11 @@ object MuiLibrary extends Library[ComponentDef] {
   def Menu         = ComponentDef(CompName("Menu"), Some(List_))
   def Paper        = ComponentDef(CompName("Paper"))
   def RadioButton  = ComponentDef(CompName("RadioButton"), Some(Internal.EnhancedSwitch))
-  def TextField    = ComponentDef(CompName("TextField"), Some(Internal.EnhancedTextarea))
+  def TextField    = ComponentDef(CompName("TextField"), Some(Internal.EnhancedTextarea), domeTypeOpt = Some(DomInput))
   
   val components: Seq[ComponentDef] =
     Seq(
       ComponentDef(CompName("AppBar"), Option(Paper)),
-//      ComponentDef(CompName("AppCanvas")),
       ComponentDef(CompName("AutoComplete"), Some(TextField)),
       ComponentDef(CompName("Avatar"), multipleChildren = false),
       ComponentDef(CompName("Badge")),
@@ -52,7 +53,7 @@ object MuiLibrary extends Library[ComponentDef] {
       ComponentDef(CompName("CardTitle")),
       ComponentDef(CompName("Checkbox"), Some(Internal.EnhancedSwitch)),
       ComponentDef(CompName("CircularProgress")),
-      ComponentDef(CompName("DatePicker"), Option(TextField)),
+      ComponentDef(CompName("DatePicker"), Option(TextField), domeTypeOpt = Some(DomInput)),
       ComponentDef(CompName("Dialog")),
       ComponentDef(CompName("Divider")),
       ComponentDef(CompName("Drawer")),
@@ -95,12 +96,11 @@ object MuiLibrary extends Library[ComponentDef] {
       ComponentDef(CompName("TableRowColumn")),
       ComponentDef(CompName("Tabs")),
       TextField,
-      ComponentDef(CompName("TimePicker"), Option(TextField)),
+      ComponentDef(CompName("TimePicker"), Option(TextField), domeTypeOpt = Some(DomInput)),
       ComponentDef(CompName("Toggle"), Some(Internal.EnhancedSwitch)),
       ComponentDef(CompName("Toolbar")),
       ComponentDef(CompName("ToolbarGroup")),
       ComponentDef(CompName("ToolbarSeparator")),
       ComponentDef(CompName("ToolbarTitle"))
-//      ComponentDef(CompName("Tooltip"))
     )
 }

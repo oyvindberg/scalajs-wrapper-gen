@@ -6,12 +6,11 @@ import jdk.nashorn.internal.ir._
 abstract class VisitorHelperNameStack[N <: Node, Out](n: N) extends VisitorHelper[N, Out](n){
   protected var nameStack: List[VarName] = Nil
 
-  override def enterPropertyNode(n: PropertyNode): Boolean = {
+  override def enterPropertyNode(n: PropertyNode): Boolean =
     matcher(n.getKey){
       case (i: IdentNode) =>
         nameStack = VarName(i.getName) :: nameStack
     }
-  }
 
   override def leavePropertyNode(n: PropertyNode): Node = {
     (nameStack.headOption, n.getKey) match {

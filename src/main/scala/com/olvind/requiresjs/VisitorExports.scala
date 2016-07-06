@@ -20,7 +20,7 @@ case class VisitorExports(n: FunctionNode) extends VisitorHelper[FunctionNode, S
         None
     }
 
-  override def enterBinaryNode(bn: BinaryNode): Boolean = {
+  override def enterBinaryNode(bn: BinaryNode): Boolean =
     matcher(bn.lhs) {
       case a: AccessNode ⇒
         matcher(a.getBase) {
@@ -37,7 +37,6 @@ case class VisitorExports(n: FunctionNode) extends VisitorHelper[FunctionNode, S
             }
         }
     }
-  }
 
   override protected def fetchValue(): Seq[Node] =
     ret.fold(Seq(_), _.toSeq)

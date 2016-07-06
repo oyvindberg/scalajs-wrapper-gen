@@ -18,7 +18,7 @@ object ParseComponent {
             comp:    D): ParsedComponent = {
 
     val propTypes: Map[PropName, PropUnparsed] =
-      scope.get(comp.name).map(_.propsOpt).getOrElse(
+      scope.get(comp.name).map(_.props).getOrElse(
         panic(s"No Proptypes found for ${comp.name}")
       )
 
@@ -26,7 +26,7 @@ object ParseComponent {
       comp.shared match {
         case None         => Map.empty
         case Some(shared) =>
-          scope.get(shared.name).map(_.propsOpt).getOrElse(
+          scope.get(shared.name).map(_.props).getOrElse(
             panic(s"$comp: No Proptypes found for $shared")
           )
       }
@@ -54,13 +54,12 @@ object ParseComponent {
         )
       )
 
-    val parsedFields: Seq[ParsedProp] =
+    val parsedProps: Seq[ParsedProp] =
       (inheritedProps ++ propTypes)
         .filterNot(t => basicFields.exists(_.name == t._1))
         .toSeq
         .sortBy(p => (p._2.fromComp != comp.name, p._1.clean.value))
-        .map {
-        case (propName, PropUnparsed(origComp, tpe, commentOpt)) =>
+        .map { case (propName, PropUnparsed(origComp, tpe, commentOpt)) =>
           ParseProp(
             library,
             comp.name,
@@ -69,9 +68,16 @@ object ParseComponent {
             tpe,
             commentOpt
           )
-      }
+        }
 
-    ParsedComponent(comp, basicFields ++ parsedFields, methodClassOpt)
+    val domProps: Seq[ParsedProp] =
+      comp.domeTypeOpt
+        .map(DomEventHandlers)
+        .toSeq
+        .flatMap(_.props)
+        .filterNot(p ⇒ parsedProps.exists(_.name == p.name))
+
+    ParsedComponent(comp, basicFields ++ parsedProps ++ domProps, methodClassOpt)
   }
 }
 

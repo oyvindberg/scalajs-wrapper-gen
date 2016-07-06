@@ -33,7 +33,7 @@ object Require {
           name      = compName,
           file      = filePath,
           jsContent = fileStr.substring(o.getStart, o.getFinish),
-          propsOpt  = VisitorPropType(compName, o, fileStr, imports).value,
+          props     = VisitorPropType(compName, o, fileStr, imports).value,
           methods   = memberMethods.get(compName)
         )
       )

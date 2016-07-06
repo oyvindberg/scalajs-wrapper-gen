@@ -42,7 +42,7 @@ object MuiTypeMapper extends TypeMapper {
       case ("AutoComplete",     "dataSource",           "array")                => Normal("js.Array[Value]")
       case ("AutoComplete",     "menuProps",            "object")               => Normal("js.Object")
       case ("AutoComplete",     "searchText",           _)                      => Normal("SearchText")
-      case ("DatePicker",       "value",                "any")                  => Normal("js.Date")
+      case ("DatePicker",       "value",                _)                      => Normal("js.Date")
       case ("DatePicker",       "defaultDate",          "object")               => Normal("js.Date")
       case ("DatePicker",       "maxDate",              "object")               => Normal("js.Date")
       case ("DatePicker",       "minDate",              "object")               => Normal("js.Date")
@@ -69,6 +69,7 @@ object MuiTypeMapper extends TypeMapper {
       case ("TimePicker",       "value",                "object")               => Normal("js.Date")
 
       /* TODO: dubious */
+      case ("AutoComplete",     "dataSourceConfig",            "object")        => Normal("js.Object")
       case ("EnhancedTextarea", "defaultValue",                "any")           => Normal("js.Any")
       case ("GridTile",         "rootClass",                   "object")        => Normal("js.Any")
       case ("Popover",          "anchorEl",                    "object")        => Normal("js.Any")
