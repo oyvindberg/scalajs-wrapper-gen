@@ -8,11 +8,11 @@ case object DomTextArea extends DomType("TA")
 
 case class DomEventHandlers(domType: DomType) {
 
-  private def handler(name: String, params: String*): ParsedProp = {
+  private def handler(name: String, param: String): ParsedProp = {
     ParsedProp(
       name          = PropName(name),
       isRequired    = false,
-      baseType      = Normal(params.map(_ + domType.suffix).mkString("(", ",", ")") + " => Callback"),
+      baseType      = Normal(s"$param${domType.suffix} => Callback"),
       commentOpt    = None,
       deprecatedMsg = None,
       inheritedFrom = Some(CompName("DOM"))

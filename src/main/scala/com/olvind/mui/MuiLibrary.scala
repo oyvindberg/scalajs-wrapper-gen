@@ -37,7 +37,7 @@ object MuiLibrary extends Library[ComponentDef] {
   def Paper        = ComponentDef(CompName("Paper"))
   def RadioButton  = ComponentDef(CompName("RadioButton"), Some(Internal.EnhancedSwitch))
   def TextField    = ComponentDef(CompName("TextField"), Some(Internal.EnhancedTextarea), domeTypeOpt = Some(DomInput))
-  
+
   val components: Seq[ComponentDef] =
     Seq(
       ComponentDef(CompName("AppBar"), Option(Paper)),
@@ -46,17 +46,18 @@ object MuiLibrary extends Library[ComponentDef] {
       ComponentDef(CompName("Badge")),
       ComponentDef(CompName("Card"), Some(Paper)),
       ComponentDef(CompName("CardActions")),
-      ComponentDef(CompName("CardExpandable")),
+      ComponentDef(CompName("CardExpandable"), None),
       ComponentDef(CompName("CardHeader")),
       ComponentDef(CompName("CardMedia")),
       ComponentDef(CompName("CardText")),
       ComponentDef(CompName("CardTitle")),
       ComponentDef(CompName("Checkbox"), Some(Internal.EnhancedSwitch)),
+      ComponentDef(CompName("Chip"), Some(Internal.EnhancedButton)),
       ComponentDef(CompName("CircularProgress")),
       ComponentDef(CompName("DatePicker"), Option(TextField), domeTypeOpt = Some(DomInput)),
-      ComponentDef(CompName("Dialog")),
+      ComponentDef(CompName("Dialog"), None),
       ComponentDef(CompName("Divider")),
-      ComponentDef(CompName("Drawer")),
+      ComponentDef(CompName("Drawer"), None),
       DropDownMenu,
       ComponentDef(CompName("FlatButton"), Some(Internal.EnhancedButton)),
       ComponentDef(CompName("FloatingActionButton"), Some(Internal.EnhancedButton)),

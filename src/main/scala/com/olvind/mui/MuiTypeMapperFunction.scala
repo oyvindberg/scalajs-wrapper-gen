@@ -13,6 +13,8 @@ object MuiTypeMapperFunction {
       case ("Card",             "onExpandChange")            => "Boolean => Callback"
       case ("CardExpandable",   "onExpanding")               => "Callback"
       case ("Checkbox",         "onCheck")                   => "(ReactEventH, Boolean) => Callback"
+      case ("Chip",             "onKeyboardFocus")           => "(ReactKeyboardEvent, Boolean) => Callback"
+      case ("Chip",             "onRequestDelete")           => "ReactEvent => Callback"
       case ("DatePicker",       "onShow")                    => "Callback"
       case ("DatePicker",       "onDismiss")                 => "Callback"
       case ("DatePicker",       "DateTimeFormat")            => "js.Function"
@@ -95,7 +97,7 @@ object MuiTypeMapperFunction {
       case ("TimePicker",        "onDismiss")       => "Callback"
       case ("Toggle",            "onToggle")        => "(ReactEventI, Boolean) => Callback"
 
-      case (_, "onBlur")       => "ReactEventH => Callback"
+      case (_, "onBlur")       => "ReactFocusEventH => Callback"
       case (_, "onFocus")      => "ReactFocusEventH => Callback"
       case (_, "onKeyDown")    => "ReactKeyboardEventH => Callback"
       case (_, "onKeyUp")      => "ReactKeyboardEventH => Callback"

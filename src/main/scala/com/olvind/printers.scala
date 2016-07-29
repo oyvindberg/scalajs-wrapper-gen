@@ -85,7 +85,7 @@ object Printer {
 
   def outComment(commentOpt: Option[PropComment], inheritedFrom: Option[CompName]): String = {
     val lines = commentOpt.map(_.value).toSeq ++ inheritedFrom.map(i => s"(Passed on to $i)")
-    if (lines.isEmpty) ""
+    if (lines.mkString("").trim.isEmpty) ""
     else lines.flatMap(_.split("\n")).mkString(s"${indent(1)}/* ", s"\n${indent(1)}", "*/\n")
   }
 
@@ -95,13 +95,13 @@ object Printer {
     val intro: String = {
       val fixedName: String =
         if (p.name.value == "type") "`type`" else p.name.value
-      val deps: String =
+      val deprecation: String =
         (p.deprecatedMsg, p.commentOpt.exists(_.anns.contains(Ignore))) match {
           case (Some(msg), _  ) => s"""${indent(1)}@deprecated("$msg")\n"""
-          case (None,     true) => s"""${indent(1)}@deprecated("Internal API")\n"""
+          case (None,     true) => "" //s"""${indent(1)}@deprecated("Internal API")\n"""
           case _                => ""
         }
-      s"$comment$deps${indent(1)}${padTo(fixedName + ": ")(fs.maxFieldNameLen + 2)}"
+      s"$comment$deprecation${indent(1)}${padTo(fixedName + ": ")(fs.maxFieldNameLen + 2)}"
     }
 
     p.isRequired match {
