@@ -75,7 +75,7 @@ object ParseComponent {
         .map(DomEventHandlers)
         .toSeq
         .flatMap(_.props)
-        .filterNot(p ⇒ parsedProps.exists(_.name == p.name))
+        .filterNot(p ⇒ parsedProps.exists(_.name == p.name) || true)
 
     ParsedComponent(comp, basicFields ++ parsedProps ++ domProps, methodClassOpt)
   }

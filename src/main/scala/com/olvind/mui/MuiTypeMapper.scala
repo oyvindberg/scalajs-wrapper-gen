@@ -50,6 +50,9 @@ object MuiTypeMapper extends TypeMapper {
       case ("DatePicker",       "initialDate",          "object")               => Normal("js.Date")
       case ("Dialog",           "width",                "any")                  => Normal("Int")
       case ("DropDownMenu",     "value",                "any")                  => typeT
+      case ("EnhancedSwitch",   "value",                "any")                  => typeT
+      case ("RadioButton",      "value",                "any")                  => typeT
+      case ("Tab",              "index",                "any")                  => Normal("js.Any")
       case ("ListItem",         "nestedItems",          "arrayOf(element)")     => Normal("js.Array[ReactElement]")
       case ("Menu",             "value",                "any")                  => Normal("T | js.Array[T]").generic("T")
       case ("MenuItem",         "value",                "any")                  => typeT

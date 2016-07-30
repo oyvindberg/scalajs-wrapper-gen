@@ -14,6 +14,7 @@ object Required {
       case n ⇒ Multiple(path, rs)
     }
 }
+
 sealed trait Required
 case class Multiple(path: Path, rs: Seq[Required]) extends Required
 case class Single(compName: CompName, c: FoundComponent) extends Required

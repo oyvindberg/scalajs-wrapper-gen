@@ -70,6 +70,8 @@ object MuiTypeMapperFunction {
       case ("Table",             "onCellClick" | "onCellHover" | "onCellHoverExit") => "(RowId, ColumnId, ReactEvent) => Callback"
       case ("TableBody",         "onCellClick" | "onCellHover" | "onCellHoverExit") => "(ReactEvent, RowId, ColumnId) => Callback"
       case ("TableRow",          "onCellClick" | "onCellHover" | "onCellHoverExit") => "(ReactEvent, ColumnId) => Callback"
+      case ("TableHeaderColumn", "onHover"   )      => "Callback"
+      case ("TableHeaderColumn", "onHoverExit")     => "Callback"
       case ("TableHeaderColumn", "onClick"   )      => "(ReactEvent, ColumnId) => Callback"
       case ("TableRowColumn",    "onClick"   )      => "(ReactEvent, ColumnId) => Callback"
       case ("Table",             "onRowHover")      => "RowId => Callback"
