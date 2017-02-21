@@ -30,7 +30,7 @@ object Printer {
   }
 
   def hack(comp: ParsedComponent): String =
-    comp.genericParams/*.filterNot(_.jsObject)*/.map{
+    comp.genericParams.map{
       p ⇒ s"implicit def ev${p.name}(${p.name.toLowerCase}: ${p.name}): js.Any = t.asInstanceOf[js.Any]"
     }.mkString(";")
 
@@ -50,6 +50,7 @@ object Printer {
 
       case (Some(childrenProp), true) =>
         s"""{
+           |
            |${outChildrenComment(childrenProp.commentOpt)}
            |${indent(1)}def apply(children: ${childrenProp.baseType.name}*) = {
            |${indent(2)}${hack(comp)}
@@ -66,6 +67,7 @@ object Printer {
 
       case (Some(childrenProp), false) =>
         s"""{
+           |
            |${outChildrenComment(childrenProp.commentOpt)}
            |${indent(1)}def apply(children: ${childrenProp.typeName} = js.undefined) = {
            |${indent(2)}${hack(comp)}
@@ -77,16 +79,35 @@ object Printer {
     }
 
   def outChildrenComment(oc: Option[PropComment]): String =
-    oc.fold("")(d =>
-      s"""${indent(1)}/**
-         |${indent(1)} * @param children ${d.value}
-         |${indent(1)} */""".stripMargin
-    )
+    oc.flatMap(_.value) match {
+      case Some(c) =>
+        c.split("\n")
+          .mkString(
+            s"${indent(1)}/**\n ${indent(1)} * @param children ",
+            "\n" + indent(2),
+            s"\n${indent(1)} */"
+          )
+      case None => ""
+    }
 
-  def outComment(commentOpt: Option[PropComment], inheritedFrom: Option[CompName]): String = {
-    val lines = commentOpt.map(_.value).toSeq ++ inheritedFrom.map(i => s"(Passed on to $i)")
-    if (lines.mkString("").trim.isEmpty) ""
-    else lines.flatMap(_.split("\n")).mkString(s"${indent(1)}/* ", s"\n${indent(1)}", "*/\n")
+  def outComment(_commentOpt: Option[PropComment], inheritedFrom: Option[CompName]): String = {
+    val inheritedLine: Option[String] =
+      inheritedFrom.map(i => s"(Passed on to $i)")
+
+    val lines: Seq[String] =
+      _commentOpt match {
+        case None => inheritedLine.toSeq
+        case Some(comment) =>
+          val anns: Seq[String] =
+            comment.anns.collect{
+              case Param(value) => s"@param $value"
+            }
+
+          comment.value.toSeq ++ inheritedLine ++ (if (anns.isEmpty) Nil else Seq("\n")) ++ anns
+      }
+
+    if (lines.isEmpty) ""
+    else lines.flatMap(_.split("\n")).mkString(s"${indent(1)}/* ", s"\n${indent(2)} ", " */\n")
   }
 
   def outProp(p: ParsedProp, fs: FieldStats): String = {

@@ -12,6 +12,9 @@ object MuiTypeMapper extends TypeMapper {
       s.split("[\'\"\\(\\)\\[\\],\\s]").map(_.trim).filterNot(_.isEmpty).drop(drop)
 
     (compName.value, fieldName.value, typeString) match {
+      // i dont have patience to do this properly (GridList)
+      case (_,                     "cellHeight",           _       ) => Normal("Int")
+
       case (_, _, e) if e.contains("oneOfType") =>
         Normal(split(1, e) map (t => apply(compName, fieldName, t)) map (_.name) mkString " | ")
       case (_, _, enum) if enum.startsWith("oneOf") =>
@@ -19,7 +22,6 @@ object MuiTypeMapper extends TypeMapper {
 
       /* Double => Int */
       case (_,                     "autoHideDuration",     "number") => Normal("Int")
-      case (_,                     "cellHeight",           "number") => Normal("Int")
       case (_,                     "cols",                 "number") => Normal("Int")
       case (_,                     "columnNumber",         "number") => Normal("Int")
       case (_,                     "columnId",             "number") => Normal("Int")
@@ -100,7 +102,6 @@ object MuiTypeMapper extends TypeMapper {
       case (_, "children", "arrayOf(element)") => Normal("js.Array[ReactElement]")
 
       case ("AutoComplete"    , "popoverProps",    "object")        => Normal("js.Any")
-      case ("GridList"        , "cellHeight",      "auto")          => Normal("js.Any")
       case ("RadioButtonGroup", "defaultSelected", "any")           => Normal("js.Any")
       case ("RadioButtonGroup", "valueSelected",   "any")           => Normal("js.Any")
       case ("Stepper"         , "children",        "arrayOf(node)") => Normal("js.Any")

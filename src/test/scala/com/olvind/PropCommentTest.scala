@@ -13,7 +13,7 @@ class PropCommentTest
         """ /** arne */""",
         """ /** arne **/"""
       )
-    inputs map PropComment.clean map (_ should equal (PropComment("arne", Seq.empty)))
+    inputs map PropComment.clean map (_ should equal (PropComment(Some("arne"), Seq.empty)))
   }
 
   test("comment 1"){
@@ -23,7 +23,7 @@ class PropCommentTest
       |   */
       |""".stripMargin
 
-    PropComment.clean(input) should equal (PropComment("The material-ui theme applied to this component.", Seq(Ignore)))
+    PropComment.clean(input) should equal (PropComment(Some("The material-ui theme applied to this component."), Seq(Ignore)))
   }
 
   test("comment 2"){
@@ -37,7 +37,7 @@ class PropCommentTest
 
     PropComment.clean(input) should equal (
       PropComment(
-        "Callback function that is fired when the header of step is touched.",
+        Some("Callback function that is fired when the header of step is touched."),
         Seq(
           Param("{number} stepIndex - The index of step is being touched."),
           Param("{node} Step component which is being touched")
@@ -58,13 +58,13 @@ class PropCommentTest
                   |     *
                   |     * @param {string} reason Can be:`"timeout"` (`autoHideDuration` expired) or: `"clickaway"`
                   |     */""".stripMargin
-    val expected = PropComment(
+    val expected = PropComment(Some(
       """Fired when the `Snackbar` is requested to be closed by a click outside the `Snackbar`, or after the
         |`autoHideDuration` timer expires.
         |Typically `onRequestClose` is used to set state in the parent component, which is used to control the `Snackbar`
         |`open` prop.
         |The `reason` parameter can optionally be used to control the response to `onRequestClose`,
-        |for example ignoring `clickaway`.""".stripMargin,
+        |for example ignoring `clickaway`.""".stripMargin),
       Seq(Param("""{string} reason Can be:`"timeout"` (`autoHideDuration` expired) or: `"clickaway"`"""))
     )
 
@@ -73,4 +73,26 @@ class PropCommentTest
     expected.value should equal (actual.value)
     expected.anns should equal (actual.anns)
   }
+
+  test("comment 4"){
+    val input = """  /**
+                  |   * @param 1
+                  |   * 2
+                  |   * @param 3
+                  |   * 4
+                  |   */
+                  |""".stripMargin
+
+    PropComment.clean(input).anns should equal (Seq(Param("1\n2"), Param("3\n4")))
+  }
+
+  test("comment 5"){
+    val input = """  /**
+                  |   * @ignore
+                  |   */
+                  |""".stripMargin
+
+    PropComment.clean(input) should equal (PropComment(None, Seq(Ignore)))
+  }
+
 }

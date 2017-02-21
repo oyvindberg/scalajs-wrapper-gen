@@ -70,7 +70,7 @@ class Runner[D <: ComponentDef](library: Library[D]) {
     case PrimaryOutFile(compName, content, secondaries) =>
       printToFile(library.destinationPath(compName)){
         w =>
-          w.println(trimEmptyLines(prelude + content))
+          w.println(prelude + content)
           secondaries.foreach{
             case SecondaryOutFile(_, c) =>
               w.println("")

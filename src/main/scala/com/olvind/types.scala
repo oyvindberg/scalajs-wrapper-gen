@@ -18,10 +18,10 @@ final case class PropName(value: String) extends AnyVal {
     PropName(value.replaceAll("Deprecated:", "").replaceAll("or children", "").trim)
 }
 
-final case class PropComment (value: String, anns: Seq[Annotation])
+final case class PropComment (value: Option[String], anns: Seq[Annotation])
 
 object PropComment {
-  "^(\\s*)//".r
+
   def clean(s: String): PropComment = {
     val cleanLines =
       s.split("\n")
@@ -31,14 +31,15 @@ object PropComment {
         ).filterNot(_.isEmpty)
 
 
-    val (_ans: Seq[Annotation], _lines: Seq[String]) =
-      cleanLines.foldLeft[(Seq[Annotation], Seq[String])]((Seq.empty, Seq.empty)){
-        case ((as, lines), line) if line.toLowerCase.startsWith("@ignore") => (Ignore +: as, lines)
-        case ((as, lines), line) if line.toLowerCase.startsWith("@param") => (as :+ Param(line.drop("@param".length).trim), lines)
+    val (_ans: List[Annotation], _lines: List[String]) =
+      cleanLines.foldLeft[(List[Annotation], List[String])]((Nil, Nil)){
+        case ((as, lines), line) if line.toLowerCase.startsWith("@ignore") => (Ignore :: as, lines)
+        case ((as, lines), line) if line.toLowerCase.startsWith("@param") => (Param(line.drop("@param".length).trim) :: as, lines)
+        case ((Param(value) :: as,lines), line) => (Param(value + "\n" + line) :: as, lines)
         case ((as, lines), line) => (as, lines :+ line)
       }
 
-    PropComment(_lines.mkString("\n"), _ans)
+    PropComment(if (_lines.nonEmpty) Some(_lines.mkString("\n")) else None, _ans.reverse)
   }
 }
 

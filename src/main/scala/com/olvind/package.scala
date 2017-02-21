@@ -28,7 +28,4 @@ package object olvind {
     val p = new java.io.PrintWriter(f.toIO)
     try { op(p) } finally { p.close() }
   }
-
-  def trimEmptyLines(s: String): String =
-    s.split("\n").filterNot(_.trim.isEmpty).mkString("\n")
 }
