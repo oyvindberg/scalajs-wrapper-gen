@@ -7,16 +7,16 @@ import jdk.nashorn.internal.ir.FunctionNode
 case class ParsedFile(path: Path, content: String, result: FunctionNode)
 
 object Required {
-  def apply(path: Path, rs: Seq[Required]): Required =
+  def apply(path: Path, rs: Seq[Lazy[Required]]): Lazy[Required] =
     rs.size match {
-      case 0 ⇒ NotFound(path)
+      case 0 ⇒ Lazy(NotFound(path))
       case 1 ⇒ rs.head
-      case n ⇒ Multiple(path, rs)
+      case n ⇒ Lazy(Multiple(path, rs))
     }
 }
 
 sealed trait Required
-case class Multiple(path: Path, rs: Seq[Required]) extends Required
+case class Multiple(path: Path, rs: Seq[Lazy[Required]]) extends Required
 case class Single(compName: CompName, c: FoundComponent) extends Required
 case class NotFound(path: Path) extends Required
 

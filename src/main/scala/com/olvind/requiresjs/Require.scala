@@ -8,12 +8,12 @@ import scala.language.postfixOps
 
 object Require {
   def apply(p: Path): Required =
-    recurse(p, new ScanCtx)
+    recurse(p, new ScanCtx).run
 
-  private def recurse(requiredPath: Path, ctx: ScanCtx): Required =
+  private def recurse(requiredPath: Path, ctx: ScanCtx): Lazy[Required] =
     ctx.required(requiredPath, doRecurse(requiredPath))
 
-  private def doRecurse(requiredPath: Path)(ctx: ScanCtx): Required = {
+  private def doRecurse(requiredPath: Path)(ctx: ScanCtx): Lazy[Required] = {
     val ResolvedPath(filePath: Path, folderPath: Path) =
       ResolvePath(requiredPath)
 
@@ -41,7 +41,7 @@ object Require {
     components.toList.distinct match {
       case Nil ⇒
         /* todo: Parse exports! */
-        val modules: Seq[Required] =
+        val modules: Seq[Lazy[Required]] =
           imports.collect {
             case Import(varName, Left(innerPath: Path)) =>
               recurse(innerPath, ctx)
@@ -50,10 +50,12 @@ object Require {
         Required(requiredPath, modules)
 
       case (compName, o) :: Nil ⇒
-        component(compName, o)
+        Lazy(component(compName, o))
 
       case many ⇒
-        Required(filePath, many map (component _ tupled))
+        Required(filePath, many map {
+          case (name, obj) => Lazy(component(name, obj))
+        })
     }
   }
 }

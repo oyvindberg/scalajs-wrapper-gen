@@ -99,6 +99,12 @@ object MuiTypeMapper extends TypeMapper {
       case (_, _, "number")                    => Normal("Double")
       case (_, "children", "arrayOf(element)") => Normal("js.Array[ReactElement]")
 
+      case ("AutoComplete"    , "popoverProps",    "object")        => Normal("js.Any")
+      case ("GridList"        , "cellHeight",      "auto")          => Normal("js.Any")
+      case ("RadioButtonGroup", "defaultSelected", "any")           => Normal("js.Any")
+      case ("RadioButtonGroup", "valueSelected",   "any")           => Normal("js.Any")
+      case ("Stepper"         , "children",        "arrayOf(node)") => Normal("js.Any")
+
       case (_, _, "func") =>
         Normal(MuiTypeMapperFunction(compName, fieldName))
 

@@ -14,7 +14,7 @@ case class VisitorComponentMembers(n: FunctionNode) extends VisitorHelper[Functi
   override def enterCallNode(n: CallNode): Boolean =
     matcher((n.getFunction, n.getArgs.asScala.toList)){
       case (createClassName: IdentNode, (compName: IdentNode) :: (members: LiteralNode.ArrayLiteralNode) :: Nil) if createClassName.getName.contains("createClass") ⇒
-        members.getArray.collect {
+        members.getValue.collect {
           case member: ObjectNode ⇒
             matcher(member.getElements.asScala.toList) {
               case (name: PropertyNode) :: (value: PropertyNode) :: Nil ⇒
