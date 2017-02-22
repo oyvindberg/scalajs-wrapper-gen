@@ -28,6 +28,7 @@ object MuiTypeMemberMethodMapper extends MemberMapper {
       case ("RadioButtonGroup", 0, "getSelectedValue") => "getSelectedValue(): String"
       case ("RadioButtonGroup", 1, "setSelectedValue") => "setSelectedValue(newSelectionValue: String): Unit"
       case ("RadioButtonGroup", 0, "clearValue")       => "clearValue(): Unit"
+      case ("Slider",           2, "onDragUpdate")     => "onDragUpdate(event: js.Any, `type`: js.Any): js.Dynamic"
       case ("Toggle",           0, "isToggled")        => "isToggled(): Boolean"
       case ("Toggle",           1, "setToggled")       => "setToggled(newToggledValue: Boolean): Unit"
       case ("TextField",        0, "blur")             => "blur(): Unit"
@@ -43,7 +44,7 @@ object MuiTypeMemberMethodMapper extends MemberMapper {
       case ("TimePicker",       0, "focus")            => "focus(): Unit"
       case other ⇒
         println(other)
-        m + args.map(sanitize(_) + ": js.Any").mkString("(", ", ", ")") + ": js.Any"
+        m + args.map(sanitize(_) + ": js.Any").mkString("(", ", ", ")") + ": js.Dynamic"
     }
   def sanitize(s: String) =
     if (s == "val") "`val`" else s
