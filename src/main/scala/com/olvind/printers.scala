@@ -31,7 +31,7 @@ object Printer {
 
   def hack(comp: ParsedComponent): String =
     comp.genericParams.map{
-      p ⇒ s"implicit def ev${p.name}(${p.name.toLowerCase}: ${p.name}): js.Any = t.asInstanceOf[js.Any]"
+      p ⇒ s"implicit def ev${p.name}(${p.name.toLowerCase}: ${p.name}): js.Any = ${p.name.toLowerCase}.asInstanceOf[js.Any]"
     }.mkString(";")
 
   def bodyChildren(prefix: String, comp: ParsedComponent): String =

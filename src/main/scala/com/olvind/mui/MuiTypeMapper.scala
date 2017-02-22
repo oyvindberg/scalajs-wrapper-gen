@@ -41,9 +41,8 @@ object MuiTypeMapper extends TypeMapper {
       case (_, _, e) if e.toLowerCase.contains("index")              => Normal("Int")
 
       /* specific */
-      case ("AutoComplete",     "dataSource",           "array")                => Normal("js.Array[Value]")
+      case ("AutoComplete",     "dataSource",           "array")                => Normal("js.Array[DataItem]").generic("DataItem")
       case ("AutoComplete",     "menuProps",            "object")               => Normal("js.Object")
-      case ("AutoComplete",     "searchText",           _)                      => Normal("SearchText")
       case ("DatePicker",       "value",                _)                      => Normal("js.Date")
       case ("DatePicker",       "defaultDate",          "object")               => Normal("js.Date")
       case ("DatePicker",       "maxDate",              "object")               => Normal("js.Date")
