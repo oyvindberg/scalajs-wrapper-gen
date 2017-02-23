@@ -43,7 +43,7 @@ object MuiTypeMemberMethodMapper extends MemberMapper {
       case ("TimePicker",       0, "openDialog")       => "openDialog(): Unit"
       case ("TimePicker",       0, "focus")            => "focus(): Unit"
       case other ⇒
-        println(other)
+        println("missing types for method: " + other)
         m + args.map(sanitize(_) + ": js.Any").mkString("(", ", ", ")") + ": js.Dynamic"
     }
   def sanitize(s: String) =

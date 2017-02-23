@@ -14,8 +14,10 @@ object MuiTypeMapperFunction {
       case ("AppBar",            "onLeftIconButtonTouchTap")  => TouchTapEventHandler
       case ("AppBar",            "onRightIconButtonTouchTap") => TouchTapEventHandler
       case ("AppBar",            "onTitleTouchTap")           => TouchTapEventHandler
+      case ("AutoComplete",      "onBlur")                    => "ReactFocusEventI => Callback"
+      case ("AutoComplete",      "onFocus")                   => "ReactFocusEventI => Callback"
       case ("AutoComplete",      "onNewRequest")              => "(String, Int) => Callback"
-      case ("AutoComplete",      "onUpdateInput")             => "(String, js.Array[String]) => Callback"
+      case ("AutoComplete",      "onUpdateInput")             => "(String, js.Array[String], js.Object) => Callback"
       case ("AutoComplete",      "filter")                    => "(String, String, String) => Boolean"
       case ("AutoComplete",      "animation")                 => "js.Function"
       case ("AutoComplete",      "onClose")                   => Callback
@@ -96,8 +98,10 @@ object MuiTypeMapperFunction {
       case ("Tab",               "onActive")                  => "ReactElement => Callback"
       case ("Tabs",              "onChange")                  => "(T, ReactEventH, ReactElement) => Callback"
       case ("Tabs",              "tabTemplate")               => "js.Any"
-      case ("TextField",         "onChange")                  => "(ReactEvent, String) => Callback"
-      case ("TextField",         "onEnterKeyDown")            => KeyboardEventHandler
+      case ("TextField",         "onChange")                  => "(ReactEventI, String) => Callback"
+      case ("TextField",         "onEnterKeyDown")            => "ReactKeyboardEventI => Callback"
+      case ("TextField",         "onBlur")                    => "ReactFocusEventI => Callback"
+      case ("TextField",         "onFocus")                   => "ReactFocusEventI => Callback"
       case ("TimePicker",        "onChange")                  => "(js.UndefOr[Nothing], js.Date) => Callback"
       case ("TimePicker",        "onShow")                    => Callback
       case ("TimePicker",        "onDismiss")                 => Callback
