@@ -1,5 +1,6 @@
 package com.olvind.requiresjs
 
+// semi-solves circular dependencies
 final class Lazy[+T](_t: => T){
   lazy val run: T = _t
 

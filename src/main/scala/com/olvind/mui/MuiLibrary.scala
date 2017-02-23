@@ -5,17 +5,22 @@ import ammonite.ops._
 
 import scala.language.implicitConversions
 
-object MuiLibrary extends Library[ComponentDef] {
+case class MuiLibrary(base: Path) extends Library {
+  /* todo: make requiresjs clever enough to figure this out by itself */
+  override val locations    =
+    Seq(
+      base,
+      base / 'styles,
+      base / 'internal / 'EnhancedButton,
+      base / 'internal / 'EnhancedSwitch,
+      base / 'TextField / 'EnhancedTextarea
+    )
 
-  override val importName   = VarName("mui")
-  override val location     = home / "pr" / "material-ui" / "build"
   override val prefixOpt    = Some("Mui")
   override val name         = "materialui"
   override val typeMapper   = MuiTypeMapper
   override val memberMapper = MuiTypeMemberMethodMapper
-  override val outputPath   = home / 'pr / "scalajs-react-components" / 'core / 'src / 'main / 'scala / 'chandu0101 / 'scalajs / 'react / 'components / name
 
-  //todo: make requiresjs figure this stuff out!
   case object Internal {
     val AppCanvas          = ComponentDef(CompName("AppCanvas"))
     val BeforeAfterWrapper = ComponentDef(CompName("BeforeAfterWrapper"))
@@ -30,13 +35,13 @@ object MuiLibrary extends Library[ComponentDef] {
     val Tooltip            = ComponentDef(CompName("Tooltip"))
   }
 
-  def DropDownMenu = ComponentDef(CompName("DropDownMenu"))
-  def List_        = ComponentDef(CompName("List"))
-  def ListItem     = ComponentDef(CompName("ListItem"), Some(Internal.EnhancedButton))
-  def Menu         = ComponentDef(CompName("Menu"), Some(List_))
-  def Paper        = ComponentDef(CompName("Paper"))
-  def RadioButton  = ComponentDef(CompName("RadioButton"), Some(Internal.EnhancedSwitch))
-  def TextField    = ComponentDef(CompName("TextField"), Some(Internal.EnhancedTextarea), domeTypeOpt = Some(DomInput))
+  val DropDownMenu = ComponentDef(CompName("DropDownMenu"))
+  val List_        = ComponentDef(CompName("List"))
+  val ListItem     = ComponentDef(CompName("ListItem"), Some(Internal.EnhancedButton))
+  val Menu         = ComponentDef(CompName("Menu"), Some(List_))
+  val Paper        = ComponentDef(CompName("Paper"))
+  val RadioButton  = ComponentDef(CompName("RadioButton"), Some(Internal.EnhancedSwitch))
+  val TextField    = ComponentDef(CompName("TextField"), Some(Internal.EnhancedTextarea), domeTypeOpt = Some(DomInput))
 
   val components: Seq[ComponentDef] =
     Seq(

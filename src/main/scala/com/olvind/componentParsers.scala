@@ -12,10 +12,9 @@ object ParseComponent {
       "shouldComponentUpdate"
     )
 
-  def apply[D <: ComponentDef]
-           (scope:   Map[CompName, requiresjs.FoundComponent],
-            library: Library[D],
-            comp:    D): ParsedComponent = {
+  def apply(scope: Map[CompName, requiresjs.FoundComponent],
+            library: Library,
+            comp:    ComponentDef): ParsedComponent = {
 
     val propTypes: Map[PropName, PropUnparsed] =
       scope.get(comp.name).map(_.props).getOrElse(
@@ -85,8 +84,7 @@ object ParseProp {
   //  "Deprecated(string, 'Instead, use a custom `actions` property.')"
   val Pattern = "Deprecated\\(([^,]+), '(.+)'\\)".r
 
-  def apply[D <: ComponentDef](
-            library:      Library[D],
+  def apply(library: Library,
             compName:     CompName,
             origCompName: CompName,
             propName:     PropName,

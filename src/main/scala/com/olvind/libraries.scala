@@ -17,23 +17,15 @@ trait MemberMapper {
   def apply(compName: CompName)(memberMethod: MemberMethod): ParsedMethod
 }
 
-trait Library[D <: ComponentDef] {
+trait Library {
   def name: String
   def prefixOpt: Option[String]
-  def importName: VarName
-  def location: Path
-  def outputPath: Path
-  def components: Seq[D]
+  def locations: Seq[Path]
+  def components: Seq[ComponentDef]
   def typeMapper: TypeMapper
   def memberMapper: MemberMapper
 
   @deprecated
   final def prefix: String =
     prefixOpt getOrElse ""
-
-  final def destinationPath(comp: CompName): Path = {
-    val baseFile = comp.value + ".scala"
-    val filename = prefixOpt.fold(baseFile)(_ + baseFile)
-    outputPath / filename
-  }
 }
