@@ -4,58 +4,65 @@ package requiresjs
 import ammonite.ops._
 import jdk.nashorn.internal.ir.{FunctionNode, Node, ObjectNode}
 
+import scala.collection.immutable.Iterable
+import scala.collection.mutable
 import scala.language.postfixOps
 
 object Require {
-  def apply(p: Path): Required =
-    recurse(p, new ScanCtx).run
+  case class Required(components: Seq[FoundComponent], dependencies: Seq[Path])
 
-  private def recurse(requiredPath: Path, ctx: ScanCtx): Lazy[Required] =
-    ctx.required(requiredPath, doRecurse(requiredPath))
+  def apply(paths: Seq[Path]): Seq[FoundComponent] = {
 
-  private def doRecurse(requiredPath: Path)(ctx: ScanCtx): Lazy[Required] = {
+    val visited = mutable.HashSet.empty[Path]
+
+    def recursiveLookup(path: Path): Seq[FoundComponent] = {
+      if (visited.contains(path)) Seq.empty
+      else {
+        visited += path
+
+        parseFile(path) match {
+          case Required(components: Seq[FoundComponent], dependencies) =>
+            components ++ dependencies.flatMap(recursiveLookup)
+        }
+      }
+    }
+
+    paths.flatMap(recursiveLookup)
+  }
+
+  private def parseFile(requiredPath: Path): Required = {
     val ResolvedPath(filePath: Path, folderPath: Path) =
       ResolvePath(requiredPath)
 
     val ParsedFile(_, fileStr: String, fileParsed: FunctionNode) =
-      ctx.parsedFile(filePath)
+      JsParser(filePath)
 
-    val imports:       Seq[Import]                      = VisitorImports(fileParsed, folderPath).value
-    val components:    Map[CompName, ObjectNode]        = VisitorComponents(fileParsed).value
-    val memberMethods: Map[CompName, Set[MemberMethod]] = VisitorComponentMembers(fileParsed).value
-    val exports:       Seq[Node]                        = VisitorExports(fileParsed).value
+    val imports:         Seq[Import]                      = VisitorImports(fileParsed, folderPath).value
+    val foundComponents: Map[CompName, ObjectNode]        = VisitorComponents(fileParsed).value
+    val memberMethods:   Map[CompName, Set[MemberMethod]] = VisitorComponentMembers(fileParsed).value
+    val exports:         Seq[Node]                        = VisitorExports(fileParsed).value
 
     //todo: split require/react parsing!
-    def component(compName: CompName, o: ObjectNode) =
-      Single(
-        compName,
-        FoundComponent(
-          name      = compName,
-          file      = filePath,
-          jsContent = fileStr.substring(o.getStart, o.getFinish),
-          props     = VisitorPropType(compName, o, fileStr, imports).value,
-          methods   = memberMethods.get(compName)
-        )
-      )
+    val components: Iterable[FoundComponent] =
+      foundComponents map {
+        case (compName: CompName, o: ObjectNode) =>
+          FoundComponent(
+            name      = compName,
+            file      = filePath,
+            jsContent = fileStr.substring(o.getStart, o.getFinish),
+            props     = VisitorPropType(compName, o, fileStr, imports).value,
+            methods   = memberMethods.get(compName)
+          )
+      }
 
-    components.toList.distinct match {
-      case Nil ⇒
-        /* todo: Parse exports! */
-        val modules: Seq[Lazy[Required]] =
-          imports.collect {
-            case Import(varName, Left(innerPath: Path)) =>
-              recurse(innerPath, ctx)
-          }.distinct
+    /* todo: Parse exports! */
+    val dependencies: Seq[Path] =
+      imports.collect {
+        case Import(_, Left(innerPath: Path)) => innerPath
+      }.distinct
 
-        Required(requiredPath, modules)
+    println(s"parseFile($requiredPath) = ${components.map(_.name.value)}")
 
-      case (compName, o) :: Nil ⇒
-        Lazy(component(compName, o))
-
-      case many ⇒
-        Required(filePath, many map {
-          case (name, obj) => Lazy(component(name, obj))
-        })
-    }
+    Required(components.toSeq, dependencies)
   }
 }

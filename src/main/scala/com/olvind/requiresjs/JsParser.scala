@@ -15,7 +15,6 @@ object JsParser {
   options.set("optimistic.types", true)
 
   def apply(jsFile: Path): ParsedFile = {
-    println(s"reading $jsFile")
     val content = read.lines(jsFile).toList.mkString("\n")
 
     /* setup */

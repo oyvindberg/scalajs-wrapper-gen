@@ -17,12 +17,10 @@ object ResolvePath {
         }
 
       case false ⇒
-        val withExtension: Path =
-          p.copy(segments = p.segments.dropRight(1) :+ p.segments.last + ".js")
-
-        exists(withExtension) match {
+        val pp = withExtension(p, ".js")
+        exists(pp) match {
           case true ⇒
-            ResolvedPath(withExtension, p.copy(segments = p.segments.dropRight(1)))
+            ResolvedPath(pp, p.copy(segments = p.segments.dropRight(1)))
           case false ⇒
             panic(s"Could not resolve path: $p")
         }
