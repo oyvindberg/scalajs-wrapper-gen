@@ -119,5 +119,8 @@ object MuiTypeMapperFunction {
       case (_,                   "onTouchStart")              => TouchEventHandler
       case (_,                   "onTouchEnd")                => TouchEventHandler
       case (_,                   "onTouchTap")                => TouchTapEventHandler
+      case other =>
+        println(other)
+        "js.Any"
     }
 }

@@ -108,6 +108,9 @@ object MuiTypeMapper extends TypeMapper {
       case (_, _, "func") =>
         Normal(MuiTypeMapperFunction(compName, fieldName))
 
+      case other =>
+        println(other)
+        Normal("js.Any")
     }
   }
 }

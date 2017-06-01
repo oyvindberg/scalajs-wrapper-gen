@@ -1,8 +1,8 @@
 package com.olvind
 package requiresjs
 
-import jdk.nashorn.internal.ir.{BlockLexicalContext, FunctionNode, Node}
 import jdk.nashorn.internal.ir.visitor.NodeVisitor
+import jdk.nashorn.internal.ir.{BlockLexicalContext, Node}
 
 abstract class VisitorHelper[N <: Node, Out](n: N) extends NodeVisitor(new BlockLexicalContext){
   protected def matcher[M](m: M)(f: PartialFunction[M, Unit]): Boolean =

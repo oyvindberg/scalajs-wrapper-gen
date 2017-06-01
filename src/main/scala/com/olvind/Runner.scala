@@ -2,8 +2,6 @@ package com.olvind
 
 import ammonite.ops.Path
 import com.olvind.requiresjs._
-
-import scala.collection.mutable
 object Runner {
 
   def preludeFor(library: Library): String =
@@ -27,44 +25,15 @@ object Runner {
     outputPath / filename
   }
 
-
-  def foundComponentsFor(library: Library): Seq[FoundComponent] = {
-    val visited = mutable.HashSet.empty[Path]
-
-    def flattenScan(r: Required): Seq[FoundComponent] =
-      r match {
-        case NotFound(path) =>
-          println(s"not found required path: $path")
-          Seq.empty
-
-        case Single(n, c)     =>
-          Seq(c)
-
-        case Multiple(p, rs) =>
-          if (visited.contains(p)){
-            Seq.empty
-          } else {
-            visited += p
-            val requireds: Seq[Required] = rs.map(_.run).toList
-            val recursive: Seq[FoundComponent] = requireds flatMap flattenScan
-            println(s"Found in path $p: ${recursive.map(_.name.value)}")
-
-            recursive
-          }
-      }
-
-      library.locations.map(requiresjs.Require.apply).flatMap(flattenScan)
-  }
-
   def apply(library: Library, outFolder: Path) = {
     val foundComponents: Seq[FoundComponent] =
-      foundComponentsFor(library)
+      Require(library.location)
 
     val allFound: Map[CompName, FoundComponent] =
       foundComponents.map(c => c.name -> c).toMap
 
     val (mainFiles: Seq[PrimaryOutFile], secondaryFiles: Seq[SecondaryOutFile]) =
-      library.components.foldLeft((Seq.empty[PrimaryOutFile], Seq.empty[SecondaryOutFile])){
+      foundComponents.foldLeft((Seq.empty[PrimaryOutFile], Seq.empty[SecondaryOutFile])){
         case ((ps, ss), c) =>
 
           val parsed: ParsedComponent =

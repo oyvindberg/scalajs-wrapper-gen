@@ -24,6 +24,9 @@ package object olvind {
   def exists(path: Path): Boolean =
     new File(path.toString).exists
 
+  def withExtension(p: Path, ext: String): Path =
+    p.copy(segments = p.segments.dropRight(1) :+ p.segments.last + ext)
+
   def printToFile(f: Path)(op: java.io.PrintWriter => Unit): Unit = {
     val p = new java.io.PrintWriter(f.toIO)
     try { op(p) } finally { p.close() }
