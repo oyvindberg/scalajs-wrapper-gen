@@ -2,7 +2,7 @@ package com.olvind
 package requiresjs
 
 import ammonite.ops._
-import jdk.nashorn.internal.ir.{FunctionNode, Node, ObjectNode}
+import jdk.nashorn.internal.ir.{FunctionNode, ObjectNode}
 
 import scala.collection.immutable.Iterable
 import scala.collection.mutable
@@ -11,7 +11,7 @@ import scala.language.postfixOps
 object Require {
   case class Required(components: Seq[FoundComponent], dependencies: Seq[Path])
 
-  def apply(paths: Seq[Path]): Seq[FoundComponent] = {
+  def apply(path: Path): Seq[FoundComponent] = {
 
     val visited = mutable.HashSet.empty[Path]
 
@@ -27,7 +27,7 @@ object Require {
       }
     }
 
-    paths.flatMap(recursiveLookup)
+    recursiveLookup(path)
   }
 
   private def parseFile(requiredPath: Path): Required = {
@@ -40,7 +40,7 @@ object Require {
     val imports:         Seq[Import]                      = VisitorImports(fileParsed, folderPath).value
     val foundComponents: Map[CompName, ObjectNode]        = VisitorComponents(fileParsed).value
     val memberMethods:   Map[CompName, Set[MemberMethod]] = VisitorComponentMembers(fileParsed).value
-    val exports:         Seq[Node]                        = VisitorExports(fileParsed).value
+//    val exports:         Seq[Exported]                    = VisitorExports(fileParsed).value
 
     //todo: split require/react parsing!
     val components: Iterable[FoundComponent] =

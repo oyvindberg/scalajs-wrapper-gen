@@ -9,7 +9,7 @@ class JsParserTest extends org.scalatest.FunSuite
   private val mui15 = cwd / "src" / "test" / "resources" / "mui15" / "comps"
 
   test("Divider.propTypes = propTypes;") {
-    val result = Require(Seq(mui15 / "Divider.js"))
+    val result = Require(mui15 / "Divider.js")
     println(result)
   }
 

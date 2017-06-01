@@ -14,7 +14,7 @@ object ParseComponent {
 
   def apply(scope: Map[CompName, requiresjs.FoundComponent],
             library: Library,
-            comp:    ComponentDef): ParsedComponent = {
+            comp:    requiresjs.FoundComponent): ParsedComponent = {
 
     val propTypes: Map[PropName, PropUnparsed] =
       scope.get(comp.name).map(_.props).getOrElse(
@@ -22,11 +22,11 @@ object ParseComponent {
       )
 
     val inheritedProps: Map[PropName, PropUnparsed] =
-      comp.shared match {
+      library.inheritance.get(comp.name) match {
         case None         => Map.empty
-        case Some(shared) =>
-          scope.get(shared.name).map(_.props).getOrElse(
-            panic(s"$comp: No Proptypes found for $shared")
+        case Some(parent) =>
+          scope.get(parent).map(_.props).getOrElse(
+            panic(s"$comp: No Proptypes found for $parent")
           )
       }
 
@@ -69,14 +69,7 @@ object ParseComponent {
           )
         }
 
-    val domProps: Seq[ParsedProp] =
-      comp.domeTypeOpt
-        .map(DomEventHandlers)
-        .toSeq
-        .flatMap(_.props)
-        .filterNot(p ⇒ parsedProps.exists(_.name == p.name) || true)
-
-    ParsedComponent(comp, basicFields ++ parsedProps ++ domProps, methodClassOpt)
+    ParsedComponent(comp.name, basicFields ++ parsedProps, methodClassOpt)
   }
 }
 

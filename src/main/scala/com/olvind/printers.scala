@@ -35,8 +35,8 @@ object Printer {
     }.mkString(";")
 
   def bodyChildren(prefix: String, comp: ParsedComponent): String =
-    (comp.childrenOpt, comp.definition.multipleChildren) match {
-      case (None, _) =>
+    comp.childrenOpt match {
+      case (None) =>
         s"""{
           |
           |${indent(1)}def apply() = {
@@ -48,7 +48,7 @@ object Printer {
           |}
         """.stripMargin
 
-      case (Some(childrenProp), true) =>
+      case (Some(childrenProp)) =>
         s"""{
            |
            |${outChildrenComment(childrenProp.commentOpt)}
@@ -62,18 +62,6 @@ object Printer {
            |${indent(3)}f(props, children.head).asInstanceOf[ReactComponentU_]
            |${indent(2)}else
            |${indent(3)}f(props, children.toJsArray).asInstanceOf[ReactComponentU_]
-           |${indent(1)}}
-           |}""".stripMargin
-
-      case (Some(childrenProp), false) =>
-        s"""{
-           |
-           |${outChildrenComment(childrenProp.commentOpt)}
-           |${indent(1)}def apply(children: ${childrenProp.typeName} = js.undefined) = {
-           |${indent(2)}${hack(comp)}
-           |${indent(2)}val props = JSMacro[${comp.nameDef(prefix)}](this)
-           |${indent(2)}val f = React.asInstanceOf[js.Dynamic].createFactory($prefix.${comp.name.value})
-           |${indent(2)}f(props, children).asInstanceOf[ReactComponentU_]
            |${indent(1)}}
            |}""".stripMargin
     }

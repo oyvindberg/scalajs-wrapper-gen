@@ -2,13 +2,6 @@ package com.olvind
 
 import ammonite.ops.Path
 
-final case class ComponentDef(
-  name:             CompName,
-  shared:           Option[ComponentDef] = None,
-  multipleChildren: Boolean              = true,
-  domeTypeOpt:      Option[DomType]      = Some(DomElement)
-)
-
 trait TypeMapper {
   def apply(compName: CompName, fieldName: PropName, typeString: String): Type
 }
@@ -20,8 +13,8 @@ trait MemberMapper {
 trait Library {
   def name: String
   def prefixOpt: Option[String]
-  def locations: Seq[Path]
-  def components: Seq[ComponentDef]
+  def location: Path
+  def inheritance: Map[CompName, CompName]
   def typeMapper: TypeMapper
   def memberMapper: MemberMapper
 

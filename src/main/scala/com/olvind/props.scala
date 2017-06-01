@@ -1,11 +1,9 @@
 package com.olvind
 
 final case class ParsedComponent(
-  definition:     ComponentDef,
+  name:           CompName,
   fields:         Seq[ParsedProp],
   methodClassOpt: Option[ParsedMethodClass]) {
-
-  def name = definition.name
 
   val childrenOpt: Option[ParsedProp] =
     fields.find(_.name.value == "children")

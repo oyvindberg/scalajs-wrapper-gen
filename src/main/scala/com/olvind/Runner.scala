@@ -27,13 +27,13 @@ object Runner {
 
   def apply(library: Library, outFolder: Path) = {
     val foundComponents: Seq[FoundComponent] =
-      Require(library.locations)
+      Require(library.location)
 
     val allFound: Map[CompName, FoundComponent] =
       foundComponents.map(c => c.name -> c).toMap
 
     val (mainFiles: Seq[PrimaryOutFile], secondaryFiles: Seq[SecondaryOutFile]) =
-      library.components.foldLeft((Seq.empty[PrimaryOutFile], Seq.empty[SecondaryOutFile])){
+      foundComponents.foldLeft((Seq.empty[PrimaryOutFile], Seq.empty[SecondaryOutFile])){
         case ((ps, ss), c) =>
 
           val parsed: ParsedComponent =
